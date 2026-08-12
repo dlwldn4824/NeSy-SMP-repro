@@ -1,0 +1,74 @@
+[
+  {
+    "subject": "SepticShock",
+    "predicate": "associatedWith",
+    "object": "Death",
+    "evidence": "Despite some  inconsistency, a meta-analysis of 50 observational studies  on the effect of performance improvement programmes  showed that these programmes were associated with bet - ter adherence to sepsis bundles along with a reduction in  mortality (OR 0.66; 95% CI 0.61–0.72) in patients with  sepsis and septic shock [27]."
+  },
+  {
+    "subject": "Sepsis",
+    "predicate": "increasesRiskOf",
+    "object": "Death",
+    "evidence": "A large study examined the association between  implementation of state-mandated sepsis protocols,  compliance, and mortality."
+  },
+  {
+    "subject": "SepticShock",
+    "predicate": "increasesRiskOf",
+    "object": "Sepsis",
+    "evidence": "We recommend against using qSOFA compared to SIRS, NEWS, or  MEWS as a single screening tool for sepsis or septic shock Strong recommendation, moderate-quality evidence Rationale The qSOFA uses 3 variables to predict death and pro - longed ICU stay in patients with known or suspected  sepsis: a Glasgow Coma Score < 15, a respiratory rate ≥ 22  breaths/min and a systolic blood pressure ≤ 100 mmHg."
+  },
+  {
+    "subject": "Lactate",
+    "predicate": "increasesRiskOf",
+    "object": "Death",
+    "evidence": "For adults suspected of having sepsis, we suggest measuring blood  lactate Weak recommendation, low-quality evidence Rationale The association of lactate level with mortality in patients  with suspected infection and sepsis is well established  [45, 46]."
+  },
+  {
+    "subject": "MeanArterialPressure",
+    "predicate": "increasesRiskOf",
+    "object": "Death",
+    "evidence": "Ninetyday mortality in the permissive hypotension and usual  care groups was similar (41.0% vs 43.8%)."
+  },
+  {
+    "subject": "Sepsis",
+    "predicate": "associatedWith",
+    "object": "Death",
+    "evidence": "Delayed admissions of critically ill  patients from ED are associated with decreased sepsis  bundle compliance and increased mortality, ventilator  duration, and ICU and hospital length of stay [84]."
+  },
+  {
+    "subject": "SepticShock",
+    "predicate": "associatedWith",
+    "object": "Sepsis",
+    "evidence": "The mortality reduction associated with early antimi - crobials appears strongest in patients with septic shock,  where a number of studies have reported a strong asso - ciation between time-to-antibiotics and death in patients  with septic shock but weaker associations in patients  1187 without septic shock [98, 109, 110]."
+  },
+  {
+    "subject": "SepticShock",
+    "predicate": "increasesRiskOf",
+    "object": "Death",
+    "evidence": "Overall, given the high risk of death with septic shock  and the strong association of antimicrobial timing and  mortality, the panel issued a strong recommendation to  administer antimicrobials immediately, and within 1 h,  in all patients with potential septic shock."
+  },
+  {
+    "subject": "Age",
+    "predicate": "increasesRiskOf",
+    "object": "Death",
+    "evidence": "1 Recommendations on timing of antibiotic administration 1189 broad-spectrum regimens including agents active against  MRSA were associated with higher mortality, particularly  among patients without MRSA [137, 151, 155, 156]."
+  },
+  {
+    "subject": "Pneumonia",
+    "predicate": "increasesRiskOf",
+    "object": "Death",
+    "evidence": "While there appears to be no overall effect of neu - raminidase inhibitors on mortality in patients with influ - enza-related pneumonia, there may be an effect when  administered early in the course of the disease [225]."
+  },
+  {
+    "subject": "HIV",
+    "predicate": "associatedWith",
+    "object": "Death",
+    "evidence": "Recent data emerging from Africa showed that higher  volume fluid resuscitation in adults was associated with  1212 increased mortality, but the generalizability of these data is  limited due to the high prevalence of HIV/AIDS and malnutrition in the patients enrolled and the resource-scarce  conditions with limited access to ICUs [69]."
+  },
+  {
+    "subject": "KidneyDisease",
+    "predicate": "increasesRiskOf",
+    "object": "Death",
+    "evidence": "Tonelli M, Manns B, Feller‑Kopman D (2002) Acute renal failure in the  intensive care unit: a systematic review of the impact of dialytic modal‑ ity on mortality and renal recovery."
+  }
+]

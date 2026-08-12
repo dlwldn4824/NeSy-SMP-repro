@@ -1,0 +1,695 @@
+{
+  "predicates": [
+    {
+      "concept_id": "Lactate",
+      "snomed_label": "Lactate",
+      "snomed_id": "75367002",
+      "aliases": [
+        "serum lactate",
+        "elevated serum lactate",
+        "lactate level",
+        "lactic acid",
+        "blood lactate",
+        "hyperlactatemia",
+        "lactate measurements",
+        "lactate levels"
+      ],
+      "predicate": "HighLactate",
+      "code_predicate": "LactateRisk",
+      "feature_name": "Lactate",
+      "polarity": "high",
+      "threshold": 4.0,
+      "roles": [
+        "RiskFactor"
+      ]
+    },
+    {
+      "concept_id": "Bilirubin",
+      "snomed_label": "Bilirubin",
+      "snomed_id": "14763006",
+      "aliases": [
+        "total bilirubin",
+        "bilirubin total",
+        "elevated bilirubin"
+      ],
+      "predicate": "HighBilirubin",
+      "code_predicate": "HighBilirubin",
+      "feature_name": "Total Bilirubin",
+      "polarity": "high",
+      "threshold": 2.0,
+      "roles": [
+        "RiskFactor"
+      ]
+    },
+    {
+      "concept_id": "Platelet",
+      "snomed_label": "Platelet",
+      "snomed_id": "61928009",
+      "aliases": [
+        "platelet count",
+        "platelets",
+        "thrombocytopenia"
+      ],
+      "predicate": "LowPlatelets",
+      "code_predicate": "PlateletLow",
+      "feature_name": "Platelet Count",
+      "polarity": "low",
+      "threshold": 50.0,
+      "roles": [
+        "RiskFactor"
+      ]
+    },
+    {
+      "concept_id": "CReactiveProtein",
+      "snomed_label": "CReactiveProtein",
+      "snomed_id": "55235003",
+      "aliases": [
+        "crp",
+        "c-reactive protein",
+        "c reactive protein"
+      ],
+      "predicate": "HighCRP",
+      "code_predicate": "CRPRisk",
+      "feature_name": "C-Reactive Protein",
+      "polarity": "high",
+      "threshold": 100.0,
+      "roles": [
+        "RiskFactor"
+      ]
+    },
+    {
+      "concept_id": "WhiteBloodCells",
+      "snomed_label": "WhiteBloodCells",
+      "snomed_id": "767002",
+      "aliases": [
+        "wbc",
+        "white blood cells",
+        "leukocytosis"
+      ],
+      "predicate": "HighWBC",
+      "code_predicate": "WBCRisk",
+      "feature_name": "White Blood Cells",
+      "polarity": "high",
+      "threshold": 30.0,
+      "roles": [
+        "RiskFactor"
+      ]
+    },
+    {
+      "concept_id": "MeanArterialPressure",
+      "snomed_label": "MeanArterialPressure",
+      "snomed_id": "6797001",
+      "aliases": [
+        "map",
+        "mean arterial pressure",
+        "hypotension",
+        "permissive hypotension",
+        "arterial pressure"
+      ],
+      "predicate": "LowMAP",
+      "code_predicate": "MeanArterialPressureRisk",
+      "feature_name": "Arterial Blood Pressure mean",
+      "polarity": "low",
+      "threshold": 65.0,
+      "roles": [
+        "RiskFactor"
+      ]
+    },
+    {
+      "concept_id": "Age",
+      "snomed_label": "Age",
+      "snomed_id": "397669002",
+      "aliases": [
+        "elderly",
+        "older adult",
+        "age risk"
+      ],
+      "predicate": "AgeRisk",
+      "code_predicate": "AgeRisk",
+      "feature_name": "anchor_age",
+      "polarity": "high",
+      "threshold": 65.0,
+      "roles": [
+        "RiskFactor"
+      ]
+    },
+    {
+      "concept_id": "Death",
+      "snomed_label": "Death",
+      "snomed_id": "419620001",
+      "aliases": [
+        "mortality",
+        "hospital death",
+        "expire"
+      ],
+      "predicate": "HighMortality",
+      "code_predicate": "HighMortality",
+      "feature_name": null,
+      "polarity": null,
+      "threshold": null,
+      "roles": [
+        "Outcome"
+      ]
+    },
+    {
+      "concept_id": "Cancer",
+      "snomed_label": "Cancer",
+      "snomed_id": "363346000",
+      "aliases": [
+        "malignancy",
+        "neoplasm"
+      ],
+      "predicate": "HasChronicCondition",
+      "code_predicate": "CronicConditionsRisk",
+      "feature_name": null,
+      "polarity": null,
+      "threshold": null,
+      "roles": [
+        "RiskFactor",
+        "Comorbidity"
+      ]
+    },
+    {
+      "concept_id": "Pneumonia",
+      "snomed_label": "Pneumonia",
+      "snomed_id": "233604007",
+      "aliases": [
+        "pneumonia"
+      ],
+      "predicate": "Pneumonia",
+      "code_predicate": "Pneumonia",
+      "feature_name": null,
+      "polarity": null,
+      "threshold": null,
+      "roles": [
+        "RiskFactor",
+        "Comorbidity"
+      ]
+    },
+    {
+      "concept_id": "HIV",
+      "snomed_label": "HIV",
+      "snomed_id": "86406008",
+      "aliases": [
+        "hiv",
+        "aids"
+      ],
+      "predicate": "HIV",
+      "code_predicate": "HIV",
+      "feature_name": null,
+      "polarity": null,
+      "threshold": null,
+      "roles": [
+        "RiskFactor",
+        "Comorbidity"
+      ]
+    },
+    {
+      "concept_id": "CirrhosisOfLiver",
+      "snomed_label": "CirrhosisOfLiver",
+      "snomed_id": "19943007",
+      "aliases": [
+        "cirrhosis"
+      ],
+      "predicate": "CirrhosisOfLiver",
+      "code_predicate": "CirrhosisOfLiver",
+      "feature_name": null,
+      "polarity": null,
+      "threshold": null,
+      "roles": [
+        "RiskFactor",
+        "Comorbidity"
+      ]
+    },
+    {
+      "concept_id": "KidneyDisease",
+      "snomed_label": "KidneyDisease",
+      "snomed_id": "90708001",
+      "aliases": [
+        "kidney disease",
+        "renal failure",
+        "ckd"
+      ],
+      "predicate": "KidneyDisease",
+      "code_predicate": "KidneyDisease",
+      "feature_name": null,
+      "polarity": null,
+      "threshold": null,
+      "roles": [
+        "RiskFactor",
+        "Comorbidity"
+      ]
+    },
+    {
+      "concept_id": "CardiacInsufficiency",
+      "snomed_label": "CardiacInsufficiency",
+      "snomed_id": "84114007",
+      "aliases": [
+        "heart failure",
+        "cardiac failure"
+      ],
+      "predicate": "CardiacInsufficiency",
+      "code_predicate": "CardiacInsufficiency",
+      "feature_name": null,
+      "polarity": null,
+      "threshold": null,
+      "roles": [
+        "RiskFactor",
+        "Comorbidity"
+      ]
+    },
+    {
+      "concept_id": "ChronicDisease",
+      "snomed_label": "ChronicDisease",
+      "snomed_id": "27624003",
+      "aliases": [
+        "chronic condition",
+        "comorbidity"
+      ],
+      "predicate": "HasChronicCondition",
+      "code_predicate": "CronicConditionsRisk",
+      "feature_name": null,
+      "polarity": null,
+      "threshold": null,
+      "roles": [
+        "RiskFactor",
+        "Comorbidity"
+      ]
+    },
+    {
+      "concept_id": "Hypotension",
+      "snomed_label": "Hypotension",
+      "snomed_id": "45007003",
+      "aliases": [
+        "low blood pressure",
+        "hypotension"
+      ],
+      "predicate": "Hypotension",
+      "code_predicate": "Hypotension",
+      "feature_name": null,
+      "polarity": null,
+      "threshold": null,
+      "roles": [
+        "RiskFactor"
+      ]
+    },
+    {
+      "concept_id": "SepticShock",
+      "snomed_label": "SepticShock",
+      "snomed_id": "76571007",
+      "aliases": [
+        "septic shock"
+      ],
+      "predicate": "SepticShock",
+      "code_predicate": "SepticShock",
+      "feature_name": null,
+      "polarity": null,
+      "threshold": null,
+      "roles": [
+        "RiskFactor"
+      ]
+    },
+    {
+      "concept_id": "LactateNotClearing",
+      "snomed_label": "Lactate",
+      "snomed_id": null,
+      "aliases": [
+        "lactate not clearing",
+        "persistent lactate",
+        "failure of lactate clearance",
+        "lactate clearance",
+        "lactate-guided",
+        "targeting serum lactate"
+      ],
+      "predicate": "LactateNotClearing",
+      "code_predicate": "LactateNotClearing",
+      "feature_name": "Lactate",
+      "polarity": "trend_nondecreasing_above",
+      "threshold": 2.0,
+      "roles": [
+        "RiskFactor"
+      ]
+    }
+  ],
+  "axioms": [
+    {
+      "kind": "data",
+      "formula": "∀x+: HighMortality(x+)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [],
+      "confidence": null,
+      "source": "label:positive",
+      "code_predicates": [
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "data",
+      "formula": "∀x-: ¬HighMortality(x-)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [],
+      "confidence": null,
+      "source": "label:negative",
+      "code_predicates": [
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "grounding",
+      "formula": "∀x ∈ {Lactate(x) > 4.0}: HighLactate(x)",
+      "head_predicate": "HighLactate",
+      "body_predicates": [],
+      "confidence": null,
+      "source": "threshold:Lactate:4.0",
+      "code_predicates": [
+        "LactateRisk"
+      ]
+    },
+    {
+      "kind": "grounding",
+      "formula": "∀x ∈ {Total Bilirubin(x) > 2.0}: HighBilirubin(x)",
+      "head_predicate": "HighBilirubin",
+      "body_predicates": [],
+      "confidence": null,
+      "source": "threshold:Total Bilirubin:2.0",
+      "code_predicates": [
+        "HighBilirubin"
+      ]
+    },
+    {
+      "kind": "grounding",
+      "formula": "∀x ∈ {Platelet Count(x) < 50.0}: LowPlatelets(x)",
+      "head_predicate": "LowPlatelets",
+      "body_predicates": [],
+      "confidence": null,
+      "source": "threshold:Platelet Count:50.0",
+      "code_predicates": [
+        "PlateletLow"
+      ]
+    },
+    {
+      "kind": "grounding",
+      "formula": "∀x ∈ {C-Reactive Protein(x) > 100.0}: HighCRP(x)",
+      "head_predicate": "HighCRP",
+      "body_predicates": [],
+      "confidence": null,
+      "source": "threshold:C-Reactive Protein:100.0",
+      "code_predicates": [
+        "CRPRisk"
+      ]
+    },
+    {
+      "kind": "grounding",
+      "formula": "∀x ∈ {White Blood Cells(x) > 30.0}: HighWBC(x)",
+      "head_predicate": "HighWBC",
+      "body_predicates": [],
+      "confidence": null,
+      "source": "threshold:White Blood Cells:30.0",
+      "code_predicates": [
+        "WBCRisk"
+      ]
+    },
+    {
+      "kind": "grounding",
+      "formula": "∀x ∈ {Arterial Blood Pressure mean(x) < 65.0}: LowMAP(x)",
+      "head_predicate": "LowMAP",
+      "body_predicates": [],
+      "confidence": null,
+      "source": "threshold:Arterial Blood Pressure mean:65.0",
+      "code_predicates": [
+        "MeanArterialPressureRisk"
+      ]
+    },
+    {
+      "kind": "grounding",
+      "formula": "∀x ∈ {anchor_age(x) > 65.0}: AgeRisk(x)",
+      "head_predicate": "AgeRisk",
+      "body_predicates": [],
+      "confidence": null,
+      "source": "threshold:anchor_age:65.0",
+      "code_predicates": [
+        "AgeRisk"
+      ]
+    },
+    {
+      "kind": "grounding",
+      "formula": "∀x ∈ {nondecreasing(Lactate(x)) ∧ max(Lactate(x)) > 2.0}: LactateNotClearing(x)",
+      "head_predicate": "LactateNotClearing",
+      "body_predicates": [],
+      "confidence": null,
+      "source": "threshold:Lactate:2.0",
+      "code_predicates": [
+        "LactateNotClearing"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: HighLactate(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "HighLactate"
+      ],
+      "confidence": null,
+      "source": "kg:Lactate-increasesRiskOf-Death",
+      "code_predicates": [
+        "LactateRisk",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: HighBilirubin(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "HighBilirubin"
+      ],
+      "confidence": null,
+      "source": "kg:Bilirubin-increasesRiskOf-Death",
+      "code_predicates": [
+        "HighBilirubin",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: LowPlatelets(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "LowPlatelets"
+      ],
+      "confidence": null,
+      "source": "kg:Platelet-increasesRiskOf-Death",
+      "code_predicates": [
+        "PlateletLow",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: HighCRP(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "HighCRP"
+      ],
+      "confidence": null,
+      "source": "kg:CReactiveProtein-increasesRiskOf-Death",
+      "code_predicates": [
+        "CRPRisk",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: HighWBC(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "HighWBC"
+      ],
+      "confidence": null,
+      "source": "kg:WhiteBloodCells-increasesRiskOf-Death",
+      "code_predicates": [
+        "WBCRisk",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: LowMAP(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "LowMAP"
+      ],
+      "confidence": null,
+      "source": "kg:MeanArterialPressure-increasesRiskOf-Death",
+      "code_predicates": [
+        "MeanArterialPressureRisk",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: AgeRisk(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "AgeRisk"
+      ],
+      "confidence": null,
+      "source": "kg:Age-increasesRiskOf-Death",
+      "code_predicates": [
+        "AgeRisk",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: HasChronicCondition(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "HasChronicCondition"
+      ],
+      "confidence": null,
+      "source": "kg:Cancer-increasesRiskOf-Death",
+      "code_predicates": [
+        "CronicConditionsRisk",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: Pneumonia(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "Pneumonia"
+      ],
+      "confidence": null,
+      "source": "kg:Pneumonia-increasesRiskOf-Death",
+      "code_predicates": [
+        "Pneumonia",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: HIV(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "HIV"
+      ],
+      "confidence": null,
+      "source": "kg:HIV-increasesRiskOf-Death",
+      "code_predicates": [
+        "HIV",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: CirrhosisOfLiver(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "CirrhosisOfLiver"
+      ],
+      "confidence": null,
+      "source": "kg:CirrhosisOfLiver-increasesRiskOf-Death",
+      "code_predicates": [
+        "CirrhosisOfLiver",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: KidneyDisease(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "KidneyDisease"
+      ],
+      "confidence": null,
+      "source": "kg:KidneyDisease-increasesRiskOf-Death",
+      "code_predicates": [
+        "KidneyDisease",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: CardiacInsufficiency(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "CardiacInsufficiency"
+      ],
+      "confidence": null,
+      "source": "kg:CardiacInsufficiency-increasesRiskOf-Death",
+      "code_predicates": [
+        "CardiacInsufficiency",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: Hypotension(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "Hypotension"
+      ],
+      "confidence": null,
+      "source": "kg:Hypotension-increasesRiskOf-Death",
+      "code_predicates": [
+        "Hypotension",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: SepticShock(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "SepticShock"
+      ],
+      "confidence": null,
+      "source": "kg:SepticShock-increasesRiskOf-Death",
+      "code_predicates": [
+        "SepticShock",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: LactateNotClearing(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "LactateNotClearing"
+      ],
+      "confidence": null,
+      "source": "kg:LactateNotClearing-increasesRiskOf-Death",
+      "code_predicates": [
+        "LactateNotClearing",
+        "HighMortality"
+      ]
+    },
+    {
+      "kind": "implication",
+      "formula": "∀x: HighSepsis(x) → HighMortality(x)",
+      "head_predicate": "HighMortality",
+      "body_predicates": [
+        "HighSepsis"
+      ],
+      "confidence": null,
+      "source": "kg:Sepsis-increasesRiskOf-Death",
+      "code_predicates": [
+        "HighSepsis",
+        "HighMortality"
+      ]
+    }
+  ],
+  "loss": {
+    "w_D": 0.8,
+    "w_K": 0.2,
+    "formula": "1 - (w_D * SatAgg(K_D) + w_K * SatAgg(K_K))"
+  },
+  "counts": {
+    "predicates": 18,
+    "data": 2,
+    "grounding": 8,
+    "implication": 17
+  }
+}

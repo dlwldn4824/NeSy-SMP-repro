@@ -1,0 +1,21 @@
+{
+  "allowed_relations": [
+    "increasesRiskOf",
+    "increaseRiskOf",
+    "associatedWith",
+    "causedBy",
+    "greaterOrEqual",
+    "lessOrEqual",
+    "subClassOf",
+    "hasOutcome"
+  ],
+  "normalize": {
+    "increaseRiskOf": "increasesRiskOf",
+    "increases risk of": "increasesRiskOf",
+    "associated with": "associatedWith",
+    "caused by": "causedBy",
+    "leads to": "increasesRiskOf",
+    "risk factor for": "increasesRiskOf"
+  },
+  "outcome_concepts": ["Death", "HighMortality", "Outcome"]
+}

@@ -1,0 +1,332 @@
+[
+  {
+    "concept_id": "Lactate",
+    "snomed_label": "Lactate",
+    "snomed_id": "75367002",
+    "aliases": [
+      "serum lactate",
+      "elevated serum lactate",
+      "lactate level",
+      "lactic acid",
+      "blood lactate",
+      "hyperlactatemia",
+      "lactate measurements",
+      "lactate levels"
+    ],
+    "predicate": "HighLactate",
+    "code_predicate": "LactateRisk",
+    "feature_name": "Lactate",
+    "polarity": "high",
+    "threshold": 4.0,
+    "roles": [
+      "RiskFactor"
+    ]
+  },
+  {
+    "concept_id": "Bilirubin",
+    "snomed_label": "Bilirubin",
+    "snomed_id": "14763006",
+    "aliases": [
+      "total bilirubin",
+      "bilirubin total",
+      "elevated bilirubin"
+    ],
+    "predicate": "HighBilirubin",
+    "code_predicate": "HighBilirubin",
+    "feature_name": "Total Bilirubin",
+    "polarity": "high",
+    "threshold": 2.0,
+    "roles": [
+      "RiskFactor"
+    ]
+  },
+  {
+    "concept_id": "Platelet",
+    "snomed_label": "Platelet",
+    "snomed_id": "61928009",
+    "aliases": [
+      "platelet count",
+      "platelets",
+      "thrombocytopenia"
+    ],
+    "predicate": "LowPlatelets",
+    "code_predicate": "PlateletLow",
+    "feature_name": "Platelet Count",
+    "polarity": "low",
+    "threshold": 50.0,
+    "roles": [
+      "RiskFactor"
+    ]
+  },
+  {
+    "concept_id": "CReactiveProtein",
+    "snomed_label": "CReactiveProtein",
+    "snomed_id": "55235003",
+    "aliases": [
+      "crp",
+      "c-reactive protein",
+      "c reactive protein"
+    ],
+    "predicate": "HighCRP",
+    "code_predicate": "CRPRisk",
+    "feature_name": "C-Reactive Protein",
+    "polarity": "high",
+    "threshold": 100.0,
+    "roles": [
+      "RiskFactor"
+    ]
+  },
+  {
+    "concept_id": "WhiteBloodCells",
+    "snomed_label": "WhiteBloodCells",
+    "snomed_id": "767002",
+    "aliases": [
+      "wbc",
+      "white blood cells",
+      "leukocytosis"
+    ],
+    "predicate": "HighWBC",
+    "code_predicate": "WBCRisk",
+    "feature_name": "White Blood Cells",
+    "polarity": "high",
+    "threshold": 30.0,
+    "roles": [
+      "RiskFactor"
+    ]
+  },
+  {
+    "concept_id": "MeanArterialPressure",
+    "snomed_label": "MeanArterialPressure",
+    "snomed_id": "6797001",
+    "aliases": [
+      "map",
+      "mean arterial pressure",
+      "hypotension",
+      "permissive hypotension",
+      "arterial pressure"
+    ],
+    "predicate": "LowMAP",
+    "code_predicate": "MeanArterialPressureRisk",
+    "feature_name": "Arterial Blood Pressure mean",
+    "polarity": "low",
+    "threshold": 65.0,
+    "roles": [
+      "RiskFactor"
+    ]
+  },
+  {
+    "concept_id": "Age",
+    "snomed_label": "Age",
+    "snomed_id": "397669002",
+    "aliases": [
+      "elderly",
+      "older adult",
+      "age risk"
+    ],
+    "predicate": "AgeRisk",
+    "code_predicate": "AgeRisk",
+    "feature_name": "anchor_age",
+    "polarity": "high",
+    "threshold": 65.0,
+    "roles": [
+      "RiskFactor"
+    ]
+  },
+  {
+    "concept_id": "Death",
+    "snomed_label": "Death",
+    "snomed_id": "419620001",
+    "aliases": [
+      "mortality",
+      "hospital death",
+      "expire"
+    ],
+    "predicate": "HighMortality",
+    "code_predicate": "HighMortality",
+    "feature_name": null,
+    "polarity": null,
+    "threshold": null,
+    "roles": [
+      "Outcome"
+    ]
+  },
+  {
+    "concept_id": "Cancer",
+    "snomed_label": "Cancer",
+    "snomed_id": "363346000",
+    "aliases": [
+      "malignancy",
+      "neoplasm"
+    ],
+    "predicate": "HasChronicCondition",
+    "code_predicate": "CronicConditionsRisk",
+    "feature_name": null,
+    "polarity": null,
+    "threshold": null,
+    "roles": [
+      "RiskFactor",
+      "Comorbidity"
+    ]
+  },
+  {
+    "concept_id": "Pneumonia",
+    "snomed_label": "Pneumonia",
+    "snomed_id": "233604007",
+    "aliases": [
+      "pneumonia"
+    ],
+    "predicate": "Pneumonia",
+    "code_predicate": "Pneumonia",
+    "feature_name": null,
+    "polarity": null,
+    "threshold": null,
+    "roles": [
+      "RiskFactor",
+      "Comorbidity"
+    ]
+  },
+  {
+    "concept_id": "HIV",
+    "snomed_label": "HIV",
+    "snomed_id": "86406008",
+    "aliases": [
+      "hiv",
+      "aids"
+    ],
+    "predicate": "HIV",
+    "code_predicate": "HIV",
+    "feature_name": null,
+    "polarity": null,
+    "threshold": null,
+    "roles": [
+      "RiskFactor",
+      "Comorbidity"
+    ]
+  },
+  {
+    "concept_id": "CirrhosisOfLiver",
+    "snomed_label": "CirrhosisOfLiver",
+    "snomed_id": "19943007",
+    "aliases": [
+      "cirrhosis"
+    ],
+    "predicate": "CirrhosisOfLiver",
+    "code_predicate": "CirrhosisOfLiver",
+    "feature_name": null,
+    "polarity": null,
+    "threshold": null,
+    "roles": [
+      "RiskFactor",
+      "Comorbidity"
+    ]
+  },
+  {
+    "concept_id": "KidneyDisease",
+    "snomed_label": "KidneyDisease",
+    "snomed_id": "90708001",
+    "aliases": [
+      "kidney disease",
+      "renal failure",
+      "ckd"
+    ],
+    "predicate": "KidneyDisease",
+    "code_predicate": "KidneyDisease",
+    "feature_name": null,
+    "polarity": null,
+    "threshold": null,
+    "roles": [
+      "RiskFactor",
+      "Comorbidity"
+    ]
+  },
+  {
+    "concept_id": "CardiacInsufficiency",
+    "snomed_label": "CardiacInsufficiency",
+    "snomed_id": "84114007",
+    "aliases": [
+      "heart failure",
+      "cardiac failure"
+    ],
+    "predicate": "CardiacInsufficiency",
+    "code_predicate": "CardiacInsufficiency",
+    "feature_name": null,
+    "polarity": null,
+    "threshold": null,
+    "roles": [
+      "RiskFactor",
+      "Comorbidity"
+    ]
+  },
+  {
+    "concept_id": "ChronicDisease",
+    "snomed_label": "ChronicDisease",
+    "snomed_id": "27624003",
+    "aliases": [
+      "chronic condition",
+      "comorbidity"
+    ],
+    "predicate": "HasChronicCondition",
+    "code_predicate": "CronicConditionsRisk",
+    "feature_name": null,
+    "polarity": null,
+    "threshold": null,
+    "roles": [
+      "RiskFactor",
+      "Comorbidity"
+    ]
+  },
+  {
+    "concept_id": "Hypotension",
+    "snomed_label": "Hypotension",
+    "snomed_id": "45007003",
+    "aliases": [
+      "low blood pressure",
+      "hypotension"
+    ],
+    "predicate": "Hypotension",
+    "code_predicate": "Hypotension",
+    "feature_name": null,
+    "polarity": null,
+    "threshold": null,
+    "roles": [
+      "RiskFactor"
+    ]
+  },
+  {
+    "concept_id": "SepticShock",
+    "snomed_label": "SepticShock",
+    "snomed_id": "76571007",
+    "aliases": [
+      "septic shock"
+    ],
+    "predicate": "SepticShock",
+    "code_predicate": "SepticShock",
+    "feature_name": null,
+    "polarity": null,
+    "threshold": null,
+    "roles": [
+      "RiskFactor"
+    ]
+  },
+  {
+    "concept_id": "LactateNotClearing",
+    "snomed_label": "Lactate",
+    "snomed_id": null,
+    "aliases": [
+      "lactate not clearing",
+      "persistent lactate",
+      "failure of lactate clearance",
+      "lactate clearance",
+      "lactate-guided",
+      "targeting serum lactate"
+    ],
+    "predicate": "LactateNotClearing",
+    "code_predicate": "LactateNotClearing",
+    "feature_name": "Lactate",
+    "polarity": "trend_nondecreasing_above",
+    "threshold": 2.0,
+    "roles": [
+      "RiskFactor"
+    ]
+  }
+]

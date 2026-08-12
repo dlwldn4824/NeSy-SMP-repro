@@ -1,0 +1,115 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix snomed: <http://snomed.info/id/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+snomed:Age rdfs:subClassOf snomed:RiskFactor ;
+    schema:greaterOrEqual "65.0"^^xsd:float ;
+    schema:increaseRiskOf snomed:Death ;
+    schema:increasesRiskOf snomed:Death .
+
+snomed:Bilirubin rdfs:subClassOf snomed:RiskFactor ;
+    schema:greaterOrEqual "2.0"^^xsd:float ;
+    schema:increaseRiskOf snomed:Death ;
+    schema:increasesRiskOf snomed:Death .
+
+snomed:CReactiveProtein rdfs:subClassOf snomed:RiskFactor ;
+    schema:greaterOrEqual "100.0"^^xsd:float ;
+    schema:increaseRiskOf snomed:Death ;
+    schema:increasesRiskOf snomed:Death .
+
+snomed:Cancer rdfs:subClassOf snomed:Comorbidity,
+        snomed:RiskFactor ;
+    schema:increaseRiskOf snomed:Death,
+        snomed:Sepsis ;
+    schema:increasesRiskOf snomed:Death,
+        snomed:Sepsis .
+
+snomed:CardiacInsufficiency rdfs:subClassOf snomed:Comorbidity,
+        snomed:RiskFactor ;
+    schema:increaseRiskOf snomed:Death,
+        snomed:Sepsis ;
+    schema:increasesRiskOf snomed:Death,
+        snomed:Sepsis .
+
+snomed:ChronicDisease rdfs:subClassOf snomed:Comorbidity,
+        snomed:RiskFactor ;
+    schema:increaseRiskOf snomed:Death ;
+    schema:increasesRiskOf snomed:Death .
+
+snomed:CirrhosisOfLiver rdfs:subClassOf snomed:Comorbidity,
+        snomed:RiskFactor ;
+    schema:increaseRiskOf snomed:Death,
+        snomed:Sepsis ;
+    schema:increasesRiskOf snomed:Death,
+        snomed:Sepsis .
+
+snomed:HIV rdfs:subClassOf snomed:Comorbidity,
+        snomed:RiskFactor ;
+    schema:associatedWith snomed:Death ;
+    schema:increaseRiskOf snomed:Death,
+        snomed:Sepsis ;
+    schema:increasesRiskOf snomed:Death,
+        snomed:Sepsis .
+
+snomed:Hypotension snomed:causedBy snomed:Sepsis ;
+    rdfs:subClassOf snomed:RiskFactor ;
+    schema:increaseRiskOf snomed:Death ;
+    schema:increasesRiskOf snomed:Death .
+
+snomed:KidneyDisease rdfs:subClassOf snomed:Comorbidity,
+        snomed:RiskFactor ;
+    schema:increaseRiskOf snomed:Death,
+        snomed:Sepsis ;
+    schema:increasesRiskOf snomed:Death,
+        snomed:Sepsis .
+
+snomed:Lactate rdfs:subClassOf snomed:RiskFactor ;
+    schema:greaterOrEqual "2.0"^^xsd:float,
+        "4.0"^^xsd:float ;
+    schema:increaseRiskOf snomed:Death ;
+    schema:increasesRiskOf snomed:Death .
+
+snomed:MeanArterialPressure rdfs:subClassOf snomed:RiskFactor ;
+    schema:increaseRiskOf snomed:Death ;
+    schema:increasesRiskOf snomed:Death ;
+    schema:lessOrEqual "65.0"^^xsd:float .
+
+snomed:Patient snomed:hasOutcome snomed:Death,
+        snomed:PatientDischargedAlive .
+
+snomed:Platelet rdfs:subClassOf snomed:RiskFactor ;
+    schema:increaseRiskOf snomed:Death ;
+    schema:increasesRiskOf snomed:Death ;
+    schema:lessOrEqual "50.0"^^xsd:float .
+
+snomed:Pneumonia rdfs:subClassOf snomed:Comorbidity,
+        snomed:RiskFactor ;
+    schema:increaseRiskOf snomed:Death,
+        snomed:Sepsis ;
+    schema:increasesRiskOf snomed:Death,
+        snomed:Sepsis .
+
+snomed:SepticShock rdfs:subClassOf snomed:RiskFactor ;
+    schema:associatedWith snomed:Death,
+        snomed:Sepsis ;
+    schema:increaseRiskOf snomed:Death,
+        snomed:Sepsis ;
+    schema:increasesRiskOf snomed:Death,
+        snomed:Sepsis .
+
+snomed:WhiteBloodCells rdfs:subClassOf snomed:RiskFactor ;
+    schema:greaterOrEqual "30.0"^^xsd:float ;
+    schema:increaseRiskOf snomed:Death ;
+    schema:increasesRiskOf snomed:Death .
+
+snomed:PatientDischargedAlive rdfs:subClassOf snomed:Outcome .
+
+snomed:Sepsis rdfs:subClassOf snomed:Disease ;
+    schema:associatedWith snomed:Death ;
+    schema:increaseRiskOf snomed:Death ;
+    schema:increasesRiskOf snomed:Death .
+
+snomed:Death a snomed:Outcome ;
+    rdfs:subClassOf snomed:Outcome .
+

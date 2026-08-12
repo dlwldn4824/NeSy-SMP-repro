@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Data (MIMIC / derived — do not push)
+*.db
+*.sqlite
+data_raw/
+**/data/subset/*.csv
+**/dataset*.csv
+**/events_*h_before_death*.csv
+**/chartevents*.csv
+**/labevents*.csv
+**/cohort*.csv
+NeSy-SMP-derived/
+
+# Large / local artifacts
+*.zip
+*.pt
+*.pth
+*.ckpt
+wandb/
+runs/
+.ipynb_checkpoints/
+
+# Nested upstream git (we track a single repo)
+# NeSy-SMP/.git is removed at init time if present
+
+# Training logs
+NeSy-SMP/results/train.log
+*.log
+
+# Internal notes (local only — do not push)
+MASTER_PLAN.md
+MEETING_ONEPAGER.md
+POST_MEETING_PLAYBOOK.md
+PHASE3_GATE_DELIVERABLE.md
+PHASE3_GROUNDING_AUDIT.md
+REPRODUCTION_CHECKLIST.md
+PAPER_PROTOCOL.md
+_paper_full.txt
+_paper_section5.txt
+.cursor/
+
+
+PHASE3_REPRODUCTION_REPORT.md
+GUIDE_FOR_NON_EXPERTS.md
+local_docs/
+docs/_assets/
