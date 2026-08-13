@@ -306,7 +306,8 @@ def main():
     ap.add_argument("--csv", type=Path, required=True)
     ap.add_argument("--out-dir", type=Path, default=Path("results"))
     ap.add_argument("--seed", type=int, default=42)
-    ap.add_argument("--epochs", type=int, default=40)
+    # Match stratified_main.py / GitHub defaults: BiLSTM 50, LTN/NeSy 20
+    ap.add_argument("--epochs", type=int, default=50)
     ap.add_argument("--epochs-nesy", type=int, default=20)
     ap.add_argument("--batch-size", type=int, default=32)
     ap.add_argument("--skip-nesy", action="store_true")
