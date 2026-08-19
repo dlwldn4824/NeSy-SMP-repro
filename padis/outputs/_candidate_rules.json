@@ -1,0 +1,386 @@
+[
+  {
+    "id": "D-014",
+    "page": 14,
+    "st": "risk_factor_statement",
+    "rel": "pending",
+    "subj": "Sedation",
+    "text": "Light sedation was not associated with a reduction in the incidence of delirium (RR, 0.96; 95% CI, 0.80–1.16; low quality) (168, 172), PTSD (RR, 0.67; 95% CI, 0.12–3.79; low quality) (156, 174), depression (RR, 0.76; 95% CI, 0.10–5.58; very low qual- ity) (156, 170), or self-extubation (RR, 1.29; 95% CI, 0.58–2.88; low quality) (168–170, 173)."
+  },
+  {
+    "id": "D-015",
+    "page": 14,
+    "st": "evidence",
+    "rel": "increasesRiskOf",
+    "subj": "Sedation",
+    "text": "One recent cohort study not considered in the guideline evidence demonstrates that sedation intensity (sum of negative RASS measurements by number of assessments) independently, in an escalating dose-dependent relationship, predicts increased risk of death, delirium, and delayed time to extubation (177)."
+  },
+  {
+    "id": "D-016",
+    "page": 14,
+    "st": "research_gap",
+    "rel": "pending",
+    "subj": "Sedation",
+    "text": "Finally, as outlined elsewhere in these guidelines, the relationship between level of sedation and the ability to evaluate, pain, delirium, and sleep has not been fully elucidated."
+  },
+  {
+    "id": "D-017",
+    "page": 15,
+    "st": "recommendation",
+    "rel": "preferredOver",
+    "subj": "BenzodiazepineExposure",
+    "text": "The 2013 PAD guidelines suggest (in a conditional recommendation) that nonbenzodiazepine sedatives (either propofol or dexmedetomidine) are preferable to benzodiaz- epine sedatives (either midazolam or lorazepam) in critically ill, mechanically ventilated adults because of improved short- term outcomes such as ICU LOS, duration of mechanical ventil"
+  },
+  {
+    "id": "D-018",
+    "page": 15,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "Sedation",
+    "text": "These included time to extubation, time to light sedation, and delirium, and long-term outcomes such as 90-day mortality, cognitive and physical functioning, institu- tionalization, and psychologic dysfunction."
+  },
+  {
+    "id": "D-019",
+    "page": 16,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "MechanicalVentilation",
+    "text": "Five RCTs (n = 1,052) assessed duration of mechanical ventilation (167, 172, 202–204); three studies (n = 969) evaluated ICU LOS (167, 172, 203); and four RCTs (n = 1,007) evaluated delirium prevalence (167, 172, 203, 205)."
+  },
+  {
+    "id": "D-020",
+    "page": 16,
+    "st": "evidence",
+    "rel": "increasesRiskOf",
+    "subj": "BenzodiazepineExposure",
+    "text": "The study with the lowest risk of bias (n = 366), Safety and Efficacy of Dexmedetomidine Compared With Midazolam (SEDCOM), had the greatest benefit for the time to extubation (MD, –1.90 d; 95% CI, –2.32 to –1.48) and delirium (RR, 0.71; 95% CI, 0.61–0.83) with dexmedetomidine compared with a benzodiazepine infusion, and influenced how the evidence "
+  },
+  {
+    "id": "D-021",
+    "page": 16,
+    "st": "evidence",
+    "rel": "decreasesRiskOf",
+    "subj": "BenzodiazepineExposure",
+    "text": "Although the study by Xu et al (205) also showed reduced delirium with dexmedetomidine use, and the Dexmedetomidine V ersus Midazolam for Continuous Sedation in the ICU (MIDEX) study (203) demonstrated a shorter duration of mechanical ventilation with dexmedetomidine over a benzodiazepine infusion, pooled analysis of all evalu- ated studies did not"
+  },
+  {
+    "id": "D-022",
+    "page": 16,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "DexmedetomidineExposure",
+    "text": "Of note, the MIDEX study (203), in which delirium was assessed only once 48 hours after sedation discontinuation, showed no improvements in delir - ium prevalence with dexmedetomidine."
+  },
+  {
+    "id": "D-023",
+    "page": 16,
+    "st": "evidence",
+    "rel": "decreasesRiskOf",
+    "subj": "PropofolExposure",
+    "text": "A single RCT, the Propofol V ersus Dexmedetomidine for Continuous Sedation in the ICU (PRODEX) study, showed a decreased incidence of delirium with dexmedetomidine at the single time point of 48 hours after sedation cessation (203)."
+  },
+  {
+    "id": "D-024",
+    "page": 17,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "PropofolExposure",
+    "text": "The role of benzodiaz- epines versus propofol or dexmedetomidine in patients who are hemodynamically unstable, need deep sedation, are at risk for delirium, or have signs of alcohol withdrawal needs to be studied."
+  },
+  {
+    "id": "D-025",
+    "page": 18,
+    "st": "risk_factor_statement",
+    "rel": "increasesRiskOf",
+    "subj": "BenzodiazepineExposure",
+    "text": "These events include more unplanned extubations and frequent reintubations (245, 247, 267, 268); greater unintentional device removal (268); longer ICU LOS (245); increased agitation; higher benzodiazepine, opioid, and antipsychotic medication use (244, 268); and increased risk for delirium or disorientation (257, 259, 268, 270, 271)."
+  },
+  {
+    "id": "D-026",
+    "page": 18,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "MechanicalVentilation",
+    "text": "These factors include the following: older age (250, 264); non-coma level of arousal; neurologic or psychiatric condi- tions including delirium (257, 258, 261, 268); sedative type/ strategy (169, 242, 261, 272); mechanical ventilation use (242, 261, 263); use of invasive devices (246, 250); nurse-to-patient ratio and perceived workload (242, 268, 2"
+  },
+  {
+    "id": "D-027",
+    "page": 18,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "CAM_ICU",
+    "text": "Delirium is a clinical diag- nosis; most studies detect delirium using screening tools such as the Confusion Assessment Method for the ICU (CAM-ICU) or the Intensive Care Delirium Screening Checklist (ICDSC) (274, 275)."
+  },
+  {
+    "id": "D-028",
+    "page": 18,
+    "st": "evidence",
+    "rel": "associatedWith",
+    "subj": "BenzodiazepineExposure",
+    "text": "Ungraded Statement: For the following risk factors, strong evidence indicates that these are associated with delirium in critically ill adults: “modifiable”—benzodiazepine use and blood transfusions, and “nonmodifiable”—greater"
+  },
+  {
+    "id": "D-029",
+    "page": 19,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "BenzodiazepineExposure",
+    "text": "Benzodiazepine use and blood transfusion administration are the only two modifiable factors with strong evidence for an asso- ciation with delirium detected by screening tools (Supplemental T able 22, Supplemental Digital Content 30, http://links.lww."
+  },
+  {
+    "id": "D-030",
+    "page": 19,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "OpioidExposure",
+    "text": "Sex, opioid use, and mechanical ventilation each have been strongly shown not to alter the risk of delirium occurrence."
+  },
+  {
+    "id": "D-031",
+    "page": 19,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "Sedation",
+    "text": "See the “Sedation section” for a review on how sedative choice may affect delirium and the “Sleep section” regarding the relationship between sleep and delirium."
+  },
+  {
+    "id": "D-032",
+    "page": 19,
+    "st": "risk_factor_statement",
+    "rel": "pending",
+    "subj": "OpioidExposure",
+    "text": "The effect of a reduction in known delirium risk factors including comorbid diseases, sepsis, nicotine and alcohol abuse, and the use of opioids and systemic steroids on delirium burden and patient outcome is unknown."
+  },
+  {
+    "id": "D-033",
+    "page": 19,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "Sedation",
+    "text": "Remarks: The previous guidelines provided psychomet- ric appraisals of pain, sedation, and delirium screening tools (1)."
+  },
+  {
+    "id": "D-034",
+    "page": 20,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "MechanicalVentilation",
+    "text": "Two (284, 285) found no relationship between delirium assessment and ICU LOS or duration of mechanical ventilation."
+  },
+  {
+    "id": "D-035",
+    "page": 20,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "CAM_ICU",
+    "text": "In a crossover study, Reade et al (287) compared a period of CAM-ICU assessment to a period of unstructured nursing assessments using a form with a delirium definition."
+  },
+  {
+    "id": "D-036",
+    "page": 20,
+    "st": "evidence",
+    "rel": "decreasesRiskOf",
+    "subj": "CAM_ICU",
+    "text": "The CAM-ICU arm had a signifi- cantly lower proportion of nursing shifts with delirium and a shorter duration of delirium when compared with the period of unstructured assessments."
+  },
+  {
+    "id": "D-037",
+    "page": 20,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "CAM_ICU",
+    "text": "Delirium screening using the CAM-ICU or the ICDSC is quick (2–5 min) (284, 286)."
+  },
+  {
+    "id": "D-038",
+    "page": 20,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "CAM_ICU",
+    "text": "In the context of the criteria needed to generate a best prac- tice statement, we felt that the benefits of widespread delirium assessment with the CAM-ICU or the ICDSC far outweigh any potential disadvantages."
+  },
+  {
+    "id": "D-039",
+    "page": 20,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "Agitation",
+    "text": "Evidence Gaps: The current body of evidence in support of pain and agitation assessments, which has been studied longer than delirium, may provide some guidance for future research in delirium monitoring (19, 106, 110, 308–310)."
+  },
+  {
+    "id": "D-040",
+    "page": 20,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "MechanicalVentilation",
+    "text": "A recent observational study (311) found an association between high delirium monitoring adherence (i.e., assessments on ≥ 50% of the ICU days) and improved patient outcomes (i.e., lower in-hospital mortality, shorter ICU LOS, and shorter time on mechanical ventilation)."
+  },
+  {
+    "id": "D-041",
+    "page": 21,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "Sedation",
+    "text": "Online Special Article Critical Care Medicine www.ccmjournal.org e845 Rationale: Four observational cohort studies have examined delirium assessments at different levels of wakefulness and sedation as assessed by the CAM-ICU, ICDSC, and RASS (312– 315)."
+  },
+  {
+    "id": "D-042",
+    "page": 21,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "RASS",
+    "text": "Because many patients with RASS of –3 were deemed in these studies to be “unable to assess, ” data are limited to an evaluation of the influence of a RASS range from 0 to –2 on delirium positivity."
+  },
+  {
+    "id": "D-043",
+    "page": 21,
+    "st": "research_gap",
+    "rel": "pending",
+    "subj": "Sedation",
+    "text": "These data do not allow for discrimination between delirium that is potentially sedation induced com- pared with that related to other pathologic alterations (with or without sedation)."
+  },
+  {
+    "id": "D-044",
+    "page": 21,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "RASS",
+    "text": "A total of 12,699 delirium assessments (97% involving the CAM-ICU) were evaluated in patients with a RASS between 0 and –2."
+  },
+  {
+    "id": "D-045",
+    "page": 21,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "RASS",
+    "text": "The likelihood of a positive delirium assessment was sig- nificantly greater (77% vs 23%; p < 0.0001) when patients had a RASS –2 (vs a RASS of –1 to 0), which could suggest that level of arousal influences delirium assessments."
+  },
+  {
+    "id": "D-046",
+    "page": 21,
+    "st": "research_gap",
+    "rel": "pending",
+    "subj": "Sedation",
+    "text": "Apart from the study by Patel et al (312) in which 12% of patients in whom delirium was present during sedative infusion resolved within 2 hours of stopping infusion, no other study informs the question of whether a positive delirium assessment as a result of concomitant sedation affects patient outcome or whether seda- tion merely represents a con"
+  },
+  {
+    "id": "D-047",
+    "page": 21,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "Sedation",
+    "text": "Rationale: One prospective observational study with blinded evaluations enrolled 102 patients (312) and found that out- comes (ICU and hospital LOS, discharge disposition, and 1-yr mortality) were similar between the 12 patients who developed rapidly reversible, sedation-related delirium and the 10 patients who never experienced delirium."
+  },
+  {
+    "id": "D-048",
+    "page": 21,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "Sedation",
+    "text": "Most patients (n = 80) who had either delirium or not always rapidly reversible delirium had worse outcomes than the patients with rapidly reversible, sedation-related delirium, or who never developed delirium."
+  },
+  {
+    "id": "D-049",
+    "page": 21,
+    "st": "recommendation",
+    "rel": "pending",
+    "subj": "DexmedetomidineExposure",
+    "text": "Recommendation: We suggest not using haloperidol, an atypical antipsychotic, dexmedetomidine, a β-Hydroxy β-methylglutaryl-Coenzyme A (HMG-CoA) reductase inhibi- tor (i.e., statin), or ketamine to prevent delirium in all critically ill adults (conditional recommendation, very low to low qual- ity of evidence)."
+  },
+  {
+    "id": "D-050",
+    "page": 21,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "MechanicalVentilation",
+    "text": "Rationale: The outcomes deemed critical to this recommen- dation included delirium incidence and duration, duration of mechanical ventilation, length of ICU stay, and mortality."
+  },
+  {
+    "id": "D-051",
+    "page": 21,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "DexmedetomidineExposure",
+    "text": "Each study reported a significant reduc- tion in delirium incidence favoring the pharmacologic agent: scheduled IV haloperidol (n = 457) after noncardiac surgery (RR, 0.66; 95% CI, 0.45–0.97; low quality) (366); a single dose of risperidone (n = 126) following elective cardiac surgery (RR, 0.35; 95% CI, 0.16–0.77; low quality) (366); and scheduled,"
+  },
+  {
+    "id": "D-052",
+    "page": 22,
+    "st": "evidence",
+    "rel": "increasesRiskOf",
+    "subj": "CAM_ICU",
+    "text": "Duration of subsyndromal delirium when evaluated using the CAM-ICU is an independent predictor of increased odds of institutionalization (376)."
+  },
+  {
+    "id": "D-053",
+    "page": 22,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "MechanicalVentilation",
+    "text": "The outcomes deemed critical to this recommendation included delirium incidence, duration, and severity; duration of mechanical ventilation; ICU LOS; and mortality."
+  },
+  {
+    "id": "D-054",
+    "page": 22,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "MechanicalVentilation",
+    "text": "Rationale: The outcomes deemed most critical to this ques- tion included delirium duration, duration of mechanical ventilation, ICU LOS, and mortality."
+  },
+  {
+    "id": "D-055",
+    "page": 22,
+    "st": "risk_factor_statement",
+    "rel": "pending",
+    "subj": "MechanicalVentilation",
+    "text": "This evidence suggests that the use of the typical antipsy- chotic, haloperidol; an atypical antipsychotic (e.g., quetiapine, ziprasidone); or a statin was not associated with a shorter dura- tion of delirium, a reduced duration of mechanical ventilation"
+  },
+  {
+    "id": "D-056",
+    "page": 23,
+    "st": "recommendation",
+    "rel": "pending",
+    "subj": "DexmedetomidineExposure",
+    "text": "Recommendation: We suggest using dexmedetomidine for delirium in mechanically ventilated adults where agitation is precluding weaning/extubation (conditional recommenda- tion, low quality of evidence)."
+  },
+  {
+    "id": "D-057",
+    "page": 23,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "DexmedetomidineExposure",
+    "text": "Rationale: The single RCT used to evaluate the role of dex- medetomidine as a treatment for agitation precluding ventilator liberation in patients with delirium screened 21,500 intubated patients from 15 ICUs to enroll the 71 study patients and was ter- minated early because the funding amount (from the manufac- turer of dexmedetomidine) had been u"
+  },
+  {
+    "id": "D-058",
+    "page": 23,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "DexmedetomidineExposure",
+    "text": "The role of dexmedetomidine in patients with delirium without agitation or who have agitation that is not preclud- ing ventilator liberation remains unclear."
+  },
+  {
+    "id": "D-059",
+    "page": 23,
+    "st": "evidence",
+    "rel": "pending",
+    "subj": "Sedation",
+    "text": "Recommendations regarding choice of sedation in mechanically ventilated criti- cally ill adults in the context of delirium can be found in rec- ommendations about sedative choice."
+  },
+  {
+    "id": "D-060",
+    "page": 24,
+    "st": "evidence",
+    "rel": "associatedWith",
+    "subj": "CAM_ICU",
+    "text": "When a revised and expanded ABCDEF bun- dle (which includes a focus on “F, ” Family engagement) was evaluated in a larger, multicenter, before-after, cohort study, and where delirium was also assessed using the CAM-ICU, an adjusted analysis showed that improvements in bundle com- pliance were significantly associated with reduced mortality and more"
+  },
+  {
+    "id": "D-061",
+    "page": 24,
+    "st": "pending",
+    "rel": "pending",
+    "subj": "Agitation",
+    "text": "Given the growing literature in this field and the interplay of rehabilitation/mobilization with pain, agitation, and delirium, this topic was introduced as a new part of the present guideline."
+  }
+]

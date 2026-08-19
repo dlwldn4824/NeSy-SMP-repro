@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-08-20T00:10:57.161601",
+  "total_rules": 86,
+  "review_priority": {
+    "high": 24,
+    "medium": 34,
+    "low": 28
+  },
+  "kg_edge_candidate": {
+    "maybe": 14,
+    "no": 72,
+    "undecided": 0
+  },
+  "in_gold_set_yes": 50,
+  "human_review_csv": "C:\\Users\\dlwld\\OneDrive\\Desktop\\학연생\\NeSy-SMP-repro\\padis\\outputs\\padis_rules_human_review.csv",
+  "legacy_review_csv": "C:\\Users\\dlwld\\OneDrive\\Desktop\\학연생\\NeSy-SMP-repro\\padis\\outputs\\padis_rules_review.csv"
+}

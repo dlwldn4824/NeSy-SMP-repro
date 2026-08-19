@@ -1,0 +1,97 @@
+{
+  "total_rules": 86,
+  "pending_count": 69,
+  "counts": {
+    "A": 1,
+    "B": 68,
+    "C": 0
+  },
+  "buckets": {
+    "A": [
+      {
+        "rule_id": "D-043",
+        "source_page": 20,
+        "source_type": "evidence",
+        "subject": "MechanicalVentilation",
+        "relation_candidate": "unknown_relation (subject=MechanicalVentilation, object=Delirium)",
+        "source_text": "A recent observational study (311) found an association between high delirium monitoring adherence (i.e., assessments on ≥ 50% of the ICU days) and improved patient outcomes (i.e., lower in-hospital mortality, shorter IC",
+        "reason": "association language present"
+      }
+    ],
+    "B": [
+      {
+        "rule_id": "D-001",
+        "source_page": 1,
+        "source_type": "pending",
+        "subject": "Sedation",
+        "relation_candidate": "unknown_relation (subject=Sedation, object=Delirium)",
+        "source_text": "23 Center for Health Services Research, Vanderbilt University Medical Cen- ter, Nashville, TN.DOI: 10.1097/CCM.0000000000003299 Clinical Practice Guidelines for the Prevention and Management of Pain, Agitation/Sedation, ",
+        "reason": "descriptive/meta/rationale; pending appropriate"
+      },
+      {
+        "rule_id": "D-002",
+        "source_page": 2,
+        "source_type": "evidence",
+        "subject": "DexmedetomidineExposure",
+        "relation_candidate": "unknown_relation (subject=DexmedetomidineExposure, object=Delirium)",
+        "source_text": "Pandharipande’s institution received funding from Hospira (research grant to purchase study drug [dexmedetomidine] in collaboration with a NIH-funded RO1 study) and disclosed that he is the past president of the American",
+        "reason": "descriptive/meta/rationale; pending appropriate"
+      },
+      {
+        "rule_id": "D-003",
+        "source_page": 2,
+        "source_type": "evidence",
+        "subject": "Sedation",
+        "relation_candidate": "unknown_relation (subject=Sedation, object=Delirium)",
+        "source_text": "Balas received funding from Select Medical (primary investigator on research study exploring Assess, Prevent, and Manage Pain, Both Spontaneous Awaken- ing Trials and Spontaneous Breathing Trials, Choice of analgesia and",
+        "reason": "descriptive/meta/rationale; pending appropriate"
+      },
+      {
+        "rule_id": "D-004",
+        "source_page": 2,
+        "source_type": "pending",
+        "subject": "Agitation",
+        "relation_candidate": "unknown_relation (subject=Agitation, object=Delirium)",
+        "source_text": "For information regarding this article, E-mail: j.devlin@neu.edu Objective: To update and expand the 2013 Clinical Practice Guidelines for the Management of Pain, Agitation, and Delirium in Adult Patients in the ICU.",
+        "reason": "descriptive/meta/rationale; pending appropriate"
+      },
+      {
+        "rule_id": "D-005",
+        "source_page": 3,
+        "source_type": "pending",
+        "subject": "Sedation",
+        "relation_candidate": "unknown_relation (subject=Sedation, object=Delirium)",
+        "source_text": "Methods: Content experts, methodologists, and ICU survivors were represented in each of the five sections of the guidelines: Pain, Agita- tion/sedation, Delirium, Immobility (mobilization/rehabilitation), and Sleep (disr",
+        "reason": "descriptive/meta/rationale; pending appropriate"
+      },
+      {
+        "rule_id": "D-006",
+        "source_page": 3,
+        "source_type": "pending",
+        "subject": "Sedation",
+        "relation_candidate": "unknown_relation (subject=Sedation, object=Delirium)",
+        "source_text": "Results: The Pain, Agitation/Sedation, Delirium, Immobility (mobi- lization/rehabilitation), and Sleep (disruption) panel issued 37 recommendations (three strong and 34 conditional), two good practice statements, and 32 ",
+        "reason": "descriptive/meta/rationale; pending appropriate"
+      },
+      {
+        "rule_id": "D-007",
+        "source_page": 3,
+        "source_type": "research_gap",
+        "subject": "Sedation",
+        "relation_candidate": "null_effect_or_gap (no directional relation)",
+        "source_text": "Conclusions: We found substantial agreement among a large, inter- disciplinary cohort of international experts regarding evidence sup- porting recommendations, and the remaining literature gaps in the assessment, prevent",
+        "reason": "null-effect/gap; pending relation appropriate"
+      },
+      {
+        "rule_id": "D-008",
+        "source_page": 3,
+        "source_type": "research_gap",
+        "subject": "Sedation",
+        "relation_candidate": "null_effect_or_gap (no directional relation)",
+        "source_text": "Highlighting this evidence and the research needs will improve Pain, Agitation/sedation, Delirium, Immobility (mobilization/rehabilitation), and Sleep (disruption) management and provide the foundation for improved outco",
+        "reason": "null-effect/gap; pending relation appropriate"
+      }
+    ],
+    "C": []
+  }
+}

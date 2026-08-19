@@ -1,0 +1,75 @@
+﻿=== D-049 p 21 ===
+Recommendation: We suggest not using haloperidol, an atypical antipsychotic, dexmedetomidine, a 棺-Hydroxy 棺-methylglutaryl-Coenzyme A (HMG-CoA) reductase inhibi- tor (i.e., statin), or ketamine to prevent delirium in all critically ill adults (conditional recommendation, very low to low qual- ity of evidence).
+
+=== D-056 p 23 ===
+Recommendation: We suggest using dexmedetomidine for delirium in mechanically ventilated adults where agitation is precluding weaning/extubation (conditional recommenda- tion, low quality of evidence).
+
+=== D-038 p 20 ===
+In the context of the criteria needed to generate a best prac- tice statement, we felt that the benefits of widespread delirium assessment with the CAM-ICU or the ICDSC far outweigh any potential disadvantages.
+
+=== D-012 p 7 ===
+If available, nefopam could be used to reduce the opioid consumption and opioid-associated side effects, such as nausea, after an evalua- tion of the risk-to-benefit ratio of all available analgesic options and patient reassessment for potential side effects (tachycardia, glaucoma, seizure, and delirium) (89??2).
+
+=== D-029 p 19 ===
+Benzodiazepine use and blood transfusion administration are the only two modifiable factors with strong evidence for an asso- ciation with delirium detected by screening tools (Supplemental T able 22, Supplemental Digital Content 30, http://links.lww.
+
+=== D-034 p 20 ===
+Two (284, 285) found no relationship between delirium assessment and ICU LOS or duration of mechanical ventilation.
+
+=== D-047 p 21 ===
+Rationale: One prospective observational study with blinded evaluations enrolled 102 patients (312) and found that out- comes (ICU and hospital LOS, discharge disposition, and 1-yr mortality) were similar between the 12 patients who developed rapidly reversible, sedation-related delirium and the 10 patients who never experienced delirium.
+
+=== D-051 p 21 ===
+Each study reported a significant reduc- tion in delirium incidence favoring the pharmacologic agent: scheduled IV haloperidol (n = 457) after noncardiac surgery (RR, 0.66; 95% CI, 0.45??.97; low quality) (366); a single dose of risperidone (n = 126) following elective cardiac surgery (RR, 0.35; 95% CI, 0.16??.77; low quality) (366); and scheduled, low-dose dexmedetomidine (n = 700) after noncardiac surgery (odds ratio [OR], 0.35; 95% CI, 0.22??.54; low quality) (368).
+
+=== D-052 p 22 ===
+Duration of subsyndromal delirium when evaluated using the CAM-ICU is an independent predictor of increased odds of institutionalization (376).
+
+=== D-060 p 24 ===
+When a revised and expanded ABCDEF bun- dle (which includes a focus on ?쏤, ??Family engagement) was evaluated in a larger, multicenter, before-after, cohort study, and where delirium was also assessed using the CAM-ICU, an adjusted analysis showed that improvements in bundle com- pliance were significantly associated with reduced mortality and more ICU days without coma or delirium (9).
+
+=== D-045 p 21 ===
+The likelihood of a positive delirium assessment was sig- nificantly greater (77% vs 23%; p < 0.0001) when patients had a RASS ?? (vs a RASS of ?? to 0), which could suggest that level of arousal influences delirium assessments.
+
+=== D-019 p 16 ===
+Five RCTs (n = 1,052) assessed duration of mechanical ventilation (167, 172, 202??04); three studies (n = 969) evaluated ICU LOS (167, 172, 203); and four RCTs (n = 1,007) evaluated delirium prevalence (167, 172, 203, 205).
+
+=== D-035 p 20 ===
+In a crossover study, Reade et al (287) compared a period of CAM-ICU assessment to a period of unstructured nursing assessments using a form with a delirium definition.
+
+=== D-024 p 17 ===
+The role of benzodiaz- epines versus propofol or dexmedetomidine in patients who are hemodynamically unstable, need deep sedation, are at risk for delirium, or have signs of alcohol withdrawal needs to be studied.
+
+=== D-032 p 19 ===
+The effect of a reduction in known delirium risk factors including comorbid diseases, sepsis, nicotine and alcohol abuse, and the use of opioids and systemic steroids on delirium burden and patient outcome is unknown.
+
+=== D-039 p 20 ===
+Evidence Gaps: The current body of evidence in support of pain and agitation assessments, which has been studied longer than delirium, may provide some guidance for future research in delirium monitoring (19, 106, 110, 308??10).
+
+=== D-058 p 23 ===
+The role of dexmedetomidine in patients with delirium without agitation or who have agitation that is not preclud- ing ventilator liberation remains unclear.
+
+=== D-068 p 31 ===
+Evidence Gaps: Available studies cannot fully elucidate the relationship between sleep alterations in the critically ill and important outcomes such as delirium occurrence, duration of mechanical ventilation, ICU LOS, and mortality are inadequate to confirm whether an association exists between the sleep altera- tions seen in the critically ill adults and important outcomes such as delirium occurrence, duration of mechanical ventilation, ICU LOS, and mortality.
+
+=== D-007 p 3 ===
+Conclusions: We found substantial agreement among a large, inter- disciplinary cohort of international experts regarding evidence sup- porting recommendations, and the remaining literature gaps in the assessment, prevention, and treatment of Pain, Agitation/sedation, Delirium, Immobility (mobilization/rehabilitation), and Sleep (disrup- tion) in critically ill adults.
+
+=== D-055 p 22 ===
+This evidence suggests that the use of the typical antipsy- chotic, haloperidol; an atypical antipsychotic (e.g., quetiapine, ziprasidone); or a statin was not associated with a shorter dura- tion of delirium, a reduced duration of mechanical ventilation
+
+=== D-048 p 21 ===
+Most patients (n = 80) who had either delirium or not always rapidly reversible delirium had worse outcomes than the patients with rapidly reversible, sedation-related delirium, or who never developed delirium.
+
+=== D-042 p 21 ===
+Because many patients with RASS of ?? were deemed in these studies to be ?쐕nable to assess, ??data are limited to an evaluation of the influence of a RASS range from 0 to ?? on delirium positivity.
+
+=== D-057 p 23 ===
+Rationale: The single RCT used to evaluate the role of dex- medetomidine as a treatment for agitation precluding ventilator liberation in patients with delirium screened 21,500 intubated patients from 15 ICUs to enroll the 71 study patients and was ter- minated early because the funding amount (from the manufac- turer of dexmedetomidine) had been used up (386).
+
+=== D-067 p 29 ===
+Factors that have been shown to correlate with sleep disruption in univariate analyses include illness severity (494), delirium (442, 443), hypoxemia and alkalosis (494), receiving a benzodiazepine (442) or propo- fol (464), patient-ventilator asynchrony (454), spontaneous (vs mechanically supported) breathing (452), and a spontaneous mode of ventilation (vs a controlled mode) (472, 495).
+
+=== D-026 p 18 ===
+These factors include the following: older age (250, 264); non-coma level of arousal; neurologic or psychiatric condi- tions including delirium (257, 258, 261, 268); sedative type/ strategy (169, 242, 261, 272); mechanical ventilation use (242, 261, 263); use of invasive devices (246, 250); nurse-to-patient ratio and perceived workload (242, 268, 271); and time of day (249).
+

@@ -1,0 +1,44 @@
+# Gold smoke validation
+
+- G-001: OK
+- G-002: OK
+- G-003: OK
+- G-004: OK
+- G-005: OK
+- G-006: OK
+- G-007: OK
+- G-008: OK
+- G-009: OK
+- G-010: OK
+- G-011: OK
+- G-012: OK
+- G-013: OK
+- G-014: OK
+- G-015: OK
+- G-016: OK
+- G-017: OK
+- G-018: OK
+- G-019: OK
+- G-020: OK
+- G-021: OK
+- G-022: OK
+- G-023: OK
+- G-024: OK
+- G-025: OK
+- G-026: OK
+- G-027: OK
+- G-028: OK
+- G-029: OK
+- G-030: OK
+- G-031: OK
+- G-032: OK
+- G-033: OK
+- G-034: OK
+- G-035: OK
+- G-036: OK
+- G-037: OK
+- G-038: OK
+- G-039: OK
+- G-040: OK
+
+- exact-match count: 40/40 (acc=1.00)

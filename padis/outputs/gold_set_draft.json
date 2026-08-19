@@ -1,0 +1,154 @@
+{
+  "gold_set": [
+    {
+      "gold_id": "G-001",
+      "sentence": "Although the study by Xu et al (205) also showed reduced delirium with dexmedetomidine use, and the Dexmedetomidine V ersus Midazolam for Continuous Sedation in the ICU (MIDEX) study (203) demonstrated a shorter duration of mechanical ventilation with dexmedetomidine over a benzodiazepine infusion, pooled analysis of all evalu- ated studies did not show a significant benefit of dexmedeto- midine compared with a benzodiazepine infusion for duration of mechanical ventilation extubation (MD, –0.71 ",
+      "expected_subject": "BenzodiazepineExposure",
+      "expected_relation": "decreasesRiskOf",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": true,
+      "expected_source_page": 16
+    },
+    {
+      "gold_id": "G-002",
+      "sentence": "One recent cohort study not considered in the guideline evidence demonstrates that sedation intensity (sum of negative RASS measurements by number of assessments) independently, in an escalating dose-dependent relationship, predicts increased risk of death, delirium, and delayed time to extubation (177).",
+      "expected_subject": "Sedation",
+      "expected_relation": "increasesRiskOf",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": false,
+      "expected_source_page": 14
+    },
+    {
+      "gold_id": "G-003",
+      "sentence": "The 2013 PAD guidelines suggest (in a conditional recommendation) that nonbenzodiazepine sedatives (either propofol or dexmedetomidine) are preferable to benzodiaz- epine sedatives (either midazolam or lorazepam) in critically ill, mechanically ventilated adults because of improved short- term outcomes such as ICU LOS, duration of mechanical ventilation, and delirium (1).",
+      "expected_subject": "BenzodiazepineExposure",
+      "expected_relation": "preferredOver",
+      "expected_object": "Delirium",
+      "expected_source_type": "recommendation",
+      "expected_negation_present": false,
+      "expected_source_page": 15
+    },
+    {
+      "gold_id": "G-004",
+      "sentence": "The study with the lowest risk of bias (n = 366), Safety and Efficacy of Dexmedetomidine Compared With Midazolam (SEDCOM), had the greatest benefit for the time to extubation (MD, –1.90 d; 95% CI, –2.32 to –1.48) and delirium (RR, 0.71; 95% CI, 0.61–0.83) with dexmedetomidine compared with a benzodiazepine infusion, and influenced how the evidence was graded when developing this recommendation (167).",
+      "expected_subject": "BenzodiazepineExposure",
+      "expected_relation": "increasesRiskOf",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": false,
+      "expected_source_page": 16
+    },
+    {
+      "gold_id": "G-005",
+      "sentence": "A single RCT, the Propofol V ersus Dexmedetomidine for Continuous Sedation in the ICU (PRODEX) study, showed a decreased incidence of delirium with dexmedetomidine at the single time point of 48 hours after sedation cessation (203).",
+      "expected_subject": "PropofolExposure",
+      "expected_relation": "decreasesRiskOf",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": false,
+      "expected_source_page": 16
+    },
+    {
+      "gold_id": "G-006",
+      "sentence": "These events include more unplanned extubations and frequent reintubations (245, 247, 267, 268); greater unintentional device removal (268); longer ICU LOS (245); increased agitation; higher benzodiazepine, opioid, and antipsychotic medication use (244, 268); and increased risk for delirium or disorientation (257, 259, 268, 270, 271).",
+      "expected_subject": "BenzodiazepineExposure",
+      "expected_relation": "increasesRiskOf",
+      "expected_object": "Delirium",
+      "expected_source_type": "risk_factor_statement",
+      "expected_negation_present": false,
+      "expected_source_page": 18
+    },
+    {
+      "gold_id": "G-007",
+      "sentence": "Ungraded Statement: For the following risk factors, strong evidence indicates that these are associated with delirium in critically ill adults: “modifiable”—benzodiazepine use and blood transfusions, and “nonmodifiable”—greater",
+      "expected_subject": "BenzodiazepineExposure",
+      "expected_relation": "associatedWith",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": false,
+      "expected_source_page": 18
+    },
+    {
+      "gold_id": "G-008",
+      "sentence": "Benzodiazepine use and blood transfusion administration are the only two modifiable factors with strong evidence for an asso- ciation with delirium detected by screening tools (Supplemental T able 22, Supplemental Digital Content 30, http://links.lww.",
+      "expected_subject": "BenzodiazepineExposure",
+      "expected_relation": "associatedWith",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": false,
+      "expected_source_page": 19
+    },
+    {
+      "gold_id": "G-009",
+      "sentence": "The CAM-ICU arm had a signifi- cantly lower proportion of nursing shifts with delirium and a shorter duration of delirium when compared with the period of unstructured assessments.",
+      "expected_subject": "CAM_ICU",
+      "expected_relation": "decreasesRiskOf",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": false,
+      "expected_source_page": 20
+    },
+    {
+      "gold_id": "G-010",
+      "sentence": "Each study reported a significant reduc- tion in delirium incidence favoring the pharmacologic agent: scheduled IV haloperidol (n = 457) after noncardiac surgery (RR, 0.66; 95% CI, 0.45–0.97; low quality) (366); a single dose of risperidone (n = 126) following elective cardiac surgery (RR, 0.35; 95% CI, 0.16–0.77; low quality) (366); and scheduled, low-dose dexmedetomidine (n = 700) after noncardiac surgery (odds ratio [OR], 0.35; 95% CI, 0.22–0.54; low quality) (368).",
+      "expected_subject": "DexmedetomidineExposure",
+      "expected_relation": "decreasesRiskOf",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": false,
+      "expected_source_page": 21
+    },
+    {
+      "gold_id": "G-011",
+      "sentence": "Another sug- gested that nocturnal administration of low-dose dexmedeto- midine in critically ill adults with APACHE-II scores of 22 (sd, ± 7.8) was associated with a significantly greater proportion of patients who remained delirium free (80% vs 54%; p = 0.008) during their ICU stay (370).",
+      "expected_subject": "DexmedetomidineExposure",
+      "expected_relation": "associatedWith",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": false,
+      "expected_source_page": 22
+    },
+    {
+      "gold_id": "G-012",
+      "sentence": "Duration of subsyndromal delirium when evaluated using the CAM-ICU is an independent predictor of increased odds of institutionalization (376).",
+      "expected_subject": "CAM_ICU",
+      "expected_relation": "increasesRiskOf",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": false,
+      "expected_source_page": 22
+    },
+    {
+      "gold_id": "G-013",
+      "sentence": "Risperidone (0.5 mg every 8 hr), when compared with placebo in 101 cardiac surgery patients, was associated with a reduced likelihood for a transition from subsyndromal to full- syndrome delirium (RR, 0.41; 95% CI, 0.02–0.86) (378).",
+      "expected_subject": "Sedation",
+      "expected_relation": "increasesRiskOf",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": false,
+      "expected_source_page": 22
+    },
+    {
+      "gold_id": "G-014",
+      "sentence": "When a revised and expanded ABCDEF bun- dle (which includes a focus on “F, ” Family engagement) was evaluated in a larger, multicenter, before-after, cohort study, and where delirium was also assessed using the CAM-ICU, an adjusted analysis showed that improvements in bundle com- pliance were significantly associated with reduced mortality and more ICU days without coma or delirium (9).",
+      "expected_subject": "CAM_ICU",
+      "expected_relation": "decreasesRiskOf",
+      "expected_object": "Delirium",
+      "expected_source_type": "evidence",
+      "expected_negation_present": false,
+      "expected_source_page": 24
+    },
+    {
+      "gold_id": "G-015",
+      "sentence": "The outcomes asso- ciated with opioid safety concerns such as ileus, duration of mechanical ventilation, immunosuppression, healthcare- associated infections, delirium, and both ICU and hospital LOS must be evaluated carefully.",
+      "expected_subject": "OpioidExposure",
+      "expected_relation": "associatedWith",
+      "expected_object": "Delirium",
+      "expected_source_type": "pending",
+      "expected_negation_present": false,
+      "expected_source_page": 9
+    }
+  ]
+}
