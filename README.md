@@ -1,7 +1,8 @@
 ﻿# NeSy-SMP 논문 재현 현황 및 원 논문과의 차이
 
 - 원 논문 코드: [FabrizioDeSantis/NeSy-SMP](https://github.com/FabrizioDeSantis/NeSy-SMP)
-- 결과 요약: [`NeSy-SMP/results/RESULTS_SEPSIS3_ALL_LEADS.md`](NeSy-SMP/results/RESULTS_SEPSIS3_ALL_LEADS.md)
+- 결과 요약 (30/15): [`NeSy-SMP/results/RESULTS_SEPSIS3_ALL_LEADS.md`](NeSy-SMP/results/RESULTS_SEPSIS3_ALL_LEADS.md)
+- **Epoch 50/20 재실행 (완료):** [`NeSy-SMP/results/ep50_20/RESULTS_EP50_20.md`](NeSy-SMP/results/ep50_20/RESULTS_EP50_20.md)
 - 재현 보고서: [`docs/NeSy-SMP_REPRO_REPORT.md`](docs/NeSy-SMP_REPRO_REPORT.md)
 
 ---
@@ -40,7 +41,7 @@
 | Weak anchoring | 임계값 기반 초기화로 서술 | 학습 중 논리 제약으로 적용 | GitHub 구현 사용 |
 | BiLSTM checkpoint | 명확하지 않음 | best 저장 후 test 전 reload 없음 | best checkpoint reload |
 | LTN / NeSy checkpoint | 명확하지 않음 | best reload | best reload |
-| Epoch | 논문 설정 | 기본 약 50 / 20 | 예비실험 30 / 15 |
+| Epoch | 논문 설정 | 기본 약 50 / 20 | 예비 30/15 + **공개 기본 50/20 재실행 완료** (`results/ep50_20/`) |
 
 ### 2.1 환자군 선정
 
@@ -103,13 +104,15 @@ flowchart TD
 
 ### 2.5 Epoch 및 Checkpoint
 
-| 모델 | 공개 GitHub | 현재 재현 |
-| --- | --- | --- |
-| BiLSTM | 50 epoch | 30 epoch |
-| LTN | 20 epoch | 15 epoch |
-| NeSy-SMP | 20 epoch | 15 epoch |
+| 모델 | 공개 GitHub | 예비 재현 (30/15) | GitHub 정렬 재실행 (50/20) |
+| --- | --- | --- | --- |
+| BiLSTM | 50 epoch | 30 epoch | **50 epoch** |
+| LTN | 20 epoch | 15 epoch | **20 epoch** |
+| NeSy-SMP | 20 epoch | 15 epoch | **20 epoch** |
 
 공개 코드에서 LTN·NeSy-SMP는 validation 최고 checkpoint를 불러와 test하고, BiLSTM은 best를 저장만 하고 test 전 reload가 없다. 현재 재현에서는 모델 간 조건을 맞추기 위해 **모든 DL 모델에서 validation macro-F1 최고 checkpoint를 reload**하였다.
+
+2026-08-13에 S3 6/12/24/48h + ICD 6h를 **epoch 50/20**으로 재학습 완료 (`NeSy-SMP/results/ep50_20/`). 30/15 대비 DL F1 변화는 대체로 **±0.5%p 이내**이며, NeSy 상대 우위 부재 결론은 동일하다.
 
 ### 2.6 실험 범위
 
@@ -190,6 +193,17 @@ lead time이 길어질수록 성능이 감소하는 경향은 논문과 같다.
 
 Table 1과 Table 2의 F1 차이는 fold 평균 vs pooling보다 **macro vs binary(사망 클래스)** 정의 차이로 상당 부분 설명된다. Table 2 원본 집계 코드는 공개되지 않았다.
 
+### 4.5 Epoch 50/20 vs 30/15 (Sepsis-3 NeSy F1)
+
+| Lead | 50/20 | 30/15 |
+| ---: | ---: | ---: |
+| 6h | 82.88 | 82.54 |
+| 12h | 80.58 | 80.41 |
+| 24h | 78.14 | 78.22 |
+| 48h | 74.32 | 73.54 |
+
+상세 비교표: [`NeSy-SMP/results/ep50_20/RESULTS_EP50_20.md`](NeSy-SMP/results/ep50_20/RESULTS_EP50_20.md)
+
 ---
 
 ## 5. 해석 범위와 진행 상태
@@ -208,7 +222,8 @@ Table 1과 Table 2의 F1 차이는 fold 평균 vs pooling보다 **macro vs binar
 | 정확한 Sepsis-3 환자군 재구축 | 추가 검증 필요 |
 | 임상노트 기반 동반질환 | 추가 재현 필요 |
 | Weak Anchoring 논문/GitHub 비교 | 추가 재현 필요 |
-| 원본과 동일 Epoch·Checkpoint 재실행 | 추가 재현 필요 |
+| 원본과 동일 Epoch (50/20) 재실행 | **완료** (`results/ep50_20/`) |
+| BiLSTM last-epoch vs best-reload ablation | 추가 재현 필요 |
 
 ---
 

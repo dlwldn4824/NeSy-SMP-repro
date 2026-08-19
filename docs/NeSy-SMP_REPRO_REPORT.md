@@ -185,16 +185,16 @@ BiLSTM 통일은 모델 간 공정 비교를 위한 수정이나, **공개 GitHu
 
 ## 9. Epoch
 
-| | 공개 `stratified_main.py` CLI 기본 | `main.py` 기본 | 현재 예비 재현 |
-| --- | ---: | ---: | ---: |
-| BiLSTM (`num_epochs`) | **50** | 30 | **30** |
-| LTN/NeSy (`num_epochs_nesy`) | **20** | 20 | **15** |
-| `reproduce_tables.py` argparse 기본 | — | — | 40 / 20 (실제 실행은 30/15 사용) |
+| | 공개 `stratified_main.py` CLI 기본 | `main.py` 기본 | 예비 재현 (30/15) | GitHub 정렬 재실행 (50/20) |
+| --- | ---: | ---: | ---: | ---: |
+| BiLSTM (`num_epochs`) | **50** | 30 | **30** | **50** |
+| LTN/NeSy (`num_epochs_nesy`) | **20** | 20 | **15** | **20** |
 
-현재 수치는 **preliminary reproduction**으로 구분한다.
+- 30/15 결과: `results/s3_*h/`, `results/table1_summary.csv` (예비 재현)
+- **50/20 결과 (완료, 2026-08-13):** `results/ep50_20/` + [`RESULTS_EP50_20.md`](../NeSy-SMP/results/ep50_20/RESULTS_EP50_20.md)
+- S3 6/12/24/48h + ICD 6h, seed=42, best val macro-F1 reload, como=0
 
-> **[재실행 예정]**  
-> epoch / early stopping / validation / checkpoint를 공개·논문 조건에 맞춰 재학습.
+**50/20 vs 30/15:** DL F1 변화 대체로 ±0.5%p 이내. NeSy 상대 우위 부재 결론 변화 없음.
 
 ---
 
@@ -262,6 +262,17 @@ Lead ↑ → 성능 ↓ 경향은 논문과 일치. 절대값은 재현이 높�
 
 논문에서 보고된 NeSy 우위가 현재 조건에서는 **명확히 재현되지 않음**.
 
+### 11.4 Epoch 50/20 재실행 (`results/ep50_20/`, 2026-08-13)
+
+| Lead | NeSy F1 (50/20) | NeSy F1 (30/15) |
+| ---: | ---: | ---: |
+| 6h | 82.88 | 82.54 |
+| 12h | 80.58 | 80.41 |
+| 24h | 78.14 | 78.22 |
+| 48h | 74.32 | 73.54 |
+
+전 lead·ICD 6h 포함 5개 job 완료. epoch를 GitHub 기본으로 올려도 해석 변화 없음.
+
 ---
 
 ## 12. NeSy 우위가 약하게 나타난 점에 대한 해석
@@ -272,7 +283,7 @@ Lead ↑ → 성능 ↓ 경향은 논문과 일치. 절대값은 재현이 높�
 2. Sepsis-3 cohort 미완전 일치  
 3. Weak anchoring 논문 서술 ≠ GitHub 구현  
 4. 결측·0 대체 처리 차이  
-5. Epoch 단축 (30/15)  
+5. ~~Epoch 단축 (30/15)~~ → **50/20 재실행으로 배제** (F1 ±0.5%p 이내)  
 6. BiLSTM checkpoint 수정  
 7. 현재 정형 입력에서 XGBoost 등이 강할 가능성  
 
@@ -322,7 +333,7 @@ Comorbidity(병합 전 wide): any nonzero **0%** (의도된 como=0 실험).
 
 > **[추가 재현 필요]** — weak anchoring: paper vs GitHub vs 제거
 
-> **[추가 재현 필요]** — epoch / early stopping을 공개·논문 조건에 맞춤
+> ~~**[추가 재현 필요]** — epoch / early stopping을 공개·논문 조건에 맞춤~~ → **완료** (`results/ep50_20/`)
 
 > **[추가 재현 필요]** — BiLSTM checkpoint 원본 vs best-reload
 

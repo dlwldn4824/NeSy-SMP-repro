@@ -1,7 +1,8 @@
 ﻿# Sepsis-3 cohort Table 1 by lead time
 
 - Cohort: `cohort_sepsis3_paperlike.csv` (n~18.9k, mort~18.6%)
-- Seed 42, epochs 30/15, comorbidities still zeros
+- Seed 42, epochs **30/15** (예비 재현), comorbidities still zeros
+- **Epoch 50/20 재실행 완료:** [`ep50_20/RESULTS_EP50_20.md`](ep50_20/RESULTS_EP50_20.md) (F1 변화 ±0.5%p 이내)
 
 | Lead | Model | Acc | F1 | Prec | Rec | AUC |
 |---:|---|---:|---:|---:|---:|---:|

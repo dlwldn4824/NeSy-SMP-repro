@@ -41,7 +41,7 @@ NeSy-SMP 논문의 결과를 공개 GitHub 코드와 MIMIC-IV를 이용해 재�
 | Weak anchoring | 임계값 기반 초기화로 서술 | 학습 중 논리 제약으로 적용 | GitHub 구현 사용 |
 | BiLSTM checkpoint | 명확하지 않음 | best 저장 후 test 전 reload 없음 | best checkpoint reload |
 | LTN / NeSy checkpoint | 명확하지 않음 | best reload | best reload |
-| Epoch | 논문 설정 | 기본 약 50 / 20 | 예비실험 30 / 15 |
+| Epoch | 논문 설정 | 기본 약 50 / 20 | 예비 30/15 + **50/20 재실행 완료** (`results/ep50_20/`) |
 
 ---
 
@@ -496,7 +496,7 @@ flowchart TD
 
 ### 3. Epoch 및 early stopping 통일
 
-현재 예비 30/15 epoch 결과를 공개 조건으로 다시 학습한다.
+~~현재 예비 30/15 epoch 결과를 공개 조건으로 다시 학습한다.~~ **완료** (2026-08-13, `NeSy-SMP/results/ep50_20/`). 30/15 대비 F1 ±0.5%p 이내.
 
 ### 4. Weak anchoring 두 구현 비교
 
