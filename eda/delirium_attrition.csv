@@ -1,0 +1,8 @@
+﻿step,stays,patients,kept_pct_of_prev
+0. 전체 ICU stay,94458,65366,
+① 성인 (age>=18),94458,65366,100.0
+② 환자당 첫 ICU stay,65366,65366,69.2
+③ ICU LOS >= 24h,51838,51838,79.3
+⑤ 첫 24h CAM-ICU Positive 제외,43853,43853,84.6
+⑥ 24h 이후 assessable 기록 >=1,23939,23939,54.6
+⑦ label 부여 (Unknown 제외 완료),23939,23939,100.0

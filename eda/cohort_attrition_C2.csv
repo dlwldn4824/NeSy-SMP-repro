@@ -1,0 +1,7 @@
+﻿step,stays,patients,kept_pct_of_prev
+0. all ICU stays,94458,65366,
+1. adult (age>=18),94458,65366,100.0
+2. ICU LOS >= 1 day,74829,54551,79.2
+"3. first_careunit in {MICU, MICU/SICU}",27147,20252,36.3
+4. anchor_year_group in 2014-2019,8525,6871,31.4
+5. first ICU stay of the admission,7593,6628,89.1

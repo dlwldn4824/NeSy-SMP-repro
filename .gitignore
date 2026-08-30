@@ -58,3 +58,16 @@ PHASE3_REPRODUCTION_REPORT.md
 GUIDE_FOR_NON_EXPERTS.md
 local_docs/
 docs/_assets/
+
+# EDA: 집계 표는 안전(환자 식별자 없음) — cohort*.csv 규칙에서 예외 처리
+!eda/cohort_candidates.csv
+!eda/cohort_attrition_C2.csv
+
+# EDA: 환자 단위 파생물은 절대 push 금지 (MIMIC DUA)
+eda/_*.pkl
+eda/_*.parquet
+eda/delirium_cohort_stays.csv
+eda/stay_labels_padis.parquet
+eda/step1_3_rass_deep.parquet
+eda/step1_4_uta.parquet
+eda/chk_H_onset.csv

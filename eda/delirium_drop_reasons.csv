@@ -1,0 +1,5 @@
+﻿drop_reason,stays,hosp_mort,los,age,obs_uta_frac
+included,23939,7.4,2.933,67.0,0.602
+⑤ prevalent delirium,7985,17.2,3.373,69.0,0.67
+⑥ 24h이후 UTA만 (Unknown),1049,81.7,2.897,66.0,2.836
+⑥ 24h이후 기록 없음,18865,8.1,1.541,66.0,0.21

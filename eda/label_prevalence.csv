@@ -1,0 +1,9 @@
+﻿cohort,stays,delirium_assessed_pct,delirium_pos_pct_of_assessed,delirium_pos_pct_of_all,deep_sedation_pct,agitation_pct,hosp_mort_pct
+C3 all adult ICU LOS>=1d,74829,76.7,36.5,28.0,37.4,17.2,11.9
+  all ICU / 2008-2010,23110,43.0,36.0,15.5,25.1,12.0,11.6
+  all ICU / 2011-2013,15312,83.3,32.2,26.8,38.7,16.6,11.6
+  all ICU / 2014-2016,14571,96.5,38.0,36.7,43.6,18.6,12.1
+  all ICU / 2017-2019,13012,95.8,38.3,36.7,43.4,20.8,11.6
+  all ICU / 2020-2022,8824,92.5,38.3,35.4,48.6,24.2,13.5
+C1 MICU 2014-2019,4335,95.9,55.3,53.1,46.4,25.3,17.9
+C2 MICU+MICU/SICU 2014-2019,7593,96.8,48.4,46.9,40.2,22.1,17.5
