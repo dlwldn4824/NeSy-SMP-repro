@@ -1,0 +1,11 @@
+﻿지표,값,단위
+Positive 1회 이상,35.2,stay%
+Negative 1회 이상,92.4,stay%
+UTA 1회 이상,39.8,stay%
+N 만,45.9,stay%
+P 있음 + UTA 섞임,20.9,stay%
+N + UTA (P 없음),15.5,stay%
+P 있음 (UTA 없음),14.3,stay%
+전부 UTA,3.4,stay%
+UTA비율 median,0.0,%
+UTA비율 q3,25.0,%

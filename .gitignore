@@ -71,3 +71,8 @@ eda/stay_labels_padis.parquet
 eda/step1_3_rass_deep.parquet
 eda/step1_4_uta.parquet
 eda/chk_H_onset.csv
+
+# 00_extract.py 가 만드는 중간 파일 (환자 식별자 포함 — 절대 push 금지)
+notes/eda/_*
+notes/eda/*.pkl
+notes/eda/*.parquet
