@@ -46,6 +46,17 @@ python eda/00_extract.py          # 원본 -> 중간 파일 4종 (이 스크립�
 python eda/09_remaining_eda.py    # 항목 2·4·5·9 + 1·7·8 보강
 ```
 
+두 명령은 경로 기준이 어긋나지 않도록 **저장소 루트(`NeSy-SMP-repro`)에서 순서대로** 실행한다.
+`00_extract.py`와 `09_remaining_eda.py`는 기본적으로 중간 파일과 결과를 `notes/eda/`에 저장하고 읽는다.
+
+필수 패키지:
+
+```bash
+pip install pandas pyarrow
+# csv.gz 모드만 추가
+pip install duckdb
+```
+
 `00_extract.py` 는 파일 상단 `===== 여기만 고치세요 =====` 블록에서 두 줄만 고치면 된다.
 
 ```python
@@ -58,3 +69,9 @@ SQLITE_PATH = "C:/Users/.../MIMIC4-hosp-icu.db"               # 역슬래시 말
   chartevents 등 5개 파일이면 되고 압축 상태로 약 3GB다.
 - 구글 드라이브에 마운트한 `.db` 는 잠금을 못 걸어 열리지 않는다
   (`unable to open database file`). 그때는 `SQLITE_IMMUTABLE = True` 로 바꾼다.
+- `00_extract.py`가 정상 종료되어 `_icu_base.parquet`, `_label_values.parquet`,
+  `_padis_item_stay_counts.parquet`, `_step1_sed.parquet`가 생성된 것을 확인한 다음 `09`를 실행한다.
+- 중간 파일에는 `subject_id`, `hadm_id`, `stay_id`가 포함되므로 **GitHub에 커밋하지 않는다.**
+  저장소에는 `chk*.csv` 형태의 집계 결과만 올린다.
+- 원본 데이터가 있는 PC에서의 전체 실행 검증이 필요하다. 실행 중 P/N/UTA 미매핑 값 경고가 나오면
+  그대로 무시하지 말고 출력된 실제 값을 확인한 뒤 매핑 규칙을 보완한다.

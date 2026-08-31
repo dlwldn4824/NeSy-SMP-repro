@@ -249,7 +249,12 @@ print(f"\nUTA 다음 판정: " + " / ".join(f"{k} {nxt.get(k,0)}%" for k in ["P"
 
 # ============================================================ 항목 7'
 head("[항목7'] LOS 구간별 CAM coverage / 구성")
-DEN["los_bin"] = pd.cut(DEN.los, [1, 2, 3, 5, 10, 1e9], labels=["1-2d", "2-3d", "3-5d", "5-10d", "10d+"])
+DEN["los_bin"] = pd.cut(
+    DEN.los,
+    [1, 2, 3, 5, 10, 1e9],
+    labels=["1-2d", "2-3d", "3-5d", "5-10d", "10d+"],
+    include_lowest=True,
+)
 lb = DEN.set_index("stay_id")["los_bin"]
 dl["los_bin"] = dl["stay_id"].map(lb)
 rec = dl.groupby("los_bin", observed=True)["v"].value_counts(normalize=True).unstack().mul(100).round(1)
@@ -288,7 +293,7 @@ print(f"코호트 재현: {len(coh):,} stays / delirium {pct(coh.delirium.mean()
 
 PC = f"{DATA}/_padis_item_stay_counts.parquet"
 if not os.path.exists(PC):
-    print(f"[건너뜀] {PC} 가 없어 항목9 를 계산할 수 없다. 08_extract.py 로 만들 것.")
+    print(f"[건너뜀] {PC} 가 없어 항목9 를 계산할 수 없다. 00_extract.py 로 만들 것.")
     sys.exit(0)
 cnt = pd.read_parquet(PC)
 if "grp" not in cnt.columns:                      # 예전 파일 호환
@@ -323,8 +328,10 @@ if not os.path.exists(SEDF):
 sed = pd.read_parquet(SEDF)
 sed["starttime"] = pd.to_datetime(sed["starttime"])
 sed["hr"] = (sed["starttime"] - sed["stay_id"].map(intime)).dt.total_seconds() / 3600
+# DEN 비율의 분자와 분모를 동일한 성인·ICU LOS>=1일 집단으로 맞춘다.
+sed_den = sed[sed.stay_id.isin(DEN.stay_id)].copy()
 rows = []
-for drug, s in sed.groupby("drug"):
+for drug, s in sed_den.groupby("drug"):
     ever = s.stay_id.nunique()
     e24 = s[(s.hr >= 0) & (s.hr < W)].stay_id.nunique()
     c24 = s[(s.hr >= 0) & (s.hr < W) & s.stay_id.isin(coh.index)].stay_id.nunique()
