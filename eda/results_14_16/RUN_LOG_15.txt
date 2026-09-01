@@ -1,0 +1,65 @@
+DEN (age>=18, los>=1d): 74,829 stays
+
+==============================================================================
+[a] 연도별 inputevents 기록 보유 stay 비율
+==============================================================================
+           stays  inputevents보유stay%
+era                                 
+2008-2010  23110                96.6
+2011-2013  15312                96.2
+2014-2016  14571                95.9
+2017-2019  13012                94.8
+2020-2022   8824                41.5
+  -> chk15_a_inputevents_era.csv
+
+==============================================================================
+[b] mechanical ventilation 가용성
+==============================================================================
+d_items 에서 'ventilat' 포함 항목 10개 (참고, 상위 10):
+ itemid                                   label         linksto
+ 223848                         Ventilator Type     chartevents
+ 223849                         Ventilator Mode     chartevents
+ 225303           Mask Ventilation (Intubation)     chartevents
+ 225792                    Invasive Ventilation procedureevents
+ 225794                Non-invasive Ventilation procedureevents
+ 226260                 Mechanically Ventilated     chartevents
+ 227061 Ventilated at any time during ICU Day 1     chartevents
+ 227565                      Ventilator Tank #1     chartevents
+ 227566                      Ventilator Tank #2     chartevents
+ 229314              Ventilator Mode (Hamilton)     chartevents
+
+             소스  itemid                    label  records  stays  DEN보유stay%
+procedureevents  225792     Invasive Ventilation    35479  31969        42.7
+procedureevents  225794 Non-invasive Ventilation     3238   2696         3.6
+  -> chk15_b_ventilation.csv
+
+==============================================================================
+[c] SOFA 가용성
+==============================================================================
+이름에 'sofa' 가 들어간 테이블: 없음 (MIMIC-IV 원본에는 SOFA 파생 테이블이 없음)
+          구성요소                    필요 테이블 테이블 존재                   비고
+호흡 (PaO2/FiO2)   labevents + chartevents      O                     
+      응고 (혈소판)                 labevents      O                     
+      간 (빌리루빈)                 labevents      O                     
+ 심혈관 (MAP/승압제) chartevents + inputevents      O                     
+      신경 (GCS)               chartevents      O 기존 스캔에서 보유율 100% 확인됨
+신장 (크레아티닌/소변량)  labevents + outputevents      O                     
+
+승압제 (inputevents, 심혈관 SOFA 재료):
+          drug  stays  DEN보유stay%
+   epinephrine   3832         5.1
+    dobutamine   1228         1.6
+      dopamine   2131         2.8
+norepinephrine  15951        21.3
+   vasopressin   5626         7.5
+
+※ labevents 항목별 실제 보유율은 풀스캔이 필요해 여기서는 테이블 존재까지만 확인.
+   SOFA 를 쓰기로 결정되면 별도 스캔 스크립트로 확인할 것.
+  -> chk15_c_sofa.csv
+
+==============================================================================
+끝. 출력 CSV
+==============================================================================
+chk15_a_inputevents_era.csv
+chk15_b_ventilation.csv
+chk15_c_sofa.csv

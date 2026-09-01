@@ -1,0 +1,7 @@
+﻿,구성요소,필요 테이블,테이블 존재,비고
+0,호흡 (PaO2/FiO2),labevents + chartevents,O,
+1,응고 (혈소판),labevents,O,
+2,간 (빌리루빈),labevents,O,
+3,심혈관 (MAP/승압제),chartevents + inputevents,O,
+4,신경 (GCS),chartevents,O,기존 스캔에서 보유율 100% 확인됨
+5,신장 (크레아티닌/소변량),labevents + outputevents,O,
