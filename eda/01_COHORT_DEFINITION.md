@@ -4,6 +4,10 @@
 > 이 문서는 랩미팅 §3 스펙(환자당 첫 stay · prevalent delirium 제외 · 24h 이후 assessable 요구)을 받기 전에
 > 만든 것이라 코호트 규칙이 다르다 (입원당 첫 stay · 전체 기간 섬망 ever).
 > 여기서 여전히 유효한 것: **careunit 문자열이 풀네임이라는 점(§0), 항목별 차팅 커버리지(§5), 시대별 커버리지 근거.**
+>
+> ⚠️ **이 문서의 `delirium_ever = 48.4%`를 다른 문서의 22.5% / 15.6%와 비교하지 말 것.**
+> 여기는 *재원 전 기간* Positive≥1 이고 분모도 C2(MICU계열 2014–2019)라 정의가 다르다.
+> 세 숫자 대조표는 [README.md](README.md) 「숫자 혼동 주의」 참조.
 
 DB: `C:\Users\dlwld\Downloads\MIMIC4-hosp-icu.db` (MIMIC-IV, read-only)
 스크립트: `notes/eda/cohort_define.py` · 출력: `cohort_candidates.csv`, `cohort_attrition_C2.csv`, `careunit_by_era.csv`, `cohort_C2_stays.csv`
