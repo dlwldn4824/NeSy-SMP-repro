@@ -1,0 +1,177 @@
+{
+  "_comment": "PADIS 규칙 초안 v1. build_padis_kg_from_approved.py 가 읽는 스키마(rule_id/subject/relation/object)를 그대로 따르되, 파일명은 draft 로 둔다 — padis_rules_approved.json 은 사람이 approve_rules.py 로 승인한 결과여야 하므로 건드리지 않았다. 승인 후 이 배열을 그쪽으로 옮긴다.",
+  "generated_at": "2026-09-08",
+  "source_guideline": "PADIS 2018 (Devlin et al., Crit Care Med)",
+  "source_sentences": "padis/outputs/gold_set_draft.md (G-001~G-015)",
+  "schema_note": "grade / source / mimic_ready / needs_new_relation 은 확장 필드다. KG 빌더는 무시하고, 공리 가중치(GRADE)와 매핑 점검에 쓴다.",
+  "approved_rules": [
+    {
+      "rule_id": "PADIS-D-01",
+      "subject": "Benzodiazepine",
+      "relation": "increasesRiskOf",
+      "object": "Delirium",
+      "grade": "strong evidence (ungraded statement)",
+      "source": "G-007, G-008 (p.18-19)",
+      "source_text": "Benzodiazepine use and blood transfusion administration are the only two modifiable factors with strong evidence for an association with delirium detected by screening tools.",
+      "mimic_ready": true,
+      "needs_new_relation": false
+    },
+    {
+      "rule_id": "PADIS-D-02",
+      "subject": "BloodTransfusion",
+      "relation": "increasesRiskOf",
+      "object": "Delirium",
+      "grade": "strong evidence (ungraded statement)",
+      "source": "G-008 (p.19)",
+      "source_text": "Benzodiazepine use and blood transfusion administration are the only two modifiable factors with strong evidence for an association with delirium.",
+      "mimic_ready": false,
+      "needs_new_relation": false,
+      "note": "inputevents 에서 수혈을 별도 추출해야 한다. 현재 00_extract.py 대상 밖."
+    },
+    {
+      "rule_id": "PADIS-D-03",
+      "subject": "SedationIntensity",
+      "relation": "increasesRiskOf",
+      "object": "Delirium",
+      "grade": "cohort evidence, not in guideline grading",
+      "source": "G-002 (p.14)",
+      "source_text": "Sedation intensity (sum of negative RASS measurements by number of assessments) independently, in an escalating dose-dependent relationship, predicts increased risk of death, delirium, and delayed time to extubation.",
+      "mimic_ready": true,
+      "needs_new_relation": false
+    },
+    {
+      "rule_id": "PADIS-D-04",
+      "subject": "SedationIntensity",
+      "relation": "increasesRiskOf",
+      "object": "Death",
+      "grade": "cohort evidence, not in guideline grading",
+      "source": "G-002 (p.14)",
+      "source_text": "... predicts increased risk of death, delirium, and delayed time to extubation.",
+      "mimic_ready": true,
+      "needs_new_relation": false
+    },
+    {
+      "rule_id": "PADIS-D-05",
+      "subject": "DeepSedation",
+      "relation": "increasesRiskOf",
+      "object": "Delirium",
+      "grade": "derived from G-002 (dose-dependent sedation depth)",
+      "source": "G-002 (p.14)",
+      "source_text": "escalating dose-dependent relationship between sedation intensity and delirium",
+      "mimic_ready": true,
+      "needs_new_relation": false
+    },
+    {
+      "rule_id": "PADIS-D-06",
+      "subject": "DeepSedation",
+      "relation": "increasesRiskOf",
+      "object": "UnableToAssess",
+      "grade": "data-derived (not a guideline statement)",
+      "source": "eda/LNN_DESIGN.md §3 — UTA 의 78.1% 가 RASS <= -4",
+      "source_text": "가이드라인 문장이 아니라 우리 데이터에서 온 관측. 관측가능성 술어를 논리층에 넣기 위한 다리.",
+      "mimic_ready": true,
+      "needs_new_relation": false,
+      "note": "이 규칙만 출처가 PADIS 가 아니다. 논문에서는 별도 표기 필요."
+    },
+    {
+      "rule_id": "PADIS-D-07",
+      "subject": "PhysicalRestraint",
+      "relation": "increasesRiskOf",
+      "object": "Delirium",
+      "grade": "low quality",
+      "source": "G-006 (p.18)",
+      "source_text": "These events include more unplanned extubations ... and increased risk for delirium or disorientation.",
+      "mimic_ready": false,
+      "needs_new_relation": false,
+      "note": "restraint itemid 값 미추출 · stay 보유율 50.1% 로 결측이 크다."
+    },
+    {
+      "rule_id": "PADIS-D-08",
+      "subject": "Age",
+      "relation": "increasesRiskOf",
+      "object": "Delirium",
+      "grade": "strong evidence (nonmodifiable)",
+      "source": "G-007 (p.18)",
+      "source_text": "For the following risk factors, strong evidence indicates that these are associated with delirium in critically ill adults: 'modifiable' ... and 'nonmodifiable' - greater age.",
+      "mimic_ready": true,
+      "needs_new_relation": false
+    },
+    {
+      "rule_id": "PADIS-D-09",
+      "subject": "Delirium",
+      "relation": "increasesRiskOf",
+      "object": "Death",
+      "grade": "strong association",
+      "source": "PADIS delirium outcomes section",
+      "source_text": "Delirium in critically ill adults is associated with increased mortality and prolonged ICU stay.",
+      "mimic_ready": true,
+      "needs_new_relation": false
+    },
+    {
+      "rule_id": "PADIS-D-10",
+      "subject": "Delirium",
+      "relation": "increasesRiskOf",
+      "object": "Immobility",
+      "grade": "derived (PADIS rehabilitation/mobilization section)",
+      "source": "eda/LNN_DESIGN.md §6 축",
+      "source_text": "섬망 환자는 조기 거동 달성이 낮다.",
+      "mimic_ready": false,
+      "needs_new_relation": false,
+      "note": "mobility 값 미추출."
+    },
+    {
+      "rule_id": "PADIS-D-11",
+      "subject": "Dexmedetomidine",
+      "relation": "decreasesRiskOf",
+      "object": "Delirium",
+      "grade": "low quality (conditional recommendation)",
+      "source": "G-004, G-005, G-010 (p.16, p.21)",
+      "source_text": "SEDCOM had the greatest benefit for ... delirium (RR, 0.71; 95% CI, 0.61-0.83) with dexmedetomidine compared with a benzodiazepine infusion.",
+      "mimic_ready": true,
+      "needs_new_relation": true
+    },
+    {
+      "rule_id": "PADIS-D-12",
+      "subject": "Propofol",
+      "relation": "decreasesRiskOf",
+      "object": "Delirium",
+      "grade": "conditional recommendation (2013 PAD, carried forward)",
+      "source": "G-003 (p.15)",
+      "source_text": "nonbenzodiazepine sedatives (either propofol or dexmedetomidine) are preferable to benzodiazepine sedatives ... because of improved short-term outcomes such as ICU LOS, duration of mechanical ventilation, and delirium.",
+      "mimic_ready": true,
+      "needs_new_relation": true,
+      "note": "엄밀히는 benzo 대비 상대적 우위다. 절대적 보호 효과로 읽으면 과장이다."
+    },
+    {
+      "rule_id": "PADIS-D-13",
+      "subject": "EarlyMobility",
+      "relation": "decreasesRiskOf",
+      "object": "Delirium",
+      "grade": "low quality (ABCDEF bundle, before-after cohort)",
+      "source": "G-014 (p.24)",
+      "source_text": "improvements in bundle compliance were significantly associated with reduced mortality and more ICU days without coma or delirium.",
+      "mimic_ready": false,
+      "needs_new_relation": true,
+      "note": "mobility 값 미추출. 번들 전체의 효과라 조기거동 단독 효과로 귀속하는 것은 약하다."
+    },
+    {
+      "rule_id": "PADIS-D-14",
+      "subject": "SeverePain",
+      "relation": "increasesRiskOf",
+      "object": "Delirium",
+      "grade": "low quality",
+      "source": "G-015 (p.9) 및 PADIS pain section",
+      "source_text": "The outcomes associated with opioid safety concerns such as ... delirium ... must be evaluated carefully.",
+      "mimic_ready": false,
+      "needs_new_relation": false,
+      "note": "pain NRS 값 미추출 · stay 보유율 96.2% 로 추출만 하면 된다. 통증-섬망 방향성은 PADIS 에서 약하게 진술된다."
+    }
+  ],
+  "_summary": {
+    "n_rules": 14,
+    "mimic_ready": 9,
+    "needs_extraction": 5,
+    "needs_new_relation": 3,
+    "blocker": "decreasesRiskOf 가 configs/relation_vocab.json 에 없다. 예방 권고 3건이 현재 vocabulary 로 표현 불가."
+  }
+}
