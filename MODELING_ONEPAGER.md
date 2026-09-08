@@ -94,12 +94,13 @@ y  앵커 이후 24h 안에 확정 CAM Positive ≥ 1
 
 ---
 
-## 4) 한계 4가지 (먼저 말하기)
+## 4) 한계 5가지 (먼저 말하기)
 
 1. **mobility / pain / GCS 값이 아직 없다.** `00_extract.py` 의 `VALUE_IDS` 가 CAM·RASS 만 값으로 뽑는다. DB 엔 다 있다(보유율 100 / 96.2 / 100%). **재추출 전엔 M2 입력이 반쪽이다 — 유일한 하드 블로커.**
 2. **앵커=N 계층의 절대 성능은 낮게 나올 것이다.** baseline AUPRC 23.0 에서 출발한다. 델타로 말해야 하고, "AUPRC 0.35" 같은 수를 그대로 보여주면 약해 보인다.
-3. **PADIS 공리 3건이 표현 불가.** `relation_vocab.json` 에 `decreasesRiskOf` 가 없다(Sepsis 는 위험 증가 관계뿐). 예방 권고 — 덱스메데토미딘·프로포폴·조기거동 — 가 전부 여기 걸린다.
-4. **LNN 은 공개 구현이 빈약하다.** M5 를 착수하기 전에 M3↔M4 결과로 게이트를 통과해야 한다.
+3. **PADIS 공리 8건을 LTN 이 아직 못 읽는다.** KG 쪽은 해결됐다 — `padis/kg/delirium_kg.py` 가 `decreasesRiskOf` / `hasNoEffectOn` / `precludes` 를 정의했다. 남은 건 소비 경로: `relation_vocab.json` 어휘 등록 + `horn_to_ltn.py` 가 셋을 **각각 다르게** 컴파일해야 한다(부정 함축 / 마이닝 필터 / Assessable 가드).
+4. **M4 에 collapse 리스크.** 음의 방향 공리가 없으면 술어가 전부 양의 방향으로 쏠려 **원 논문 Table 3 의 LTN-AK collapse** 가 재현된다. 3번을 안 고치면 M4 가 상수 예측으로 붕괴할 수 있다.
+5. **LNN 은 공개 구현이 빈약하다.** M5 착수 전 M3↔M4 결과로 게이트를 통과해야 한다.
 
 ---
 
@@ -126,6 +127,6 @@ M5(LNN)는 게이트 통과 후에만. 관계 어휘 확장(§4-3)은 데이터�
 | instance 345,505 / 환자 40,070 / 계층 3종 | `eda/19_split_spec.py` | `out_split/spec2_*.csv` |
 | baseline B0–B2 | `eda/20_baseline_carryforward.py` | `out_split/base_carryforward.csv` |
 | 입력 커버리지 (RASS 100% 등) | `eda/19_split_spec.py` | `out_split/spec3_*.csv` |
-| PADIS 규칙 14개 + GRADE | — | `padis/outputs/padis_rules_draft_v1.json` |
+| PADIS 규칙 19개 + 근거등급 | — | `padis/kg/delirium_kg.py`(본문) · `padis/outputs/padis_rules_draft_v1.json`(MIMIC 매핑) |
 
 전제: 성인 + ICU LOS ≥ 24h + 입실 후 240h 캡. 분할 seed 42.

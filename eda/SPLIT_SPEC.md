@@ -16,7 +16,7 @@
 | 2 | split 후 표본 수 | ✅ | §2 — N→P **20,417건 / 11,161명** |
 | 3 | 모델 입력/출력 정의 | ⚠️ 부분 | §3 — RASS·진정제는 확정, **mobility/pain/GCS 는 값 미추출** |
 | 4 | B안 모수 확인 | ✅ | §4 — P→N→P **6,655명**. 모수는 충분하나 별도 코호트 불필요 |
-| 5 | PADIS 규칙 추출 | ✅ 초안 | §5 — 14개 규칙. **`decreasesRiskOf` 관계가 없어 3건 표현 불가** |
+| 5 | PADIS 규칙 추출 | ✅ 초안 | §5 — 19개 규칙. `delirium_kg.py` 와 대조해 **내 초안 3건 수정**. 남은 블로커는 LTN 소비 경로 |
 | 6 | UTA 역할 재정리 | ✅ | §6 — UTA 는 outcome 에서 완전히 빠지고 **앵커·입력·검열** 세 역할로 |
 
 ---
@@ -223,58 +223,55 @@ P→N→P stay 를 평가 단위로 풀면 **instance 100,728개 (전체의 29.2
 
 ---
 
-## 5. PADIS 규칙 → axiom 변환 (초안)
+## 5. PADIS 규칙 → axiom 변환
 
-Sepsis 쪽 형식을 그대로 따랐다.
+> **갱신 (2026-09-09).** 이 항목은 `padis/kg/delirium_kg.py` (yyeonseoo, `eb4bdc1`) 와 겹친다.
+> **가이드라인 내용의 authoritative 소스는 그쪽이다.** 근거 문헌 범위(2018 + 2025 Focused Update)와
+> SNOMED CTID 가 더 정확하다. 아래 JSON 두 개는 그 위에 **MIMIC 매핑 + 파이프라인 소비 경로**를 얹는 계층으로 재배치했다.
 
-| 파일 | 역할 | 대응하는 Sepsis 파일 |
+| 파일 | 역할 | 소유 |
 |---|---|---|
-| `NeSy-SMP/configs/padis_concepts.json` | 개념 16개 + 트리플 26개 | `configs/clinical_concepts.json` |
-| `padis/outputs/padis_rules_draft_v1.json` | 규칙 14개 (근거문장·GRADE 포함) | `padis/outputs/padis_rules_approved.json` |
+| `padis/kg/delirium_kg.py` | 가이드라인 규칙 본문 (rdflib 트리플) | **authoritative** |
+| `padis/docs/PADIS_섬망_지식그래프_정리.md` | 추출 과정·스키마 설계 근거 | authoritative |
+| `NeSy-SMP/configs/padis_concepts.json` | 개념 16 + 트리플 31 + **MIMIC itemid 매핑** | 매핑 계층 |
+| `padis/outputs/padis_rules_draft_v1.json` | 규칙 19 (근거문장·등급) — `build_padis_kg_from_approved.py` 소비 가능 | 매핑 계층 |
 
-규칙 근거는 `padis/outputs/gold_set_draft.md` 의 G-001~G-015 실제 문장이다.
+### 대조하며 고친 것 3건 (내 초안이 틀렸던 것)
 
-### 규칙 14개 요약
+| 항목 | v1 (틀림) | v2 (수정) |
+|---|---|---|
+| MechanicalVentilation | `increasesRiskOf Delirium` | **`hasNoEffectOn`** — PADIS 2018 이 강한 근거로 '영향 없음'을 명시 |
+| Propofol | `decreasesRiskOf Delirium` | **삭제** — 2025 권고는 '프로포폴 *대비* 덱스메데토미딘'이라 프로포폴은 비교 대상 |
+| DeepSedation → UTA | `increasesRiskOf UnableToAssess` | **`precludes DeliriumAssessment`** — 상대 술어가 의미상 맞다 |
 
-| ID | 트리플 | GRADE | MIMIC |
-|---|---|---|:--:|
-| D-01 | Benzodiazepine → increasesRiskOf → Delirium | **strong** | ✅ |
-| D-02 | BloodTransfusion → increasesRiskOf → Delirium | **strong** | ❌ |
-| D-03 | SedationIntensity → increasesRiskOf → Delirium | cohort | ✅ |
-| D-04 | SedationIntensity → increasesRiskOf → Death | cohort | ✅ |
-| D-05 | DeepSedation → increasesRiskOf → Delirium | derived | ✅ |
-| D-06 | DeepSedation → increasesRiskOf → UnableToAssess | **data-derived** | ✅ |
-| D-07 | PhysicalRestraint → increasesRiskOf → Delirium | low | ❌ |
-| D-08 | Age → increasesRiskOf → Delirium | **strong** | ✅ |
-| D-09 | Delirium → increasesRiskOf → Death | strong | ✅ |
-| D-10 | Delirium → increasesRiskOf → Immobility | derived | ❌ |
-| D-11 | Dexmedetomidine → **decreasesRiskOf** → Delirium | low | ✅ |
-| D-12 | Propofol → **decreasesRiskOf** → Delirium | conditional | ✅ |
-| D-13 | EarlyMobility → **decreasesRiskOf** → Delirium | low | ❌ |
-| D-14 | SeverePain → increasesRiskOf → Delirium | low | ❌ |
+### 규칙 19개 (v2)
 
-### 🔴 변환하면서 나온 것 — 관계 어휘가 부족하다
+`increasesRiskOf` 11 · `decreasesRiskOf` 3 · `hasNoEffectOn` 3 · `precludes` 1 · MIMIC 준비됨 11 / 19
 
-`configs/relation_vocab.json` 의 `allowed_relations` 는 Sepsis 용이라 **위험을 올리는 관계만** 있다:
+강한 근거 위험인자 중 **동반질환 NLP 로 이미 확보 경로가 있는 것 3개**: `dementia` · `trauma` · `hypertension`
+— `colab/run_extraction_B.py` 의 `TERMS` 에 전부 들어 있다. **동반질환 추출 트랙과 KG 트랙이 여기서 만난다.**
 
-```
-increasesRiskOf · associatedWith · causedBy · greaterOrEqual · lessOrEqual · subClassOf · hasOutcome
-```
+### 🔴 남은 블로커 — LTN 소비 경로
 
-**PADIS 는 예방·보호 권고가 절반이다.** "벤조 대신 프로포폴/덱스메데토미딘", "조기 거동", "ABCDEF 번들" — 전부 위험을 **낮추는** 방향이고 현재 어휘로 표현할 수 없다. 14건 중 3건(D-11/12/13)이 여기 걸린다.
+`delirium_kg.py` 가 rdflib 쪽에 술어 3개(`decreasesRiskOf` / `hasNoEffectOn` / `precludes`)를 정의했지만,
+**LTN 파이프라인은 아직 이 셋을 모른다.** 각각 컴파일 방식이 다르다:
 
-필요한 조치:
-1. `relation_vocab.json` 에 `decreasesRiskOf` 추가 (정규화 사전에 "reduces risk of", "preferable to", "protective against")
-2. `pipeline/horn_to_ltn.py` 의 `compile_implications_from_kg` 에서 함축 머리에 부정을 붙인다 — `∀x Pred(x) → ¬Delirium(x)`
+| 술어 | 컴파일 | 고칠 곳 |
+|---|---|---|
+| `decreasesRiskOf` | 함축 머리에 부정 — `∀x Pred(x) → ¬Delirium(x)` | `pipeline/horn_to_ltn.py` |
+| `hasNoEffectOn` | 공리 아님. **마이닝 규칙 기각 필터** | `filter_rules.py` |
+| `precludes` | `Assessable` 가드 | `horn_to_ltn.py` + 개념층 |
+| 전부 | 어휘 등록 | `configs/relation_vocab.json` |
 
-> 이건 구현 편의 문제가 아니라 **논문에 쓸 거리다.** 원 논문의 KG 는 위험인자→사망 한 방향뿐이었다. 가이드라인은 원래 "무엇을 하지 말라 / 무엇을 하라"이고, 그걸 담으려면 관계 어휘 자체를 확장해야 한다.
+> 상대 문서 §4 가 지적한 대로, 음의 방향 공리가 없으면 술어가 전부 양의 방향으로 쏠려
+> **원 논문 Table 3 의 LTN-AK collapse** 가 재현될 수 있다. 이건 M4 의 실질 리스크다.
 
-### 나머지 주의
+### 그 외 주의
 
-- **D-06 만 출처가 PADIS 가 아니다.** 우리 데이터에서 온 관측(UTA 의 78.1% 가 RASS ≤ −4)이다. 논문에서 가이드라인 공리와 섞어 쓰면 안 되고 별도 표기해야 한다.
-- **D-12 는 과장 위험.** 원문은 "benzodiazepine 대비 우월"이지 절대적 보호가 아니다.
-- **`padis_rules_approved.json` 은 건드리지 않았다** — 사람이 `approve_rules.py` 로 승인한 결과여야 하는 파일이라 draft 로 따로 뒀다. 검토 후 옮기면 `build_padis_kg_from_approved.py` 가 그대로 읽는다.
-- SNOMED id 는 전부 `null` 이다. 임의로 채우지 않았다 — 확인 후 채워야 한다.
+- **`PADIS-G-01`(precludes) 만 출처가 PADIS 가 아니다** — 우리 데이터 관측(UTA 의 78.1% 가 RASS ≤ −4)이다. 논문에서 가이드라인 공리와 섞으면 안 된다.
+- **깊은 진정의 시점 분리** (상대 문서 §5): 위험 공리는 앵커 *이전* lookback 에, 평가 불능 가드는 앵커 *현재* 에. 우리 split 설계가 이미 이렇게 나뉘어 있다 — §3 의 lookback / 앵커 구분이 그대로 대응한다.
+- **`padis_rules_approved.json` 은 건드리지 않았다** — 사람이 `approve_rules.py` 로 승인한 결과여야 하는 파일이다.
+- `padis/kg/delirium_kg.py` 는 현재 **실행되지 않는다** — `from utils import visualize` 가 `NeSy-SMP/utils.py` 를 못 찾고, `pyvis` 도 venv 에 없다. 그래프 구성 로직 자체는 정상이다.
 
 ---
 
