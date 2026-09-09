@@ -7,7 +7,10 @@
     "greaterOrEqual",
     "lessOrEqual",
     "subClassOf",
-    "hasOutcome"
+    "hasOutcome",
+    "decreasesRiskOf",
+    "hasNoEffectOn",
+    "precludes"
   ],
   "normalize": {
     "increaseRiskOf": "increasesRiskOf",
@@ -15,7 +18,45 @@
     "associated with": "associatedWith",
     "caused by": "causedBy",
     "leads to": "increasesRiskOf",
-    "risk factor for": "increasesRiskOf"
+    "risk factor for": "increasesRiskOf",
+    "decreases risk of": "decreasesRiskOf",
+    "reduces risk of": "decreasesRiskOf",
+    "protective against": "decreasesRiskOf",
+    "preferable to": "decreasesRiskOf",
+    "has no effect on": "hasNoEffectOn",
+    "not associated with": "hasNoEffectOn",
+    "no association with": "hasNoEffectOn",
+    "precludes": "precludes",
+    "prevents assessment of": "precludes"
   },
-  "outcome_concepts": ["Death", "HighMortality", "Outcome"]
+  "outcome_concepts": [
+    "Death",
+    "HighMortality",
+    "Outcome",
+    "Delirium"
+  ],
+  "relation_semantics": {
+    "increasesRiskOf": {
+      "kind": "implication",
+      "negate_head": false
+    },
+    "increaseRiskOf": {
+      "kind": "implication",
+      "negate_head": false
+    },
+    "decreasesRiskOf": {
+      "kind": "implication",
+      "negate_head": true
+    },
+    "precludes": {
+      "kind": "implication",
+      "negate_head": true,
+      "skip_outcome_check": true
+    },
+    "hasNoEffectOn": {
+      "kind": "filter",
+      "negate_head": false
+    }
+  },
+  "_note": "decreasesRiskOf / hasNoEffectOn / precludes 는 PADIS 용으로 추가됐다 (padis/kg/delirium_kg.py 가 ckg 네임스페이스에 정의). hasNoEffectOn 은 공리가 아니라 마이닝 규칙 기각 필터로 컴파일된다."
 }

@@ -262,20 +262,25 @@ P→N→P stay 를 평가 단위로 풀면 **instance 100,728개 (전체의 29.2
 강한 근거 위험인자 중 **동반질환 NLP 로 이미 확보 경로가 있는 것 3개**: `dementia` · `trauma` · `hypertension`
 — `colab/run_extraction_B.py` 의 `TERMS` 에 전부 들어 있다. **동반질환 추출 트랙과 KG 트랙이 여기서 만난다.**
 
-### 🔴 남은 블로커 — LTN 소비 경로
+### ✅ 해소 — LTN 소비 경로
 
-`delirium_kg.py` 가 rdflib 쪽에 술어 3개(`decreasesRiskOf` / `hasNoEffectOn` / `precludes`)를 정의했지만,
-**LTN 파이프라인은 아직 이 셋을 모른다.** 각각 컴파일 방식이 다르다:
+`delirium_kg.py` 가 rdflib 쪽에 정의한 술어 3개를 LTN 파이프라인이 읽도록 고쳤다.
+**PADIS 공리가 2개 → 19개로 컴파일된다** (sepsis 17개는 변동 없음). 각각 다르게 컴파일한다:
 
-| 술어 | 컴파일 | 고칠 곳 |
-|---|---|---|
-| `decreasesRiskOf` | 함축 머리에 부정 — `∀x Pred(x) → ¬Delirium(x)` | `pipeline/horn_to_ltn.py` |
-| `hasNoEffectOn` | 공리 아님. **마이닝 규칙 기각 필터** | `filter_rules.py` |
-| `precludes` | `Assessable` 가드 | `horn_to_ltn.py` + 개념층 |
-| 전부 | 어휘 등록 | `configs/relation_vocab.json` |
+| 술어 | 컴파일 결과 | 개수 |
+|---|---|---:|
+| `increasesRiskOf` | `∀x Pred(x) → Delirium(x)` | 12 |
+| `decreasesRiskOf` | **머리에 부정** — `∀x Pred(x) → ¬Delirium(x)` | 3 |
+| `precludes` | `∀x DeepSedation(x) → ¬Assessable(x)` | 1 |
+| `hasNoEffectOn` | 공리 아님 — `REJECT:` 로 표시된 **기각 필터** | 3 |
 
-> 상대 문서 §4 가 지적한 대로, 음의 방향 공리가 없으면 술어가 전부 양의 방향으로 쏠려
-> **원 논문 Table 3 의 LTN-AK collapse** 가 재현될 수 있다. 이건 M4 의 실질 리스크다.
+`horn_to_ltn.py` 의 `compile_implications_from_kg` 는 원래 **object 가 `Death`/`HighMortality` 인 트리플만** 컴파일했다. PADIS 트리플은 전부 `Delirium` 이 대상이라 그대로 두면 17개가 조용히 사라진다 — 관계 어휘뿐 아니라 이 결과-개념 필터도 같이 고쳐야 했다.
+
+트리플이 참조하는데 `concepts` 에 없던 개념 6개(Dementia · Trauma · Hypertension · Melatonin · OpioidUse · PatientSex)도 채웠다. 없으면 `resolve_predicate` 가 `HighDementia` 같은 이름으로 임의 합성해 MIMIC 매핑이 끊긴다.
+
+> 상대 문서 §4 가 지적한 collapse 리스크는 **구조적으로는 막혔다** — 공리 구성이
+> 양의 방향 12 · 음의 방향 4 · 기각 필터 3 이라 한쪽으로 쏠리지 않는다.
+> 실제로 붕괴하지 않는지는 5단계를 돌려봐야 안다.
 
 ### 그 외 주의
 

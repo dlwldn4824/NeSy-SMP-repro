@@ -418,6 +418,142 @@
         "itemids": [],
         "rule": "admissions.hospital_expire_flag == 1"
       }
+    },
+    {
+      "id": "Dementia",
+      "snomed_label": "Dementia",
+      "snomed_id": "52448006",
+      "aliases": [
+        "dementia",
+        "cognitive impairment",
+        "치매"
+      ],
+      "roles": [
+        "RiskFactor",
+        "Comorbidity"
+      ],
+      "feature_name": "como_dementia",
+      "polarity": "high",
+      "threshold": null,
+      "predicate": "Dementia",
+      "code_predicate": "DementiaRisk",
+      "mimic": {
+        "itemids": [],
+        "rule": "동반질환 NLP — run_extraction_B.py TERMS 의 'dementia'"
+      }
+    },
+    {
+      "id": "Trauma",
+      "snomed_label": "Trauma",
+      "snomed_id": "417746004",
+      "aliases": [
+        "trauma",
+        "injury",
+        "외상"
+      ],
+      "roles": [
+        "RiskFactor"
+      ],
+      "feature_name": "como_trauma",
+      "polarity": "high",
+      "threshold": null,
+      "predicate": "Trauma",
+      "code_predicate": "TraumaRisk",
+      "mimic": {
+        "itemids": [],
+        "rule": "동반질환 NLP — TERMS 의 'trauma'. '입실 전' 시점 제한은 미구현"
+      }
+    },
+    {
+      "id": "Hypertension",
+      "snomed_label": "Hypertension",
+      "snomed_id": "38341003",
+      "aliases": [
+        "hypertension",
+        "high blood pressure",
+        "고혈압"
+      ],
+      "roles": [
+        "RiskFactor",
+        "Comorbidity"
+      ],
+      "feature_name": "como_hypertension",
+      "polarity": "high",
+      "threshold": null,
+      "predicate": "Hypertension",
+      "code_predicate": "HypertensionRisk",
+      "mimic": {
+        "itemids": [],
+        "rule": "동반질환 NLP — TERMS 의 'hypertension'"
+      }
+    },
+    {
+      "id": "Melatonin",
+      "snomed_label": "Melatonin",
+      "snomed_id": "41199001",
+      "aliases": [
+        "melatonin",
+        "멜라토닌"
+      ],
+      "roles": [
+        "Treatment"
+      ],
+      "feature_name": "melatonin_exposure",
+      "polarity": "high",
+      "threshold": null,
+      "predicate": "MelatoninExposure",
+      "code_predicate": "MelatoninExposure",
+      "mimic": {
+        "itemids": [],
+        "rule": "미매핑 — 투약 기록 추출 필요",
+        "status": "미추출"
+      }
+    },
+    {
+      "id": "OpioidUse",
+      "snomed_label": "Opioid",
+      "snomed_id": null,
+      "aliases": [
+        "opioid",
+        "fentanyl",
+        "morphine",
+        "hydromorphone"
+      ],
+      "roles": [
+        "NullFactor"
+      ],
+      "feature_name": "opioid_exposure",
+      "polarity": "high",
+      "threshold": null,
+      "predicate": "OpioidExposure",
+      "code_predicate": "OpioidExposure",
+      "mimic": {
+        "itemids": [],
+        "rule": "미매핑. PADIS 가 '영향 없음'(strong)으로 명시 — 기각 필터용"
+      }
+    },
+    {
+      "id": "PatientSex",
+      "snomed_label": "Patient sex",
+      "snomed_id": null,
+      "aliases": [
+        "sex",
+        "gender",
+        "성별"
+      ],
+      "roles": [
+        "NullFactor"
+      ],
+      "feature_name": "is_male",
+      "polarity": "high",
+      "threshold": null,
+      "predicate": "MaleSex",
+      "code_predicate": "MaleSex",
+      "mimic": {
+        "itemids": [],
+        "rule": "patients.gender",
+        "status": "PADIS '영향 없음'(strong) — 기각 필터용"
+      }
     }
   ],
   "triples": [
@@ -469,7 +605,7 @@
     {
       "subject": "DeepSedation",
       "predicate": "precludes",
-      "object": "DeliriumAssessment"
+      "object": "Assessable"
     },
     {
       "subject": "Delirium",

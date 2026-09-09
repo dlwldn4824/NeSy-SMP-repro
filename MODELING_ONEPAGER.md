@@ -106,7 +106,7 @@ B2 룩업표 (train, Positive%):
 | **2** | XGBoost | 요약된 정적 변수만으로 가능한 성능 | ✅ **완료** (mobility/pain/GCS 빠진 채) | `eda/22_` |
 | **3** | BiLSTM | 원시 24h 시계열이 요약을 넘나 | ✅ **완료** (RASS+진정제 채널만) | `eda/23_` |
 | **4** | CBM | PADIS 임상 개념을 명시적으로 예측하는 효과 | ✅ **완료** (개념 5/6) | `eda/23_` |
-| **5** | LTN | CBM + PADIS 논리 공리의 효과 | 🔴 **공리 변환 필요** (§4-3) | `ltn` 설치됨 · `stratified_main.py` 553–633 |
+| **5** | LTN | CBM + PADIS 논리 공리의 효과 | 공리 19개 컴파일됨 · 학습 연결 남음 | `ltn` 설치됨 · `stratified_main.py` 553–633 |
 | **6** | LNN | 구간 진리값이 라벨 미관찰 문제에 실제로 필요한지 | 🔴 **전부 구현** | 없음 (공개 구현 빈약) |
 
 > **5와 6은 쌓는 게 아니라 대안 논리 프레임워크로 비교한다.** LNN 은 구현이 덜 성숙하고,
@@ -208,8 +208,8 @@ UTA 앵커의 미관찰은 84.2% 가 '전부 UTA'(진정 지속)이고, N 앵커
 
 1. ~~mobility / pain / GCS 값이 없다~~ → **해소.** `eda/24_` 로 추출했다(풀스캔 74초). 다만 itemid 별 척도가 섞여 있어 쓸 것만 골랐다 — mobility 6개 중 2개, pain 5개 중 2개만 값으로 쓴다(`SPLIT_SPEC` §3).
 2. **앵커=N 계층의 절대 성능은 낮다.** 2단계에서 AUPRC 46.1 이다(기저 12.0%). 숫자만 보면 약해 보이므로 **baseline 23.0 대비 델타**로 말해야 한다.
-3. **PADIS 공리 8건을 LTN 이 아직 못 읽는다.** KG 쪽은 해결됐다 — `padis/kg/delirium_kg.py` 가 `decreasesRiskOf` / `hasNoEffectOn` / `precludes` 를 정의했다. 남은 건 소비 경로: `relation_vocab.json` 어휘 등록 + `horn_to_ltn.py` 가 셋을 **각각 다르게** 컴파일해야 한다(부정 함축 / 마이닝 필터 / Assessable 가드).
-4. **5단계(LTN) 에 collapse 리스크.** 음의 방향 공리가 없으면 술어가 전부 양의 방향으로 쏠려 **원 논문 Table 3 의 LTN-AK collapse** 가 재현된다. 3번을 안 고치면 5단계가 상수 예측으로 붕괴할 수 있다.
+3. ~~PADIS 공리를 LTN 이 못 읽는다~~ → **해소.** `relation_vocab.json` 에 관계 3종을 등록하고 `horn_to_ltn.py` 가 각각 다르게 컴파일하도록 고쳤다. **PADIS 공리가 2개 → 19개로 컴파일된다** (sepsis 17개는 그대로). 남은 것은 이 공리를 실제 학습 손실에 연결하는 일이다.
+4. **collapse 리스크는 구조적으로는 막았다.** 공리 구성이 **양의 방향 12 · 음의 방향 4 · 기각 필터 3** 이라 한쪽으로 쏠리지 않는다. 다만 실제로 붕괴하지 않는지는 5단계를 돌려봐야 안다.
 5. **LNN 은 공개 구현이 빈약하다.** 6단계 착수 전 4·5단계 결과로 게이트를 통과해야 한다.
 6. **3·4단계가 2단계를 못 넘었고, 이번엔 채널이 다 찬 상태다.** BiLSTM −3.5 는 확정이다. 개념 병목 −17.5 는 개념 5/6 이라 여전히 상한값이지만, **논리층을 얹기 전에 backbone 선택부터 다시 봐야 한다**(§1 제안).
 
@@ -236,15 +236,16 @@ UTA 앵커의 미관찰은 84.2% 가 '전부 UTA'(진정 지속)이고, N 앵커
 | 3 | 환자 단위 split 데이터셋 생성 | ✅ 완료 (`eda/22_` 안에) |
 | 4 | XGBoost·BiLSTM 실행해 시계열의 추가 가치 확인 | ✅ 완료 — **시계열은 값을 못 더했다** |
 | 5 | PADIS 규칙 19개의 근거·관계 방향을 **사람이 검토** | 대기 |
-| 6 | SNOMED CT 숫자 코드 검증 | 일부만 채움 |
-| 7 | **새 관계(`decreasesRiskOf`/`hasNoEffectOn`/`precludes`)를 LTN 공리로 변환** | 🔴 미착수 |
+| 6 | SNOMED CT 숫자 코드 검증 | 일부만 채움 (`delirium_kg.py` 제공분) |
+| 7 | 새 관계(`decreasesRiskOf`/`hasNoEffectOn`/`precludes`)를 LTN 공리로 변환 | ✅ 완료 (19개 컴파일) |
 | 8 | CBM ↔ LTN 비교 후 LNN 도입 필요성 판단 | CBM 완료 · **LTN 이 임계경로** |
 
 **가장 중요한 미완성 3개**: ① mobility·pain·GCS 값 추출 · ② PADIS KG → LTN loss 변환 경로 · ③ 규칙 사람 검토
 (②는 §4-3·§4-4 의 collapse 리스크와 같은 항목이다.)
 
-**순서 제안**: 1 은 끝났고 2·3·4 도 재실행했다. 이제 **7(LTN 공리 변환)이 단독 임계경로**다.
-그 전에 §1 의 backbone 제안(BiLSTM → 요약 MLP)을 먼저 반영하는 편이 낫다 — 4단계가 3단계 위에 얹히는 구조라 backbone 이 약하면 5단계도 같이 끌려 내려간다.
+**순서 제안**: 1·7 끝났고 2·3·4 도 재실행했다. 남은 임계경로는 두 개다 —
+**(a) backbone 을 BiLSTM 에서 요약 MLP 로 교체**(§1 제안), **(b) 컴파일된 공리 19개를 학습 손실에 연결**.
+(a) 를 먼저 하는 편이 낫다 — 4·5단계가 3단계 backbone 위에 얹히는 구조라 여기가 약하면 같이 끌려 내려간다.
 **6단계(LNN)는 게이트 통과 후에만.**
 
 ---
@@ -261,5 +262,6 @@ UTA 앵커의 미관찰은 84.2% 가 '전부 UTA'(진정 지속)이고, N 앵커
 | 3·4단계 BiLSTM·CBM | `eda/23_stage34_bilstm_cbm.py` | `out_split/stage34.csv` |
 | mobility·pain·GCS 보충추출 | `eda/24_extract_mobility_pain_gcs.py` | `notes/eda/_extra_values.parquet` |
 | PADIS 규칙 19개 + 근거등급 | — | `padis/kg/delirium_kg.py`(본문) · `padis/outputs/padis_rules_draft_v1.json`(MIMIC 매핑) |
+| LTN 공리 19개 컴파일 | `NeSy-SMP/pipeline/horn_to_ltn.py` | `configs/padis_concepts.json` + `relation_vocab.json` |
 
 전제: 성인 + ICU LOS ≥ 24h + 입실 후 240h 캡. 분할 seed 42.
