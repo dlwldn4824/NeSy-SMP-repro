@@ -14,7 +14,7 @@
 |---|---|---|---|
 | 1 | split 방식 구체화 | ✅ | §1 — 그림 + 실제 환자 1명 전개 |
 | 2 | split 후 표본 수 | ✅ | §2 — N→P **20,417건 / 11,161명** |
-| 3 | 모델 입력/출력 정의 | ⚠️ 부분 | §3 — RASS·진정제는 확정, **mobility/pain/GCS 는 값 미추출** |
+| 3 | 모델 입력/출력 정의 | ✅ | §3 — **mobility/pain/GCS 추출 완료** (`24_`). 척도 혼재분은 걸러 씀 |
 | 4 | B안 모수 확인 | ✅ | §4 — P→N→P **6,655명**. 모수는 충분하나 별도 코호트 불필요 |
 | 5 | PADIS 규칙 추출 | ✅ 초안 | §5 — 19개 규칙. `delirium_kg.py` 와 대조해 **내 초안 3건 수정**. 남은 블로커는 LTN 소비 경로 |
 | 6 | UTA 역할 재정리 | ✅ | §6 — UTA 는 outcome 에서 완전히 빠지고 **앵커·입력·검열** 세 역할로 |
@@ -175,7 +175,7 @@ Positive% — 셀 안의 수는 instance 수:
 [정적] age · gender · first_careunit · anchor_year_group · ED 경유
 ```
 
-### ⚠️ 미해결 — mobility / pain / GCS 값이 로컬에 없다
+### ✅ 해소 — mobility / pain / GCS 추출 완료
 
 `00_extract.py` 의 `VALUE_IDS` 가 CAM·RASS·CAM-ICU feature 만 값으로 뽑고 나머지는 **stay×itemid 건수만** 저장한다. stay 단위 보유율은 확인했다:
 
@@ -188,9 +188,20 @@ Positive% — 셀 안의 수는 instance 수:
 | RESTRAINT | 50.1% |
 | CPOT | 19.6% |
 
-**데이터는 DB 에 다 있다. 뽑기만 안 했다.** `VALUE_IDS` 에 `MOBILITY + PAIN_NRS + GCS_total` 을 추가해 `00_extract.py` 를 다시 돌리면 된다. RESTRAINT(50.1%)와 CPOT(19.6%)는 결측이 커서 주 입력으로는 부적합하다.
+`eda/24_extract_mobility_pain_gcs.py` 로 뽑았다 (chartevents 풀스캔 74초, 10.3M 행 → `_extra_values.parquet` 51MB).
+`00_extract.py` 의 `VALUE_IDS` 도 넓혀 뒀으니 다음 전체 재추출부터는 자동 포함된다.
 
-→ **이게 항목 3의 유일한 블로커다.** 앵커별 lookback 커버리지는 재추출 후에 확정된다.
+**다만 itemid 별로 척도가 섞여 있어 그대로 쓰면 안 된다.** 확인 후 고른 것만 쓴다:
+
+| 항목 | 쓰는 itemid | 척도 | 커버 | 버린 것 |
+|---|---|---|---:|---|
+| GCS | 220739 · 223900 · 223901 | eye 1–4 / verbal 1–5 / motor 1–6 | stay 100% | — |
+| Mobility | 224057 · 229321 | Braden 1–4 / JH-HLM 1–8 | 99.9% / 55% | 229633(값 16–57, 다른 측정) · 228697 · 229319 · 229742 (표본 과소) |
+| Pain | 223791 · 224409 의 `valuenum` | NRS 0–10 | 92% / 81% | 223794 · 230144 ("Yes/Tolerable" — 다른 구성개념, 관측 플래그로만) |
+
+PAIN 은 `valuenum` 이 43.7% 만 차 있는데, 비어 있는 대부분이 `Unable to Score` 다 — **통증에서도 '평가 불가'가 구조적으로 존재한다.** CAM 의 UTA 와 같은 성격이라 별도 플래그로 유지한다.
+
+RESTRAINT(50.1%)와 CPOT(19.6%)는 결측이 커서 주 입력으로는 여전히 부적합하다.
 
 ---
 

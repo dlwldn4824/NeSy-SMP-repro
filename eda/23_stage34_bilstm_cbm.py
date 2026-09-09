@@ -3,11 +3,10 @@
 # 3단계 BiLSTM · 4단계 CBM — 1·2단계와 동일한 test set 에서 비교
 #
 #   3    BiLSTM          원시 24h 시계열이 2단계의 요약 피처를 넘나
-#   4    CBM             개념 병목(DeepSedation)을 거치는 비용
+#   4    CBM             개념 병목(개념 5종)을 거치는 비용
 #   4b   CBM + Assessable  라벨 미관찰 앵커(29.0%)를 Assessable 보조라벨로 재활용
 #
-# ⚠️ mobility / pain / GCS 는 값이 없다. 시계열 채널은 RASS + 진정제뿐이다.
-#    "시계열의 추가 가치"에 대한 최종 판정이 아니라 하한이다.
+# 시계열 채널: RASS + 진정제 + (24_ 추출분) GCS 3성분 · mobility 2종 · pain NRS.
 #
 # 분할: test 는 20_/22_ 와 완전히 동일(환자 단위 30%, seed 42).
 #       val 은 train 환자 중 15%p 를 다시 뗀다.
@@ -138,6 +137,19 @@ for a, n in zip(first, cnt):
         cov = (s_[None, None, :] <= ct) & (e_[None, None, :] > ct)
         for ci, c in enumerate(CLS):
             X[a:a + n, :, 3 + ci] = (cov & (cl == c)[None, None, :]).any(2)
+# ---- mobility / pain / GCS 채널 붙이기 ----
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _extra_features import build_extra_channels
+
+EX, EXNAMES = build_extra_channels(DATA, cam["stay_id"].to_numpy(), h, first, cnt, nbin=NBIN)
+if EX is None:
+    print("[!] _extra_values.parquet 없음 — RASS+진정제 채널만 쓴다")
+else:
+    X = np.concatenate([X, EX], axis=2)
+    NCH = X.shape[2]
+    del EX
+    print(f"채널 확장 -> {NCH} ({', '.join(EXNAMES)})")
+
 print(f"시계열 텐서 {X.shape} · {X.nbytes/1e6:.0f}MB · {time.time()-t0:.0f}s", flush=True)
 
 # ================================================================ 정적/이력 벡터
@@ -318,4 +330,5 @@ print(f"\n3단계 - 2단계 = {n['3 BiLSTM']-n['2 XGB']:+.1f}  → 원시 시계
 print(f"4단계 - 3단계 = {n['4 CBM']-n['3 BiLSTM']:+.1f}  → 개념 병목의 비용")
 print(f"4b  - 4단계  = {n['4b CBM+Assessable']-n['4 CBM']:+.1f}  → 미관찰 앵커를 Assessable 로 살린 효과")
 print(f"\n총 {time.time()-t0:.0f}s")
-print("\n⚠️ mobility/pain/GCS 없이 RASS+진정제만으로 만든 시계열이다. 3단계 판정의 하한이다.")
+print("\n" + ("mobility/pain/GCS 포함본이다 — 3단계 판정은 확정이다."
+                if NCH > 6 else "[!] mobility/pain/GCS 미포함 — 하한이다."))

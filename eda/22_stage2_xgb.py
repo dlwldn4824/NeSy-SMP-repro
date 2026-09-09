@@ -2,8 +2,8 @@
 # ============================================================================
 # 2단계 — XGBoost (요약 피처만). 1단계 lookup baseline 을 넘는지 본다.
 #
-# ⚠️ mobility / pain / GCS 는 아직 값이 없다 (00_extract.py VALUE_IDS).
-#    따라서 이 결과는 "가능한 피처의 부분집합"이고, 재추출 후 다시 돌려야 한다.
+# mobility / pain / GCS 는 24_extract_mobility_pain_gcs.py 가 뽑은 _extra_values.parquet 에서 붙는다.
+# 그 파일이 없으면 자동으로 빼고 돌아간다.
 #
 # 분할·seed 는 20_baseline_carryforward.py 와 동일 (환자 단위 70/30, seed 42)
 # 사용: EDA_DATA=<notes/eda> python eda/22_stage2_xgb.py
@@ -137,6 +137,22 @@ for a, n in zip(first, cnt):
 for k, arr in S.items():
     cam[k] = arr
 
+# ---------------------------------------------------------------- mobility/pain/GCS
+# 24_extract_mobility_pain_gcs.py 가 만든 _extra_values.parquet 이 있으면 붙인다.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _extra_features import build_extra_channels, summarize
+
+EX, EXNAMES = build_extra_channels(DATA, cam["stay_id"].to_numpy(), h, first, cnt)
+if EX is None:
+    EXTRA_COLS = []
+    print("[!] _extra_values.parquet 없음 — mobility/pain/GCS 없이 진행")
+else:
+    ESUM, EXTRA_COLS = summarize(EX, EXNAMES)
+    for i, c in enumerate(EXTRA_COLS):
+        cam[c] = ESUM[:, i]
+    print(f"추가 피처 {len(EXTRA_COLS)}개 · 채널 {EX.shape[2]}")
+    del EX
+
 # ---------------------------------------------------------------- 정적
 st = DEN.set_index("stay_id")
 cam["subject_id"] = cam["stay_id"].map(st["subject_id"])
@@ -159,7 +175,8 @@ d["split"] = np.where(d.subject_id.isin(tr_pat), "train", "test")
 FEATS = (["hr", "n_prev", "n_prev_pos", "n_prev_uta", "uta_frac", "since_conf", "since_prev"]
          + cols + ["deep_sed24"] + [f"sed_{c}" for c in CLS] + ["sed_benzo_cum"]
          + ["age", "los", "is_male", "cu", "era"]
-         + ["anchor_N", "anchor_P", "anchor_U", "prev_N", "prev_P", "prev_none"])
+         + ["anchor_N", "anchor_P", "anchor_U", "prev_N", "prev_P", "prev_none"]
+         + EXTRA_COLS)
 for a in ["N", "P", "U"]:
     d[f"anchor_{a}"] = (d.v == a).astype(float)
 for a, nm in [("N", "prev_N"), ("P", "prev_P"), ("없음", "prev_none")]:
@@ -215,7 +232,9 @@ steps = [("A 상태만", G_STATE),
          ("B +이력", G_STATE + G_HIST),
          ("C +RASS", G_STATE + G_HIST + G_RASS),
          ("D +진정제", G_STATE + G_HIST + G_RASS + G_MED),
-         ("E +정적 (full)", FEATS)]
+         ("E +정적", G_STATE + G_HIST + G_RASS + G_MED + G_STATIC)]
+if EXTRA_COLS:
+    steps.append(("F +mobility/pain/GCS (full)", FEATS))
 teN = te[te.v == "N"]; ytN = teN.y.astype(int).to_numpy()
 yt_all = te.y.astype(int).to_numpy()
 rows = []
@@ -242,8 +261,12 @@ print(f"주 지표 (앵커=N AUPRC): {n['B2 AUPRC']} -> {n['XGB AUPRC']}  (Δ{n[
 print(f"        (앵커=N AUROC): {n['B2 AUROC']} -> {n['XGB AUROC']}  (Δ{n['ΔAUROC']:+})")
 gain_hist = ab.loc["B +이력", "N AUPRC"] - ab.loc["A 상태만", "N AUPRC"]
 gain_rass = ab.loc["C +RASS", "N AUPRC"] - ab.loc["B +이력", "N AUPRC"]
+last_row = ab.index[-1]
 print(f"\n이득 분해 — 이력 +{gain_hist:.1f} · RASS +{gain_rass:.1f} "
       f"· 진정제 {ab.loc['D +진정제','N AUPRC']-ab.loc['C +RASS','N AUPRC']:+.1f} "
-      f"· 정적 {ab.loc['E +정적 (full)','N AUPRC']-ab.loc['D +진정제','N AUPRC']:+.1f}")
-print("→ RASS 증분이 작으면 3단계(BiLSTM)로 원시 시계열을 넣을 근거가 약하다.")
-print("\n⚠️ mobility / pain / GCS 미포함 상태의 수치다. 재추출 후 다시 돌려야 한다.")
+      f"· 정적 {ab.loc['E +정적','N AUPRC']-ab.loc['D +진정제','N AUPRC']:+.1f}"
+      + (f" · mobility/pain/GCS {ab.loc[last_row,'N AUPRC']-ab.loc['E +정적','N AUPRC']:+.1f}"
+         if EXTRA_COLS else ""))
+print("→ 마지막 증분이 크면 3단계(BiLSTM)로 원시 시계열을 넣을 근거가 생긴다.")
+print("\n" + ("mobility/pain/GCS 포함본이다." if EXTRA_COLS
+                else "[!] mobility/pain/GCS 미포함이다."))

@@ -75,6 +75,12 @@ ALL_IDS = sorted(ITEM2G)
 # 값까지 원본 그대로 보관할 항목 (섬망평가 · RASS · CAM-ICU feature)
 VALUE_IDS = [228332, 228096, 228300, 228301, 228302, 228303, 228334, 228335, 228336,
              228337, 229324, 229325, 229326]
+# 3·4단계 시계열 입력으로 mobility / pain / GCS 값도 필요하다 (eda/SPLIT_SPEC.md §3 블로커).
+# 이걸 빼면 _label_values 에 CAM·RASS 만 남아 BiLSTM 입력이 반쪽이 된다.
+VALUE_IDS = sorted(set(VALUE_IDS)
+                   | set(GROUPS["PAIN_NRS"])
+                   | set(GROUPS["MOBILITY"])
+                   | set(GROUPS["GCS_total"]))
 SED = {225150: "dexmedetomidine", 229420: "dexmedetomidine", 221385: "lorazepam",
        221668: "midazolam", 222168: "propofol", 221623: "diazepam"}
 
