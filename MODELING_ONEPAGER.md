@@ -2,20 +2,21 @@
 
 저장소: https://github.com/dlwldn4824/NeSy-SMP-repro
 상세: `eda/SPLIT_SPEC.md`(설계·표본) · `eda/SPLIT_DESIGN.md`(근거) · `eda/LNN_DESIGN.md`(논리층)
-재현 스크립트: `eda/20_baseline_carryforward.py`
+재현 스크립트: `eda/20_baseline_carryforward.py` · `eda/21_censoring_reasons.py` · `eda/22_stage2_xgb.py`
 
 ---
 
 ## 30초 오프닝
 
 > 예측 단위를 stay → **CAM 평가 시점**으로 바꿨습니다. instance 29,500 → **345,505**.
-> 그리고 **무학습 baseline 을 먼저 쟀습니다.** 변수 2개짜리 룩업표가 **전체 AUROC 84.9** 를 냅니다.
-> **전체 AUROC 는 헤드라인으로 못 씁니다.** 계층을 섞어서 나온 수입니다.
-> 진짜 여백은 **앵커=N(신규 발생) 계층 하나**에 있고, 거기 baseline 은 **AUROC 63.7 / AUPRC 23.0** 입니다.
+> **무학습 baseline 을 먼저 쟀더니** 변수 2개짜리 룩업표가 **전체 AUROC 84.9** 를 냅니다 —
+> **전체 지표는 헤드라인으로 못 씁니다.** 계층(기저 12/78/53%)을 섞어서 나온 수입니다.
+> 진짜 여백은 **앵커=N(신규 발생)** 하나이고, 거기 baseline 은 AUPRC 23.0 입니다.
+> **2단계 XGBoost 를 돌렸습니다: 그 23.0 이 46.1 로 두 배가 됐습니다.** 방향은 맞습니다.
 
 ---
 
-## 1) 넘어야 할 선 — 무학습 baseline (환자 단위 70/30, test 103,306 instance)
+## 1) 넘어야 할 선, 그리고 2단계 결과 (환자 단위 70/30, test 103,306 instance)
 
 | 계층 | n | Positive% | B0 F1(bin) | B0 F1(macro) | **B2 AUROC** | **B2 AUPRC** |
 |---|---:|---:|---:|---:|---:|---:|
@@ -42,32 +43,103 @@ B2 룩업표 (train, Positive%):
 
 > 이건 우리가 이미 한 번 겪은 함정과 같은 종류다 — `MEETING_ONEPAGER.md` §2 의 Table 1(macro) vs Table 2(binary). 집계 방식이 헤드라인을 만든다. **이번엔 미리 못 박고 시작한다.**
 
+### 2단계 결과 — XGBoost (같은 분할, 같은 test)
+
+| 계층 | 기저% | AUROC 1→2단계 | **AUPRC 1→2단계** |
+|---|---:|---:|---:|
+| 전체 | 31.0 | 84.9 → 90.9 (+6.0) | 71.6 → 82.0 (+10.4) |
+| **앵커=N** (주 지표) | 12.0 | 63.7 → **83.8** (+20.1) | 23.0 → **46.1** (**+23.1**) |
+| 앵커=P | 78.1 | 62.3 → 73.2 (+10.9) | 83.0 → 90.0 (+7.0) |
+| 앵커=U | 53.3 | 64.1 → 81.3 (+17.2) | 65.5 → 81.8 (+16.3) |
+
+**주 지표에서 AUPRC 가 두 배가 됐다.** 계층별 지표를 주로 잡은 것이 옳았다는 뜻이기도 하다 —
+전체 AUPRC 는 +10.4 인데 주 계층은 +23.1 로, 전체만 봤으면 기여를 절반 이하로 과소평가했다.
+
+### 이득이 어디서 오나 — 피처군 ablation (앵커=N AUPRC)
+
+| 피처군 | n_feat | AUPRC | 증분 |
+|---|---:|---:|---:|
+| A 상태만 (앵커·직전상태) | 6 | 23.0 | — (1단계와 정확히 일치) |
+| B **+CAM 이력** (경과시간·이전 P 수·UTA 비율·간격) | 13 | 34.4 | **+11.4** |
+| C **+RASS** (24h 요약 6종 + 깊은진정) | 20 | 41.0 | **+6.6** |
+| D +진정제 (benzo·propofol·dexmed) | 24 | 41.1 | **+0.1** |
+| E +정적 (age·careunit·era·los) | 29 | 46.1 | +5.0 |
+
+읽을 것 셋.
+
+1. **A 가 1단계 룩업(23.0)과 정확히 일치한다** — 파이프라인 sanity check 통과.
+2. **CAM 이력이 단일 최대 기여(+11.4).** 직전 상태 하나가 아니라 이력 전체가 필요하다.
+3. **🔴 진정제 노출이 +0.1 이다.** PADIS 의 강한 근거 규칙(`Benzo → Delirium`)인데 예측에 거의 기여하지 않는다.
+   RASS(진정 깊이)가 이미 그 경로를 담고 있어서 약물 종류가 잉여가 된 것으로 보이지만, **확인이 필요한 가설**이다.
+   → 이게 이 프로젝트가 노린 **"지식 대 데이터 대조"의 첫 실물 사례**다. 5단계에서 이 공리의 가중치가 어떻게 되는지가 관전 포인트.
+
 ---
 
 ## 2) 모델 사다리 — 무엇을 순서대로 돌리나
 
-| # | 모델 | 무엇을 확인하나 | 새로 만들 것 | 재사용 |
+| 단계 | 모델 | 확인 목적 | 새로 만들 것 | 재사용 |
 |---|---|---|---|---|
-| **B0–B2** | 무학습 룩업 | 바닥 | ✅ 완료 | `eda/20_` |
-| **M1** | XGBoost (평탄 피처) | 시계열 없이 어디까지 | 피처 빌더 | `reproduce_tables.py` XGB 블록 |
-| **M2** | BiLSTM | 시계열이 값을 더하나 | Dataset 클래스 | `model/models.py` `LSTMModel` (양방향·attention 구현됨) |
-| **M3** | CBM (개념층) | 개념 병목의 비용 | 헤드 3개 | M2 backbone |
-| **M4** | LTN (+PADIS 공리) | 논리층이 CBM 대비 뭘 더하나 | 공리 로딩 | `pipeline/load_axioms_into_ltn.py`, `stratified_main.py` 553–633 |
-| **M5** | LNN (구간 진리값) | 구간 표현이 실제로 필요한가 | 전부 | 없음 (공개 구현 빈약) |
+| **1** | Carry-forward · lookup baseline | CAM 이력만으로 가능한 성능 | ✅ **완료** | `eda/20_` |
+| **2** | XGBoost | 요약된 정적 변수만으로 가능한 성능 | ✅ **완료** (mobility/pain/GCS 빠진 채) | `eda/22_` |
+| **3** | BiLSTM | 원시 24h 시계열이 요약을 넘나 | Dataset 클래스 | `model/models.py` `LSTMModel` (양방향·attention 구현됨) |
+| **4** | CBM | PADIS 임상 개념을 명시적으로 예측하는 효과 | 헤드 3개 | 3의 backbone |
+| **5** | LTN | CBM + PADIS 논리 공리의 효과 | 공리 로딩 | `pipeline/load_axioms_into_ltn.py`, `stratified_main.py` 553–633 |
+| **6** | LNN | 구간 진리값이 라벨 미관찰 문제에 실제로 필요한지 | 전부 | 없음 (공개 구현 빈약) |
+
+> **5와 6은 쌓는 게 아니라 대안 논리 프레임워크로 비교한다.** LNN 은 구현이 덜 성숙하고,
+> 라벨 미관찰을 `[0,1]` 로 둔다고 실제 결과가 복원되는 것도 아니다.
+> **4·5 결과를 본 뒤 6의 적용 여부를 결정한다** (§4-5 게이트).
 
 ### 입력 / 출력 (확정, `SPLIT_SPEC.md` §3)
 
 ```
 X  [시계열] 앵커 이전 24h — RASS(커버 100%, median 5회) · 진정제 3계열
-             · mobility · pain · GCS · 활력징후            ⚠️ 뒤 3개는 §4 블로커
+             · mobility · pain · GCS · 활력징후            [!] 뒤 3개는 §4 블로커
    [누적]   입실~앵커 경과시간 · n_assess · uta_frac · 직전 확정상태 · 누적 benzo
    [정적]   age · gender · careunit · era · ED 경유
 
 y  앵커 이후 24h 안에 확정 CAM Positive ≥ 1
-   보조출력  DeepSedation(RASS≤−4, 기저 18.0%) · Assessable(기저 71.0%)
+   보조출력  DeepSedation(RASS≤-4, 기저 18.0%) · Assessable(기저 71.0%)
 ```
 
-`Assessable` 을 보조 출력으로 두면 **라벨 못 붙인 28.3% 가 버려지지 않는다** — 그 instance 가 `Assessable=0` 의 양성 예시가 된다.
+`Assessable` 을 보조 출력으로 두면 **라벨 못 붙인 29.0% 가 버려지지 않는다** — 그 instance 가 `Assessable=0` 의 양성 예시가 된다.
+
+### 개념층 · 논리층 구성
+
+```
+[시계열 신경망]  이전 24h RASS · 약물 · mobility · pain · GCS · 활력징후
+        │
+        ▼
+[개념층]  DeepSedation · BenzodiazepineExposure · Mobility · Pain
+          Assessable · DeliriumRisk           ← PADIS predicate 로 명시 예측
+        │
+        ▼
+[논리층]  검토 완료된 PADIS 공리를 soft constraint 로
+
+전체 손실 = 섬망 예측 손실 + 개념 예측 손실 + PADIS 공리 위반 손실
+```
+
+**공리마다 입력 시점을 명시해야 한다.** 위험요인 공리(`Benzo → Delirium`)는 앵커 **이전 24h** 노출을,
+평가 가능성 공리(`DeepSedation precludes Assessable`)는 앵커 **현재** 상태를 쓴다.
+섞으면 평가 결측이 체계적으로 음성 라벨로 샌다.
+
+### 🔴 라벨 미관찰 29.0% 는 무작위가 아니다 — 방향이 반대인 두 집단
+
+| 원인 | instance | 미관찰 중 | **stay 사망률** |
+|---|---:|---:|---:|
+| **전부 UTA** (평가는 했는데 확정 아님) | 60,537 | 43.0% | **36.1%** |
+| ICU 퇴실 | 46,191 | 32.8% | **4.1%** |
+| 재원 중인데 미평가 | 26,112 | 18.5% | 14.8% |
+| 240h 캡에 잘림 | 4,482 | 3.2% | 25.2% |
+| 사망 | 3,517 | 2.5% | 100% |
+
+(참고: 라벨 생성된 군의 stay 사망률은 10.3%)
+
+**통째로 masking 하면 사망률 4.1% 집단과 36.1% 집단을 같이 버린다.** 앵커 상태별로도 갈린다 —
+UTA 앵커의 미관찰은 84.2% 가 '전부 UTA'(진정 지속)이고, N 앵커는 64.1% 가 'ICU 퇴실'(좋아져서 나감)이다.
+
+> **6단계(LNN)의 대상이 여기서 좁혀진다.** 구간 진리값이 필요한 것은 '전부 UTA' **60,537건(전체 앵커의 12.4%)** 이지
+> 미관찰 29% 전부가 아니다. ICU 퇴실은 경쟁위험이라 구간 문제가 아니고 별도로 다뤄야 한다.
 
 ### 🔴 기존 코드에서 반드시 고쳐야 하는 곳
 
@@ -83,12 +155,23 @@ y  앵커 이후 24h 안에 확정 CAM Positive ≥ 1
 
 ```
 주 지표     앵커=N 계층의 AUPRC   (기저 12.0%, baseline 23.0)
-필수 동반   같은 계층 AUROC + 전체·계층별 전부 + B2 대비 델타
 분할        환자 단위 70/15/15, (Positive 경험 × instance 수) 층화
 외부검증    2011-2016 학습 / 2017-2019 평가 (era 는 알려진 교란)
 가중치      stay 당 instance cap 20 또는 1/n_instance
 금지        전체 AUROC 단독 보고 · macro-F1 단독 보고
 ```
+
+**함께 보고할 것** — 하나라도 빠지면 헤드라인이 왜곡된다:
+
+| | 지표 |
+|---|---|
+| 같은 계층 | AUROC · F1 · precision · recall |
+| 다른 계층 | 앵커=P · 앵커=U 각각 |
+| 전체 | 참고용으로만 |
+| baseline 대비 | **lookup(B2) 대비 개선량** ← 실질 기여도 |
+| 하위군 | 연도(era)별 · ICU 유형별 |
+| 신뢰도 | calibration |
+| 논리층 | **PADIS 공리 만족도** · CBM 대비 LTN 의 개념 정렬 차이 |
 
 **왜 AUPRC 인가**: 앵커=N 계층은 기저 12% 다. 이 불균형에서 AUROC 는 둔하고, "새로 생길 사람을 미리 잡는다"는 임상 주장은 정밀도-재현율 곡선에 직접 대응한다.
 
@@ -96,11 +179,11 @@ y  앵커 이후 24h 안에 확정 CAM Positive ≥ 1
 
 ## 4) 한계 5가지 (먼저 말하기)
 
-1. **mobility / pain / GCS 값이 아직 없다.** `00_extract.py` 의 `VALUE_IDS` 가 CAM·RASS 만 값으로 뽑는다. DB 엔 다 있다(보유율 100 / 96.2 / 100%). **재추출 전엔 M2 입력이 반쪽이다 — 유일한 하드 블로커.**
-2. **앵커=N 계층의 절대 성능은 낮게 나올 것이다.** baseline AUPRC 23.0 에서 출발한다. 델타로 말해야 하고, "AUPRC 0.35" 같은 수를 그대로 보여주면 약해 보인다.
+1. **mobility / pain / GCS 값이 아직 없다.** `00_extract.py` 의 `VALUE_IDS` 가 CAM·RASS 만 값으로 뽑는다. DB 엔 다 있다(보유율 100 / 96.2 / 100%). **재추출 전엔 3단계(BiLSTM) 입력이 반쪽이다 — 유일한 하드 블로커.**
+2. **앵커=N 계층의 절대 성능은 낮다.** 2단계에서 AUPRC 46.1 이다(기저 12.0%). 숫자만 보면 약해 보이므로 **baseline 23.0 대비 델타**로 말해야 한다.
 3. **PADIS 공리 8건을 LTN 이 아직 못 읽는다.** KG 쪽은 해결됐다 — `padis/kg/delirium_kg.py` 가 `decreasesRiskOf` / `hasNoEffectOn` / `precludes` 를 정의했다. 남은 건 소비 경로: `relation_vocab.json` 어휘 등록 + `horn_to_ltn.py` 가 셋을 **각각 다르게** 컴파일해야 한다(부정 함축 / 마이닝 필터 / Assessable 가드).
-4. **M4 에 collapse 리스크.** 음의 방향 공리가 없으면 술어가 전부 양의 방향으로 쏠려 **원 논문 Table 3 의 LTN-AK collapse** 가 재현된다. 3번을 안 고치면 M4 가 상수 예측으로 붕괴할 수 있다.
-5. **LNN 은 공개 구현이 빈약하다.** M5 착수 전 M3↔M4 결과로 게이트를 통과해야 한다.
+4. **5단계(LTN) 에 collapse 리스크.** 음의 방향 공리가 없으면 술어가 전부 양의 방향으로 쏠려 **원 논문 Table 3 의 LTN-AK collapse** 가 재현된다. 3번을 안 고치면 5단계가 상수 예측으로 붕괴할 수 있다.
+5. **LNN 은 공개 구현이 빈약하다.** 6단계 착수 전 4·5단계 결과로 게이트를 통과해야 한다.
 
 ---
 
@@ -112,21 +195,40 @@ y  앵커 이후 24h 안에 확정 CAM Positive ≥ 1
    → 승인되면 코호트 A안/B안 결정이 불필요해집니다 (`COHORT_AB_DECISION.md` 폐기). 대신 원 논문과의 직접 비교는 포기합니다.
 3. **트랙을 둘로 갈까요, 섬망 하나로 집중할까요?**
    → (a) Sepsis 재현(stay 단위, 기존 파이프라인) + 섬망 신규 병행 / (b) 섬망 집중
-4. **LNN 게이트 기준**: M3(3-way CBM) ≈ M4/M5 면 LNN 을 접는 데 동의하시는지?
-
-**기본 제안(답이 없으면):**
-`00_extract.py` 재추출 → **M1·M2 먼저** (2주) → M3 에서 게이트 판단 → 통과 시 M4.
-M5(LNN)는 게이트 통과 후에만. 관계 어휘 확장(§4-3)은 데이터와 무관하니 병렬로.
+4. **LNN 게이트 기준**: 4단계(3-way CBM) ≈ 5·6단계 면 LNN 을 접는 데 동의하시는지?
 
 ---
 
-## 6) 붙임 — 숫자 출처
+## 6) 다음 작업
+
+| # | 할 일 | 상태 |
+|---|---|:--:|
+| 1 | **mobility · pain · GCS 실제 시계열 값 재추출** (`00_extract.py` `VALUE_IDS`) | 🔴 블로커 |
+| 2 | 24h 내 확정 CAM 없는 이유를 퇴실/사망/전부 UTA/미평가로 분리 | ✅ 완료 (§2) |
+| 3 | 환자 단위 split 데이터셋 생성 | ✅ 완료 (`eda/22_` 안에) |
+| 4 | XGBoost·BiLSTM 실행해 시계열의 추가 가치 확인 | ◐ XGB 완료 · BiLSTM 대기 |
+| 5 | PADIS 규칙 19개의 근거·관계 방향을 **사람이 검토** | 대기 |
+| 6 | SNOMED CT 숫자 코드 검증 | 일부만 채움 |
+| 7 | **새 관계(`decreasesRiskOf`/`hasNoEffectOn`/`precludes`)를 LTN 공리로 변환** | 🔴 미착수 |
+| 8 | CBM ↔ LTN 비교 후 LNN 도입 필요성 판단 | 게이트 |
+
+**가장 중요한 미완성 3개**: ① mobility·pain·GCS 값 추출 · ② PADIS KG → LTN loss 변환 경로 · ③ 규칙 사람 검토
+(②는 §4-3·§4-4 의 collapse 리스크와 같은 항목이다.)
+
+**순서 제안**: 1(재추출) 과 7(LTN 변환) 은 독립이라 **병렬**. 재추출 끝나면 2단계를 다시 돌려 mobility/pain/GCS 의 증분을 재고, 그 크기로 3단계(BiLSTM) 착수 여부를 판단한다 → 4단계 → 8 게이트 → 5단계(LTN).
+6단계(LNN)는 게이트 통과 후에만.
+
+---
+
+## 7) 붙임 — 숫자 출처
 
 | 수 | 스크립트 | 산출물 |
 |---|---|---|
 | instance 345,505 / 환자 40,070 / 계층 3종 | `eda/19_split_spec.py` | `out_split/spec2_*.csv` |
 | baseline B0–B2 | `eda/20_baseline_carryforward.py` | `out_split/base_carryforward.csv` |
 | 입력 커버리지 (RASS 100% 등) | `eda/19_split_spec.py` | `out_split/spec3_*.csv` |
+| 라벨 미관찰 원인 5종 + 사망률 | `eda/21_censoring_reasons.py` | `out_split/cens*.csv` |
+| 2단계 XGB + 피처군 ablation | `eda/22_stage2_xgb.py` | `out_split/stage2_xgb.csv` · `stage2_ablation.csv` |
 | PADIS 규칙 19개 + 근거등급 | — | `padis/kg/delirium_kg.py`(본문) · `padis/outputs/padis_rules_draft_v1.json`(MIMIC 매핑) |
 
 전제: 성인 + ICU LOS ≥ 24h + 입실 후 240h 캡. 분할 seed 42.

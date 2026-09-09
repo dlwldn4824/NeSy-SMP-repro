@@ -24,6 +24,11 @@ def strip_md_inline(s: str) -> str:
     s = s.replace("\u2248", "~").replace("\u2192", "->").replace("\u2190", "<-")
     s = s.replace("\U0001f534", "[!]").replace("🔴", "[!]")
     s = s.replace("\u2014", "-").replace("\u2013", "-")
+    # PDF 폰트(맑은고딕)에 없는 글리프 - 그대로 두면 빈칸으로 찍힌다
+    s = s.replace("\u2705", "[o]")
+    s = s.replace("\u26a0", "[!]").replace("\ufe0f", "")
+    s = s.replace("\u2212", "-")
+    s = s.replace("\u2605", "*").replace("\u2606", "*")
     return s
 
 
