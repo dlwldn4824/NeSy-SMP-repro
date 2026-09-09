@@ -628,8 +628,29 @@ for strat in ["전체", "앵커=N", "앵커=P", "앵커=U"]:
     for nm, (_, p) in res.items():
         r_[nm] = round(100 * roc_auc_score(yte[sel], p[sel]), 1)
     rows.append(r_)
+ta = pd.DataFrame(rows).set_index("계층")
 print("\nAUROC")
-print(pd.DataFrame(rows).set_index("계층").to_string())
+print(ta.to_string())
+ta.to_csv(os.path.join(OUT, "stage34_auroc.csv"), encoding="utf-8-sig")
+
+# AUPRC 의 무작위 예측 값은 곧 그 계층의 기저율이다. 계층끼리 원값으로 비교하면
+# 기저 78% 인 앵커=P 가 저절로 높아 보인다. 기저 대비로 정규화해서 같이 본다.
+head("[기저 보정] 계층끼리 비교하려면 AUPRC 를 기저 대비로")
+_rows = []
+for _st in ["전체", "앵커=N", "앵커=P", "앵커=U"]:
+    if _st not in t.index:
+        continue
+    _sel = np.ones(len(idx_te), bool) if _st == "전체" else (vte == _st[-1])
+    _b = 100 * yte[_sel].mean()
+    _r = {"계층": _st, "기저%": round(_b, 1)}
+    for _c in t.columns:
+        if _c != "n":
+            _r[_c] = round(100 * (t.loc[_st, _c] - _b) / (100 - _b), 1)
+    _rows.append(_r)
+tn = pd.DataFrame(_rows).set_index("계층")
+print("정규화 AUPRC = (AUPRC − 기저) / (100 − 기저) · 0=무작위 · 100=완전")
+print(tn.to_string())
+tn.to_csv(os.path.join(OUT, "stage34_auprc_norm.csv"), encoding="utf-8-sig")
 
 head("[시드 3개] 앵커=N AUPRC — backbone 결론을 단일 시드로 내리지 않는다")
 SEEDS = [42, 7, 2024]
