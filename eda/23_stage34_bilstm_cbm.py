@@ -333,10 +333,12 @@ Yt = torch.from_numpy(cam.y.to_numpy().astype(np.float32))
 # 연속 개념은 train 통계로 표준화
 _trm = (in_tr & L)
 _cs = CARR_C.copy()
+_cmu = np.zeros(_cs.shape[1], np.float32); _csd = np.ones(_cs.shape[1], np.float32)
 for i, t_ in enumerate(CTYPE_C):
     if t_ == "cont":
         w = _trm & (CMASK_C[:, i] > 0)
         mu_, sd_ = _cs[w, i].mean(), _cs[w, i].std() + 1e-6
+        _cmu[i], _csd[i] = mu_, sd_
         _cs[:, i] = (_cs[:, i] - mu_) / sd_
 Ct = torch.from_numpy(CARR)
 Mt = torch.from_numpy(CMASK)
@@ -345,6 +347,60 @@ MtC = torch.from_numpy(CMASK_C)
 TYPE_B = torch.tensor([t == "bin" for t in CTYPE])
 TYPE_C = torch.tensor([t == "bin" for t in CTYPE_C])
 Lt = torch.from_numpy(L.astype(np.float32))
+
+
+# ================================================================ PADIS 공리 (5단계)
+# NeSy-SMP/pipeline/horn_to_ltn.py 가 컴파일한 19개 중 **데이터가 있는 8개**만 강제한다.
+# BloodTransfusion · PhysicalRestraint · Dementia · Trauma · Hypertension · Melatonin ·
+# OpioidExposure · MechanicalVentilation 은 미매핑이고, HighMortality 는 우리 출력이 아니다.
+#
+# 연속 개념 위에서 술어의 진리값이 필요하다 — 임계 기반 membership 으로 둔다.
+# 이건 원 논문의 weak anchoring(stratified_main.py 519-537)이 있던 자리와 같다.
+CI = {n: i for i, n in enumerate(CONCEPTS_C)}
+TAU = 0.35          # membership 의 부드러움 (표준화 좌표)
+
+
+def _zthr(name, raw):
+    i = CI[name]
+    return float((raw - _cmu[i]) / _csd[i])
+
+
+# (이름, 개념, 방향(+1: 임계 이상이 참), 임계z, head, head 부정, GRADE)
+GRADE_W = {"strong": 1.0, "moderate": 0.6, "low": 0.3, "cohort": 0.3, "derived": 0.5,
+           "inconclusive": 0.2}
+AXIOMS = [
+    ("Benzo→Delirium", "BenzoFrac", +1, _zthr("BenzoFrac", 1e-6), "Delirium", False, "strong"),
+    ("DeepSedation→Delirium", "RASSmin", -1, _zthr("RASSmin", -4.0), "Delirium", False, "low"),
+    ("SedationIntensity→Delirium", "RASSnegmean", -1, _zthr("RASSnegmean", -2.0),
+     "Delirium", False, "cohort"),
+    ("SeverePain→Delirium", "PainNRSmax", +1, _zthr("PainNRSmax", 4.0), "Delirium", False,
+     "inconclusive"),
+    ("OlderAge→Delirium", "Age", +1, _zthr("Age", 65.0), "Delirium", False, "strong"),
+    ("Dexmed→¬Delirium", "DexmedFrac", +1, _zthr("DexmedFrac", 1e-6), "Delirium", True, "moderate"),
+    ("EarlyMobility→¬Delirium", "MobJHHLM", +1, _zthr("MobJHHLM", 4.0), "Delirium", True, "low"),
+    ("DeepSedation→¬Assessable", "RASSmin", -1, _zthr("RASSmin", -4.0), "Assessable", True,
+     "derived"),
+]
+AX_W = torch.tensor([GRADE_W[a[6]] for a in AXIOMS], dtype=torch.float32)
+AX_W = AX_W / AX_W.sum()
+print(f"공리 {len(AXIOMS)}개 강제 (컴파일 19개 중 데이터 있는 것) · "
+      f"양의 방향 {sum(1 for a in AXIOMS if not a[5])} · 음의 방향 {sum(1 for a in AXIOMS if a[5])}")
+
+
+def axiom_sat(c, p_del, per_axiom=False):
+    """공리별 만족도. 함축은 Reichenbach(1-a+ab), 전칭은 pMeanError(p=2)."""
+    sats = []
+    for nm, cn, sgn, thr, head, neg, _g in AXIOMS:
+        z = c[:, CI[cn]]
+        a = torch.sigmoid(sgn * (z - thr) / TAU)
+        b = p_del if head == "Delirium" else torch.sigmoid(c[:, CI["Assessable"]])
+        if neg:
+            b = 1.0 - b
+        sat = 1.0 - a + a * b                      # a -> b
+        agg = 1.0 - torch.sqrt(torch.clamp(((1.0 - sat) ** 2).mean(), min=1e-9))
+        sats.append(agg)
+    st = torch.stack(sats)
+    return st if per_axiom else (st * AX_W.to(st.device)).sum()
 
 
 # ================================================================ 모델
@@ -389,7 +445,7 @@ class Net(nn.Module):
 
 
 def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048, backbone="bilstm",
-        seed=SEED, quiet=False, cidx=None, cset="bin"):
+        seed=SEED, quiet=False, cidx=None, cset="bin", w_axiom=0.0):
     torch.manual_seed(seed)
     np.random.seed(seed)
     _C, _M, _T = (Ct, Mt, TYPE_B) if cset == "bin" else (CtC, MtC, TYPE_C)
@@ -423,6 +479,8 @@ def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048, backbone="bilst
             else:
                 lcon = torch.zeros((), device=DEV)
             loss = ltask + w_concept * lcon
+            if w_axiom > 0:
+                loss = loss + w_axiom * (1.0 - axiom_sat(c, torch.sigmoid(logit)))
             opt.zero_grad(); loss.backward(); opt.step()
             tot += float(loss.detach()) * len(j)
         m.eval()
@@ -447,6 +505,14 @@ def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048, backbone="bilst
                     print("  early stop")
                 break
     m.load_state_dict(best_state); m.eval()
+    if cset == "cont" and not quiet and w_concept > 0:
+        with torch.no_grad():
+            _sat = []
+            for i in range(0, len(idx_te), 8192):
+                j = idx_te[i:i + 8192]
+                _lg, _c = m(Xt[j].to(DEV), St[j].to(DEV), Zt[j].to(DEV))
+                _sat.append(axiom_sat(_c, torch.sigmoid(_lg), per_axiom=True).cpu().numpy())
+            AX_SAT[name] = np.mean(_sat, 0)
     with torch.no_grad():
         pt = []
         for i in range(0, len(idx_te), 8192):
@@ -457,6 +523,7 @@ def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048, backbone="bilst
     return idx_te, pt
 
 
+AX_SAT = {}
 head(f"[학습] device={DEV}")
 res = {}
 _I5 = CONCEPT_SETS["5 (v1)"]
@@ -467,6 +534,10 @@ res[f"4c CBM-{len(CONCEPTS_C)} 연속"] = run("4c 연속", cbm=True, use_unlabel
                                             w_concept=1.0, cset="cont")
 res[f"4f free-{len(CONCEPTS_C)}"] = run("4f free", cbm=True, use_unlabeled=False,
                                         w_concept=0.0, cset="cont")
+res["5 LTN (w_K=0.2)"] = run("5 LTN", cbm=True, use_unlabeled=False, w_concept=1.0,
+                             cset="cont", w_axiom=0.2)
+res["5 LTN (w_K=0.5)"] = run("5 LTN .5", cbm=True, use_unlabeled=False, w_concept=1.0,
+                             cset="cont", w_axiom=0.5)
 
 # 같은 Z 위의 XGBoost — backbone 비교의 상한 기준
 from xgboost import XGBClassifier
@@ -513,6 +584,10 @@ VARIANTS = [
     (f"4x 이진-{len(CONCEPTS)}", dict(cbm=True, use_unlabeled=False, w_concept=1.0)),
     (f"4c 연속-{len(CONCEPTS_C)}", dict(cbm=True, use_unlabeled=False, w_concept=1.0, cset="cont")),
     (f"4f free-{len(CONCEPTS_C)}", dict(cbm=True, use_unlabeled=False, w_concept=0.0, cset="cont")),
+    ("5  LTN w_K=0.2", dict(cbm=True, use_unlabeled=False, w_concept=1.0,
+                           cset="cont", w_axiom=0.2)),
+    ("5  LTN w_K=0.5", dict(cbm=True, use_unlabeled=False, w_concept=1.0,
+                           cset="cont", w_axiom=0.5)),
 ]
 _teN = cam.v.to_numpy()[res["3 BiLSTM"][0]] == "N"
 _ytN = cam.y.to_numpy()[res["3 BiLSTM"][0]].astype(int)[_teN]
@@ -539,6 +614,17 @@ print(f"\n연속 - 이진               {_cc-_b:+.1f}   <- 정의를 다듬어 �
 print(f"연속 개념의 남은 비용      {_cc-_f:+.1f}   (같은 폭 자유 병목 대비)")
 print(f"자유 병목 자체의 비용      {_f-_n:+.1f}")
 print("\n연속-이진 차이가 SD 보다 작으면 '정의가 거칠어서'는 기각된다.")
+_l2 = sv.loc["5  LTN w_K=0.2", "평균"]; _l5 = sv.loc["5  LTN w_K=0.5", "평균"]
+print(f"\n5단계 LTN - 4단계 CBM : w_K=0.2 {_l2-_cc:+.1f} · w_K=0.5 {_l5-_cc:+.1f}")
+
+if AX_SAT:
+    head("[공리 만족도] test set · 1.0 = 완전 만족")
+    _sat = pd.DataFrame(AX_SAT, index=[a[0] for a in AXIOMS]).round(3)
+    _sat["GRADE"] = [a[6] for a in AXIOMS]
+    _sat["가중치"] = AX_W.numpy().round(3)
+    print(_sat.to_string())
+    _sat.to_csv(os.path.join(OUT, "stage5_axiom_sat.csv"), encoding="utf-8-sig")
+    print("  -> stage5_axiom_sat.csv")
 
 head("[판정] 앵커=N AUPRC (단일 시드)")
 n = t.loc["앵커=N"]
