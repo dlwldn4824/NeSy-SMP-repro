@@ -405,6 +405,9 @@ CI = {n: i for i, n in enumerate(CONCEPTS_C)}
 TAU = 0.35          # membership 의 부드러움 (표준화 좌표)
 
 
+RAW_THR = {}          # 공리 이름 -> (개념, 원 단위 임계). 역학 계산에 쓴다.
+
+
 def _zthr(name, raw):
     i = CI[name]
     return float((raw - _cmu[i]) / _csd[i])
@@ -423,7 +426,9 @@ AXIOMS = [
     ("OlderAge→Delirium", "Age", +1, _zthr("Age", 65.0), "Delirium", False, "strong"),
     ("Dexmed→¬Delirium", "DexmedFrac", +1, _zthr("DexmedFrac", 1e-6), "Delirium", True, "moderate"),
     ("EarlyMobility→¬Delirium", "MobJHHLM", +1, _zthr("MobJHHLM", 4.0), "Delirium", True, "low"),
-    ("DeepSedation→¬Assessable", "RASSmin", -1, _zthr("RASSmin", -4.0), "Assessable", True,
+    # precludes 는 '지금 평가가 불가능하다' 는 뜻이다. Assessable(=미래 24h 에 확정 기록이 있나)
+    # 로 걸면 LTN 학습셋에서 정답이 상수 1 이라 개념 손실과 정면충돌한다. 현재 상태로 건다.
+    ("DeepSedation→CurrentUTA", "RASSmin", -1, _zthr("RASSmin", -4.0), "CurrentUTA", False,
      "derived"),
 ]
 if HAS_GAP:
@@ -448,7 +453,7 @@ def axiom_sat(c, p_del, per_axiom=False):
         # 이진 개념은 헤드가 이미 확률을 내므로 sigmoid 만, 연속 개념은 임계 membership
         a = (torch.sigmoid(z) if CTYPE_C[CI[cn]] == "bin"
              else torch.sigmoid(sgn * (z - thr) / TAU))
-        b = p_del if head == "Delirium" else torch.sigmoid(c[:, CI["Assessable"]])
+        b = p_del if head == "Delirium" else torch.sigmoid(c[:, CI[head]])
         if neg:
             b = 1.0 - b
         sat = 1.0 - a + a * b                      # a -> b
@@ -696,36 +701,53 @@ print(f"\n5단계 LTN - 4단계 CBM : w_K=0.2 {_l2-_cc:+.1f} · w_K=0.5 {_l5-_cc
 if AX_SAT:
     head("[공리 만족도] test set · 1.0 = 완전 만족")
     _sat = pd.DataFrame(AX_SAT, index=[a[0] for a in AXIOMS]).round(3)
-    # 만족도는 전건 유병률에 좌우된다. A->B 를 Reichenbach 로 재면
-    #   독립일 때조차 sat = 1 - P(A)(1-P(B)) 이므로, 유병률이 높으면 기계적으로 낮게 나온다.
-    #   보정 기준을 같이 실어야 공리끼리 비교할 수 있다.
+    _sat["GRADE"] = [a[6] for a in AXIOMS]
+    print("모델 정합성 (같은 집계 p=2, 모델 예측값 기준). 4단계 -> 5단계 변화만 읽을 것.")
+    print(_sat.to_string())
+    _sat.to_csv(os.path.join(OUT, "stage5_axiom_sat.csv"), encoding="utf-8-sig")
+
+    # ---- 데이터 자체가 규칙을 지지하는가: 모델을 거치지 않고 실제 라벨로만 잰다 ----
+    head("[데이터 일치도] 규칙이 이 코호트에서 성립하나 — 모델 무관, 실제 라벨만")
     _teL = np.where(in_te & L)[0]
-    _pB = float(cam.y.to_numpy()[_teL].mean())
-    _pAss = float(cam.labeled.to_numpy()[_teL].mean())
-    _prev, _ref = [], []
-    for _nm, _cn, _sg, _th, _hd, _ng, _g in AXIOMS:
+    _yv = cam.y.to_numpy()[_teL].astype(float)
+    _rows = []
+    for _nm, _cn, _sg, _thz, _hd, _ng, _g in AXIOMS:
         _i = CI[_cn]
         if CTYPE_C[_i] == "bin":
-            _a = float((CARR_C[_teL, _i] > 0.5).mean())
+            A = CARR_C[_teL, _i] > 0.5
         else:
-            _a = float((np.sign(_sg) * (_cs[_teL, _i] - _th) > 0).mean())
-        _b = (_pB if _hd == "Delirium" else _pAss)
+            A = (np.sign(_sg) * (_cs[_teL, _i] - _thz)) > 0     # 표준화 좌표에서 동일 임계
+        if _hd == "Delirium":
+            B = _yv > 0.5
+        else:
+            B = CARR_C[_teL, CI[_hd]] > 0.5
         if _ng:
-            _b = 1.0 - _b
-        _prev.append(_a); _ref.append(1.0 - _a * (1.0 - _b))
-    _sat.insert(0, "전건 유병률", np.round(_prev, 3))
-    _sat.insert(1, "독립 기준", np.round(_ref, 3))
-    _c0 = [c for c in _sat.columns if c.startswith("4c")]
-    if _c0:
-        _sat["기준 대비"] = (_sat[_c0[0]] - _sat["독립 기준"]).round(3)
-    _sat["GRADE"] = [a[6] for a in AXIOMS]
-    _sat["가중치"] = AX_W.numpy().round(3)
-    _sat = _sat.sort_values("기준 대비") if "기준 대비" in _sat else _sat
-    print(_sat.to_string())
-    print("\n※ '기준 대비' 가 크게 음수인 것이 데이터가 실제로 저항하는 규칙이다.")
-    print("  유병률이 높으면 만족도는 저절로 낮아지므로 원값끼리 비교하면 안 된다.")
-    _sat.to_csv(os.path.join(OUT, "stage5_axiom_sat.csv"), encoding="utf-8-sig")
-    print("  -> stage5_axiom_sat.csv")
+            B = ~B
+        nA = int(A.sum())
+        if nA == 0 or nA == len(A):
+            _rows.append({"공리": _nm, "GRADE": _g, "n(A)": nA, "P(B|A)": np.nan,
+                          "P(B|¬A)": np.nan, "위험차": np.nan, "위험비": np.nan})
+            continue
+        pBA, pBnA = float(B[A].mean()), float(B[~A].mean())
+        # 모델 정합성과 같은 집계(p=2)로 데이터 자체의 만족도도 낸다 -> 같은 자로 비교 가능
+        _dis = A.astype(float) * (1.0 - B.astype(float))
+        _satD = 1.0 - float(np.sqrt((_dis ** 2).mean()))
+        _rows.append({"공리": _nm, "GRADE": _g, "n(A)": nA,
+                      "P(B|A)": round(100 * pBA, 1), "P(B|¬A)": round(100 * pBnA, 1),
+                      "위험차": round(100 * (pBA - pBnA), 1),
+                      "위험비": round(pBA / pBnA, 2) if pBnA > 0 else np.nan,
+                      "데이터 만족도": round(_satD, 3),
+                      "모델(4단계)": _sat.iloc[len(_rows), 0] if len(_sat.columns) else np.nan})
+    _ep = pd.DataFrame(_rows).set_index("공리")
+    _ep["모델−데이터"] = (_ep["모델(4단계)"] - _ep["데이터 만족도"]).round(3)
+    _ep = _ep.sort_values("위험차")
+    print(_ep.to_string())
+    _ep.to_csv(os.path.join(OUT, "stage5_axiom_data.csv"), encoding="utf-8-sig")
+    print()
+    print("위험차 = P(B|A) − P(B|¬A). 규칙이 맞으면 양수여야 한다. 음수면 데이터가 반대다.")
+    print("\n'데이터 만족도'는 모델 정합성과 같은 집계(p=2)·하드 라벨로 낸 것이라 직접 비교된다.")
+    print("'모델−데이터'가 음수면 데이터보다 모델이 규칙을 덜 지킨다는 뜻이다.")
+    print("  -> stage5_axiom_data.csv · stage5_axiom_sat.csv")
 
 head("[판정] 앵커=N AUPRC (단일 시드)")
 n = t.loc["앵커=N"]
