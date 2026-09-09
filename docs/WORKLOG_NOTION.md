@@ -1,6 +1,6 @@
 # 섬망 예측 — 평가 단위 split 전환과 1~5단계 모델링
 
-작성 2026-09-10 · 저장소 `dlwldn4824/NeSy-SMP-repro` · 커밋 `df3863b` → `83d336b`
+작성 2026-09-10 · 저장소 `dlwldn4824/NeSy-SMP-repro` · 커밋 `df3863b` → `HEAD`
 
 ---
 
@@ -8,7 +8,8 @@
 
 예측 단위를 **stay → CAM 평가 시점**으로 바꿔 instance 를 29,500 → **345,505** 로 늘리고,
 무학습 baseline 부터 LTN 까지 5단계를 같은 test set 에서 돌렸다.
-**주 지표(신규 발생) AUPRC 23.0 → 48.9.** 다만 **논리층은 성능을 주지 않고 가이드라인 정합성만 올린다.**
+**주 지표(신규 발생) AUPRC 23.0 → 48.9.** 다만 **논리층은 공리를 12개로 늘려도 성능을 주지 않고,
+가이드라인 정합성만 올린다.**
 
 ---
 
@@ -112,9 +113,10 @@ P→N→P(재발) 도 마찬가지 — 별도 코호트 없이 **6,655명 / inst
 | 3m | MLP (요약 피처) | 45.8 ± 0.1 | |
 | 4 | CBM — 개념 5개(이진) | 28.1 ± 2.5 | |
 | 4x | CBM — 개념 15개(이진) | 37.6 ± 0.7 | |
-| **4c** | **CBM — 개념 17개(연속)** | **42.4 ± 0.5** | |
-| 4f | 자유 병목 17차원 (개념 지도학습 없음) | 45.5 ± 0.2 | 용량 대조군 |
-| **5** | **LTN (CBM + PADIS 공리 8개)** | **42.5 ± 0.4** | w_K 0.2·0.5 동일 |
+| 4c | CBM — 개념 17개(연속) | 42.4 ± 0.5 | |
+| **4c′** | **CBM — 개념 21개(연속)** | **43.2 ± 0.1** | 회수한 4개 포함 |
+| 4f | 자유 병목 21차원 (개념 지도학습 없음) | 45.5 ± 0.1 | 용량 대조군 |
+| **5** | **LTN (CBM + PADIS 공리 12개)** | **43.1 ± 0.1** | w_K 0.2·0.5 동일 |
 
 ### 전체 지표는 헤드라인으로 못 쓴다
 
@@ -151,25 +153,32 @@ BiLSTM 45.6, MLP 45.8, 같은 입력의 XGB 47.6. backbone 교체 효과는 **+0
 → **논리층이 얹힐 개념 공간은 충실하다.** 남은 −3.1 이 '개념 밖 신호'의 현재 추정치.
 
 ### ③ 논리층은 성능이 아니라 정합성을 산다
-5단계 성능 +0.1 (SD 0.4) — 잡음. 반면 **공리 만족도는 전 항목에서 오른다.**
-
-| 공리 | GRADE | 4단계 | 5단계(w_K=0.5) |
-|---|---|---:|---:|
-| Benzo → Delirium | strong | **0.644** | 0.814 |
-| OlderAge → Delirium | strong | **0.538** | 0.708 |
-| DeepSedation → ¬Assessable | derived | 0.770 | 0.926 |
-| Dexmed → ¬Delirium | moderate | 0.708 | 0.772 |
-| SedationIntensity → Delirium | cohort | 0.853 | 0.869 |
-| DeepSedation → Delirium | low | 0.887 | 0.969 |
-| EarlyMobility → ¬Delirium | low | 0.904 | 0.963 |
-| SeverePain → Delirium | inconclusive | 0.580 | 0.651 |
-
+공리 8개일 때 +0.1, **12개로 늘려도 −0.1** (SD 0.1). 확실한 null 이다.
+반면 공리 만족도는 전 항목에서 오른다 — 논리층은 **가이드라인 쪽으로 미는 정규화항**으로만 작동한다.
 원 논문이 보고한 "NeSy-SMP > baseline" 과 다른 그림이다.
 
-### ④ 데이터가 PADIS 의 strong 근거 규칙 두 개를 거부한다 ⭐
-공리 없는 CBM 에서 가장 안 지켜지는 것이 **`OlderAge` 0.538 · `Benzo` 0.644** — 둘 다 PADIS strong 이다.
-벤조는 **독립적인 두 번째 증거**가 있다: 2단계 ablation 에서 진정제 노출의 예측 기여가 **+0.1**.
-→ **'지식 대 데이터' 대조의 본론이 될 재료.**
+| | 4단계 CBM | 5단계 LTN |
+|---|---:|---:|
+| 공리 8개 (개념 17) | 42.4 ± 0.5 | 42.5 ± 0.4 |
+| 공리 12개 (개념 21) | **43.2 ± 0.1** | 43.1 ± 0.1 |
+
+### ④ 이 코호트가 저항하는 것은 PADIS 의 '진정제 권고' 두 개다 ⭐
+만족도는 **전건 유병률에 좌우된다** — Reichenbach 함축은 전건이 거짓이면 공허하게 참이라
+유병률이 낮을수록 저절로 높다. 그래서 독립 기준 `1 − P(A)(1−P(B))` 대비로 봐야 한다.
+
+| 공리 | GRADE | 유병률 | 독립 기준 | 실측 | **기준 대비** |
+|---|---|---:|---:|---:|---:|
+| **Benzo → Delirium** | strong | 0.050 | 0.965 | 0.572 | **−0.393** |
+| SeverePain → Delirium | inconclusive | 0.248 | 0.829 | 0.564 | −0.265 |
+| **Dexmed → ¬Delirium** | moderate | 0.078 | 0.976 | 0.713 | **−0.263** |
+| BloodTransfusion → Delirium | strong | 0.104 | 0.929 | 0.767 | −0.162 |
+| Trauma → Delirium | strong | 0.120 | 0.917 | 0.772 | −0.145 |
+| Hypertension → Delirium | moderate | 0.716 | 0.506 | 0.376 | −0.130 |
+| OlderAge → Delirium | strong | 0.520 | 0.641 | 0.533 | −0.108 |
+| Dementia → Delirium | strong | 0.056 | 0.961 | 0.881 | −0.080 |
+
+**"벤조를 피하라"와 "덱스메데토미딘을 선호하라"** — PADIS 진정 권고의 양 축이 함께 지지받지 않는다.
+벤조는 독립적인 두 번째 증거도 있다: 2단계 ablation 에서 진정제 노출의 예측 기여가 **+0.1**.
 
 ### ⑤ CBM 은 학습이 불안정하다
 시드 SD 2.5(개념 5개) → 0.7(15개) → 0.5(17개). 비CBM 은 0.1.
@@ -191,6 +200,7 @@ BiLSTM 45.6, MLP 45.8, 같은 입력의 XGB 47.6. backbone 교체 효과는 **+0
 | 6 | backbone 을 요약 MLP 로 바꾸면 XGB 에 가까워진다 | **+0.3.** 격차는 인코더 탓이 아니었다 | 같은 입력 Z 로 통제 |
 | 7 | 개념 밖에 AUPRC 10점어치 신호가 있다 | 인코딩 탓. 실제 잔차 **−3.1** | 연속 인코딩 |
 | 8 | (CBM 첫 실행 17.8, baseline 이하) | 내 **개념 집합 선택 오류** — CAM 상태가 병목을 못 통과했다 | 개념 재설계 |
+| 9 | 데이터가 `Benzo` 와 `OlderAge` 를 거부한다 | `OlderAge` 는 **유병률 52% 로 인한 기계적 저만족**. 기준 대비 −0.108 로 8위. 실제로 저항하는 건 `Benzo` 와 `Dexmed` | 독립 기준 보정 |
 
 ---
 
@@ -202,7 +212,7 @@ BiLSTM 45.6, MLP 45.8, 같은 입력의 XGB 47.6. backbone 교체 효과는 **+0
 | MIMIC 매핑 + 파이프라인 소비 | `NeSy-SMP/configs/padis_concepts.json` · `padis/outputs/padis_rules_draft_v1.json` |
 | 규칙 수 | **19개** (increasesRiskOf 12 · decreasesRiskOf 3 · hasNoEffectOn 3 · precludes 1) |
 | LTN 컴파일 | **2개 → 19개** |
-| 실제 강제 가능 | **8개** (나머지는 미매핑 또는 mortality 대상) |
+| 실제 강제 가능 | **12개** (`eda/25_` 로 4개 회수) |
 | 사람 검토 | ❌ 미완 — `padis_rules_approved.json` 은 비워 뒀다 |
 
 ### LTN 컴파일이 막혀 있던 이유 (해결)
@@ -211,11 +221,14 @@ PADIS 트리플은 전부 `Delirium` 이 대상이라 **17개가 에러 없이 �
 관계 어휘(`decreasesRiskOf` 등) 등록만으로는 못 잡았을 문제.
 sepsis 경로는 17개 그대로 유지되는 것을 확인했다.
 
-### 아직 못 쓰는 공리 11개
-`BloodTransfusion`(strong) · `Dementia`(strong) · `Trauma`(strong) · `Hypertension`(moderate) ·
-`PhysicalRestraint` · `Melatonin` · `OpioidUse` · `MechanicalVentilation` · mortality 대상 2개.
-→ **Dementia · Trauma · Hypertension 은 동반질환 NLP(`run_extraction_B.py` TERMS)에 이미 있다.**
-BloodTransfusion 은 inputevents 에서 뽑으면 된다. 공리가 8 → 12 로 늘 수 있다.
+### 아직 못 쓰는 공리 7개
+`PhysicalRestraint`(결측 50%) · `Melatonin` · `OpioidUse` · `MechanicalVentilation` · mortality 대상 2개 ·
+`hasNoEffectOn` 3개(이건 공리가 아니라 마이닝 규칙 기각 필터라 원래 손실에 안 들어간다).
+
+**회수 완료(`eda/25_`)**: `BloodTransfusion` 은 inputevents 의 Blood Products/Colloids 에서 **시각까지** 얻어
+lookback 창 안으로 제한했고(누수 없음), `Dementia`·`Trauma`·`Hypertension` 은 `diagnoses_icd` 에서
+기존 `build_comorbidities_icd.py` 매핑을 재사용했다.
+⚠️ ICD 진단은 **퇴원 시점 부여**라 앵커 시점 정보가 아니다. 만성질환은 무리 없지만 한계로 기록한다.
 
 ---
 
@@ -226,7 +239,7 @@ BloodTransfusion 은 inputevents 에서 뽑으면 된다. 공리가 8 → 12 로
 | 1 | **주 지표를 '앵커=N 계층 AUPRC' 로 확정** | 전체 AUROC 는 룩업표가 84.9 라 헤드라인 불가 |
 | 2 | **평가 단위 전환 승인** | 승인 시 `COHORT_AB_DECISION.md` 폐기. 대신 원 논문과 직접 비교는 포기 |
 | 3 | **첫 stay 제한 해제** | 기존 base3 를 바꾸는 것. 환자 단위 분할이 누수를 이미 막음 |
-| 4 | **6단계(LNN) 착수 여부** | 사전 게이트("4≈5면 LNN 과잉")가 발동(42.4 vs 42.5). 단 게이트가 겨눈 건 *구간 진리값*, 측정한 건 *공리 효과* |
+| 4 | **6단계(LNN) 착수 여부** | 사전 게이트("4≈5면 LNN 과잉")가 발동. 공리를 12개로 늘려도 −0.1 이라 더 확실해졌다. 단 게이트가 겨눈 건 *구간 진리값*, 측정한 건 *공리 효과* |
 | 5 | **트랙 분리** | sepsis 재현 + 섬망 병행 vs 섬망 집중 |
 | 6 | **벤조·고령 불일치를 논문 본론으로** | 현재 가장 흥미로운 결과 |
 
@@ -254,6 +267,7 @@ BloodTransfusion 은 inputevents 에서 뽑으면 된다. 공리가 8 → 12 로
 | `22_stage2_xgb.py` | 2단계 XGB + 피처군 ablation |
 | `23_stage34_bilstm_cbm.py` | 3·4·5단계 + 시드 반복 + 공리 만족도 |
 | `24_extract_mobility_pain_gcs.py` | mobility·pain·GCS 보충 추출 |
+| `25_extract_axiom_gaps.py` | 수혈(inputevents) + 동반질환 3종(diagnoses_icd) |
 | `_extra_features.py` | 추출분 → 앵커별 채널 (22_·23_ 공용) |
 
 ### 파이프라인 변경 (`NeSy-SMP/`)

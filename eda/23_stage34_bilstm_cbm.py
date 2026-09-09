@@ -154,6 +154,42 @@ else:
 
 print(f"시계열 텐서 {X.shape} · {X.nbytes/1e6:.0f}MB · {time.time()-t0:.0f}s", flush=True)
 
+# ---------------- 25_ 산출물: 동반질환 3종 + 수혈 ----------------
+# 공리를 강제하려면 개념이 필요하고, 개념을 예측하려면 입력에도 있어야 한다. 셋 다 붙인다.
+_cmb_p = f"{DATA}/_axiom_comorb.parquet"
+_trf_p = f"{DATA}/_axiom_transfusion.parquet"
+HAS_GAP = os.path.exists(_cmb_p) and os.path.exists(_trf_p)
+if HAS_GAP:
+    _hadm = DEN.set_index("stay_id")["hadm_id"].astype("int64")
+    cam["hadm_id"] = cam["stay_id"].map(_hadm)
+    _cmb = pd.read_parquet(_cmb_p).set_index("hadm_id")
+    for _w in ["dementia", "trauma", "hypertension"]:
+        cam[_w] = cam["hadm_id"].map(_cmb[_w]).fillna(0).astype(np.float32)
+    _trf = pd.read_parquet(_trf_p)
+    _tb = {k: (np.sort(g["hr"].to_numpy(np.float64)),
+               g.sort_values("hr")["is_rbc"].to_numpy(np.float64))
+           for k, g in _trf.groupby("stay_id", sort=False)}
+    _tr24 = np.zeros(len(cam), np.float32)      # 이전 24h 안 수혈(적혈구)
+    _trcum = np.zeros(len(cam), np.float32)     # 앵커까지 누적 수혈 건수
+    for a_, n_ in zip(first, cnt):
+        g_ = _tb.get(cam["stay_id"].iloc[a_])
+        if g_ is None:
+            continue
+        hs_, rb_ = g_
+        hh_ = h[a_:a_ + n_]
+        hi_ = np.searchsorted(hs_, hh_, side="right")
+        lo_ = np.searchsorted(hs_, hh_ - 24.0, side="left")
+        crb = np.concatenate([[0.0], np.cumsum(rb_)])
+        _tr24[a_:a_ + n_] = (crb[hi_] - crb[lo_]) > 0
+        _trcum[a_:a_ + n_] = hi_
+    cam["transfusion24"] = _tr24
+    cam["transfusion_cum"] = _trcum
+    print(f"공백 공리 입력 — dementia {100*cam.dementia.mean():.1f}% · "
+          f"trauma {100*cam.trauma.mean():.1f}% · hypertension {100*cam.hypertension.mean():.1f}% · "
+          f"수혈(24h) {100*(_tr24>0).mean():.1f}%")
+else:
+    print("[!] _axiom_comorb/_axiom_transfusion 없음 — 공리 8개로 진행 (eda/25_ 를 먼저 돌릴 것)")
+
 # ================================================================ 정적/이력 벡터
 st = DEN.set_index("stay_id")
 cam["subject_id"] = cam["stay_id"].map(st["subject_id"])
@@ -169,6 +205,8 @@ for a_, nm in [("N", "prev_N"), ("P", "prev_P"), ("없음", "prev_none")]:
 SFEAT = ["hr", "n_prev", "n_prev_pos", "n_prev_uta", "uta_frac", "since_conf", "since_prev",
          "age", "los", "is_male", "cu", "era",
          "anchor_N", "anchor_P", "anchor_U", "prev_N", "prev_P", "prev_none"]
+if HAS_GAP:
+    SFEAT += ["dementia", "trauma", "hypertension", "transfusion24", "transfusion_cum"]
 S = cam[SFEAT].to_numpy(np.float32)
 
 # ---------------- 개념 라벨 ----------------
@@ -248,6 +286,13 @@ _TAILC = [("Age", _age, _one, "cont"), ("MaleSex", _male, _one, "bin"),
           ("Assessable", _lab, _one, "bin"), ("CurrentDelirium", _curP, _one, "bin"),
           ("CurrentUTA", _curU, _one, "bin"), ("PriorDeliriumFrac", _pf, _one, "cont"),
           ("PriorUTAFrac", _uf, _one, "cont")]
+if HAS_GAP:
+    _gap = [("Dementia", cam.dementia.to_numpy() > 0, _one, "bin"),
+            ("Trauma", cam.trauma.to_numpy() > 0, _one, "bin"),
+            ("Hypertension", cam.hypertension.to_numpy() > 0, _one, "bin"),
+            ("BloodTransfusion", cam.transfusion24.to_numpy() > 0, _one, "bin")]
+    BIN_DEF += _gap
+    CONT_DEF += _gap
 BIN_DEF += _TAIL
 CONT_DEF += _TAILC
 
@@ -381,6 +426,14 @@ AXIOMS = [
     ("DeepSedation→¬Assessable", "RASSmin", -1, _zthr("RASSmin", -4.0), "Assessable", True,
      "derived"),
 ]
+if HAS_GAP:
+    # eda/25_ 로 회수한 4개. 전부 양의 방향이라 균형이 5:3 -> 9:3 으로 기운다 (collapse 주의)
+    AXIOMS += [
+        ("BloodTransfusion→Delirium", "BloodTransfusion", +1, 0.5, "Delirium", False, "strong"),
+        ("Dementia→Delirium", "Dementia", +1, 0.5, "Delirium", False, "strong"),
+        ("Trauma→Delirium", "Trauma", +1, 0.5, "Delirium", False, "strong"),
+        ("Hypertension→Delirium", "Hypertension", +1, 0.5, "Delirium", False, "moderate"),
+    ]
 AX_W = torch.tensor([GRADE_W[a[6]] for a in AXIOMS], dtype=torch.float32)
 AX_W = AX_W / AX_W.sum()
 print(f"공리 {len(AXIOMS)}개 강제 (컴파일 19개 중 데이터 있는 것) · "
@@ -392,7 +445,9 @@ def axiom_sat(c, p_del, per_axiom=False):
     sats = []
     for nm, cn, sgn, thr, head, neg, _g in AXIOMS:
         z = c[:, CI[cn]]
-        a = torch.sigmoid(sgn * (z - thr) / TAU)
+        # 이진 개념은 헤드가 이미 확률을 내므로 sigmoid 만, 연속 개념은 임계 membership
+        a = (torch.sigmoid(z) if CTYPE_C[CI[cn]] == "bin"
+             else torch.sigmoid(sgn * (z - thr) / TAU))
         b = p_del if head == "Delirium" else torch.sigmoid(c[:, CI["Assessable"]])
         if neg:
             b = 1.0 - b
@@ -620,9 +675,34 @@ print(f"\n5단계 LTN - 4단계 CBM : w_K=0.2 {_l2-_cc:+.1f} · w_K=0.5 {_l5-_cc
 if AX_SAT:
     head("[공리 만족도] test set · 1.0 = 완전 만족")
     _sat = pd.DataFrame(AX_SAT, index=[a[0] for a in AXIOMS]).round(3)
+    # 만족도는 전건 유병률에 좌우된다. A->B 를 Reichenbach 로 재면
+    #   독립일 때조차 sat = 1 - P(A)(1-P(B)) 이므로, 유병률이 높으면 기계적으로 낮게 나온다.
+    #   보정 기준을 같이 실어야 공리끼리 비교할 수 있다.
+    _teL = np.where(in_te & L)[0]
+    _pB = float(cam.y.to_numpy()[_teL].mean())
+    _pAss = float(cam.labeled.to_numpy()[_teL].mean())
+    _prev, _ref = [], []
+    for _nm, _cn, _sg, _th, _hd, _ng, _g in AXIOMS:
+        _i = CI[_cn]
+        if CTYPE_C[_i] == "bin":
+            _a = float((CARR_C[_teL, _i] > 0.5).mean())
+        else:
+            _a = float((np.sign(_sg) * (_cs[_teL, _i] - _th) > 0).mean())
+        _b = (_pB if _hd == "Delirium" else _pAss)
+        if _ng:
+            _b = 1.0 - _b
+        _prev.append(_a); _ref.append(1.0 - _a * (1.0 - _b))
+    _sat.insert(0, "전건 유병률", np.round(_prev, 3))
+    _sat.insert(1, "독립 기준", np.round(_ref, 3))
+    _c0 = [c for c in _sat.columns if c.startswith("4c")]
+    if _c0:
+        _sat["기준 대비"] = (_sat[_c0[0]] - _sat["독립 기준"]).round(3)
     _sat["GRADE"] = [a[6] for a in AXIOMS]
     _sat["가중치"] = AX_W.numpy().round(3)
+    _sat = _sat.sort_values("기준 대비") if "기준 대비" in _sat else _sat
     print(_sat.to_string())
+    print("\n※ '기준 대비' 가 크게 음수인 것이 데이터가 실제로 저항하는 규칙이다.")
+    print("  유병률이 높으면 만족도는 저절로 낮아지므로 원값끼리 비교하면 안 된다.")
     _sat.to_csv(os.path.join(OUT, "stage5_axiom_sat.csv"), encoding="utf-8-sig")
     print("  -> stage5_axiom_sat.csv")
 
