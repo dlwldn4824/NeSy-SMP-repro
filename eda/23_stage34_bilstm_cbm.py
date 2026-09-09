@@ -142,9 +142,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _extra_features import build_extra_channels
 
 EX, EXNAMES = build_extra_channels(DATA, cam["stay_id"].to_numpy(), h, first, cnt, nbin=NBIN)
+EX_START = X.shape[2]
 if EX is None:
     print("[!] _extra_values.parquet 없음 — RASS+진정제 채널만 쓴다")
 else:
+    EX_START = X.shape[2]
     X = np.concatenate([X, EX], axis=2)
     NCH = X.shape[2]
     del EX
@@ -203,6 +205,43 @@ in_te = ~np.isin(subj, list(tr_pat_all))
 L = cam.labeled.to_numpy()
 print(f"train {int((in_tr&L).sum()):,} · val {int((in_val&L).sum()):,} · test {int((in_te&L).sum()):,} (라벨 기준)")
 
+# ---------------- 요약 벡터 Z — MLP/CBM/XGB 가 공유하는 입력 ----------------
+# X(시계열)에서 그대로 파생한다. BiLSTM 과 입력 정보량이 같아야 backbone 비교가 성립한다.
+def _summ(v, m):
+    cnt = m.sum(1)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        mean = np.where(cnt > 0, (v * m).sum(1) / np.maximum(cnt, 1), np.nan)
+    vmin = np.where(m, v, np.inf).min(1); vmin[~np.isfinite(vmin)] = np.nan
+    vmax = np.where(m, v, -np.inf).max(1); vmax[~np.isfinite(vmax)] = np.nan
+    nb = m.shape[1]
+    li = nb - 1 - np.argmax(m[:, ::-1], axis=1)
+    last = np.where(cnt > 0, v[np.arange(len(v)), np.maximum(li, 0)], np.nan)
+    return [mean, vmin, vmax, last, cnt.astype(np.float32)]
+
+
+zc, zn = [], []
+_m = X[:, :, 2] > 0
+zc += _summ(X[:, :, 0], _m); zn += [f"rass_{k}" for k in ["mean", "min", "max", "last", "n"]]
+_bmin = np.where(_m, X[:, :, 1], np.inf).min(1); _bmin[~np.isfinite(_bmin)] = np.nan
+zc.append(_bmin); zn.append("rass_binmin")
+zc.append((_bmin <= -4).astype(np.float32)); zn.append("deep_sed24")
+for ci, c in enumerate(CLS):
+    zc.append(X[:, :, 3 + ci].max(1)); zn.append(f"sed_{c}")
+if EX_START < X.shape[2]:
+    from _extra_features import summarize as _sm
+    _z, _n = _sm(X[:, :, EX_START:], EXNAMES)
+    zc += [_z[:, i] for i in range(_z.shape[1])]; zn += _n
+Z = np.concatenate([S, np.stack(zc, 1).astype(np.float32)], 1)
+ZCOLS = SFEAT + zn
+# 결측은 train 중앙값으로 채운다 (관측 수 _n 피처가 결측 여부를 이미 담고 있다)
+_med = np.nanmedian(Z[in_tr & L], axis=0)
+_med = np.where(np.isfinite(_med), _med, 0.0)
+Z = np.where(np.isfinite(Z), Z, _med[None, :]).astype(np.float32)
+zmu, zsd = Z[in_tr & L].mean(0), Z[in_tr & L].std(0) + 1e-6
+Z = (Z - zmu) / zsd
+Zt = torch.from_numpy(Z)
+print(f"요약 벡터 Z {Z.shape} ({len(ZCOLS)} 피처)")
+
 mu, sd = S[in_tr & L].mean(0), S[in_tr & L].std(0) + 1e-6
 S = (S - mu) / sd
 xm = X[in_tr & L].reshape(-1, NCH).mean(0)
@@ -217,29 +256,44 @@ Lt = torch.from_numpy(L.astype(np.float32))
 
 # ================================================================ 모델
 class Net(nn.Module):
-    def __init__(self, nch, nstat, hid=64, cbm=False, nconcept=len(CONCEPTS)):
+    """backbone='bilstm' 은 시계열 텐서를, 'mlp' 는 요약 벡터 Z 를 받는다."""
+
+    def __init__(self, nch, nstat, hid=64, cbm=False, nconcept=len(CONCEPTS),
+                 backbone="bilstm", nz=0):
         super().__init__()
-        self.cbm = cbm
-        self.lstm = nn.LSTM(nch, hid, batch_first=True, bidirectional=True)
-        self.att = nn.Linear(hid * 2, 1)
-        self.stat = nn.Sequential(nn.Linear(nstat, hid), nn.ReLU())
-        self.enc = nn.Sequential(nn.Linear(hid * 3, hid), nn.ReLU(), nn.Dropout(0.1))
+        self.cbm, self.backbone = cbm, backbone
+        if backbone == "bilstm":
+            self.lstm = nn.LSTM(nch, hid, batch_first=True, bidirectional=True)
+            self.att = nn.Linear(hid * 2, 1)
+            self.stat = nn.Sequential(nn.Linear(nstat, hid), nn.ReLU())
+            enc_in = hid * 3
+        else:
+            self.mlp = nn.Sequential(
+                nn.Linear(nz, hid * 4), nn.ReLU(), nn.Dropout(0.2),
+                nn.Linear(hid * 4, hid * 2), nn.ReLU(), nn.Dropout(0.1))
+            enc_in = hid * 2
+        self.enc = nn.Sequential(nn.Linear(enc_in, hid), nn.ReLU(), nn.Dropout(0.1))
         self.concept = nn.Linear(hid, nconcept)
         # CBM: 개념값만 통과시킨다 (병목). 비CBM: 표현 전체를 쓴다.
         self.out = nn.Linear(nconcept if cbm else hid, 1)
 
-    def forward(self, x, s):
-        o, _ = self.lstm(x)
-        w = torch.softmax(self.att(o), 1)
-        z = torch.cat([(o * w).sum(1), self.stat(s)], 1)
-        z = self.enc(z)
-        c = self.concept(z)
-        return self.out(torch.sigmoid(c) if self.cbm else z).squeeze(1), c
+    def forward(self, x, s, z=None):
+        if self.backbone == "bilstm":
+            o, _ = self.lstm(x)
+            w = torch.softmax(self.att(o), 1)
+            h_ = torch.cat([(o * w).sum(1), self.stat(s)], 1)
+        else:
+            h_ = self.mlp(z)
+        h_ = self.enc(h_)
+        c = self.concept(h_)
+        return self.out(torch.sigmoid(c) if self.cbm else h_).squeeze(1), c
 
 
-def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048):
-    torch.manual_seed(SEED)
-    m = Net(NCH, len(SFEAT), cbm=cbm).to(DEV)
+def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048, backbone="bilstm",
+        seed=SEED, quiet=False):
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    m = Net(NCH, len(SFEAT), cbm=cbm, backbone=backbone, nz=Z.shape[1]).to(DEV)
     opt = torch.optim.Adam(m.parameters(), lr=1e-3)
     bce = nn.BCEWithLogitsLoss(reduction="none")
     tr_mask = in_tr if use_unlabeled else (in_tr & L)
@@ -255,7 +309,8 @@ def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048):
             j = perm[i:i + bs]
             xb, sb = Xt[j].to(DEV), St[j].to(DEV)
             yb, cb, lb = Yt[j].to(DEV), Ct[j].to(DEV), Lt[j].to(DEV)
-            logit, c = m(xb, sb)
+            zb = Zt[j].to(DEV)
+            logit, c = m(xb, sb, zb)
             ltask = (bce(logit, yb) * lb).sum() / lb.sum().clamp(min=1)
             lcon = bce(c, cb).mean()
             loss = ltask + w_concept * lcon
@@ -266,24 +321,29 @@ def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048):
             pv = []
             for i in range(0, len(idx_va), 8192):
                 j = idx_va[i:i + 8192]
-                pv.append(torch.sigmoid(m(Xt[j].to(DEV), St[j].to(DEV))[0]).cpu().numpy())
+                pv.append(torch.sigmoid(
+                    m(Xt[j].to(DEV), St[j].to(DEV), Zt[j].to(DEV))[0]).cpu().numpy())
             pv = np.concatenate(pv)
         yv = cam.y.to_numpy()[idx_va].astype(int)
         vN = cam.v.to_numpy()[idx_va] == "N"
         ap = average_precision_score(yv[vN], pv[vN])       # 주 지표로 조기종료
-        print(f"  {name} ep{ep+1} loss={tot/len(perm):.4f} valN_AUPRC={100*ap:.1f}", flush=True)
+        if not quiet:
+            print(f"  {name} ep{ep+1} loss={tot/len(perm):.4f} valN_AUPRC={100*ap:.1f}", flush=True)
         if ap > best:
             best, best_state, bad = ap, {k: t.detach().clone() for k, t in m.state_dict().items()}, 0
         else:
             bad += 1
             if bad >= 2:
-                print("  early stop"); break
+                if not quiet:
+                    print("  early stop")
+                break
     m.load_state_dict(best_state); m.eval()
     with torch.no_grad():
         pt = []
         for i in range(0, len(idx_te), 8192):
             j = idx_te[i:i + 8192]
-            pt.append(torch.sigmoid(m(Xt[j].to(DEV), St[j].to(DEV))[0]).cpu().numpy())
+            pt.append(torch.sigmoid(
+                m(Xt[j].to(DEV), St[j].to(DEV), Zt[j].to(DEV))[0]).cpu().numpy())
         pt = np.concatenate(pt)
     return idx_te, pt
 
@@ -291,8 +351,20 @@ def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048):
 head(f"[학습] device={DEV}")
 res = {}
 res["3 BiLSTM"] = run("3 BiLSTM", cbm=False, use_unlabeled=False, w_concept=0.0)
-res["4 CBM"] = run("4 CBM", cbm=True, use_unlabeled=False, w_concept=1.0)
-res["4b CBM+Assessable"] = run("4b CBM+Assess", cbm=True, use_unlabeled=True, w_concept=1.0)
+res["3m MLP"] = run("3m MLP", cbm=False, use_unlabeled=False, w_concept=0.0, backbone="mlp")
+res["4 CBM(LSTM)"] = run("4 CBM(LSTM)", cbm=True, use_unlabeled=False, w_concept=1.0)
+res["4m CBM(MLP)"] = run("4m CBM(MLP)", cbm=True, use_unlabeled=False, w_concept=1.0, backbone="mlp")
+res["4bm CBM(MLP)+Assess"] = run("4bm CBM(MLP)+Assess", cbm=True, use_unlabeled=True,
+                                 w_concept=1.0, backbone="mlp")
+
+# 같은 Z 위의 XGBoost — backbone 비교의 상한 기준
+from xgboost import XGBClassifier
+_xi_tr, _xi_te = np.where(in_tr & L)[0], np.where(in_te & L)[0]
+_x = XGBClassifier(n_estimators=400, max_depth=6, learning_rate=0.05, subsample=0.8,
+                   colsample_bytree=0.8, eval_metric="aucpr", random_state=SEED,
+                   n_jobs=-1, tree_method="hist")
+_x.fit(Z[_xi_tr], cam.y.to_numpy()[_xi_tr].astype(int))
+res["2z XGB(같은 Z)"] = (_xi_te, _x.predict_proba(Z[_xi_te])[:, 1])
 
 head("[결과] 1~4단계 — 동일 test set")
 prev = pd.read_csv(os.path.join(OUT, "stage2_xgb.csv"))
@@ -322,13 +394,51 @@ for strat in ["전체", "앵커=N", "앵커=P", "앵커=U"]:
 print("\nAUROC")
 print(pd.DataFrame(rows).set_index("계층").to_string())
 
-head("[판정]")
+head("[시드 3개] 앵커=N AUPRC — backbone 결론을 단일 시드로 내리지 않는다")
+SEEDS = [42, 7, 2024]
+VARIANTS = [
+    ("3  BiLSTM", dict(cbm=False, use_unlabeled=False, w_concept=0.0, backbone="bilstm")),
+    ("3m MLP", dict(cbm=False, use_unlabeled=False, w_concept=0.0, backbone="mlp")),
+    ("4  CBM(LSTM)", dict(cbm=True, use_unlabeled=False, w_concept=1.0, backbone="bilstm")),
+    ("4m CBM(MLP)", dict(cbm=True, use_unlabeled=False, w_concept=1.0, backbone="mlp")),
+]
+_teN = cam.v.to_numpy()[res["3 BiLSTM"][0]] == "N"
+_ytN = cam.y.to_numpy()[res["3 BiLSTM"][0]].astype(int)[_teN]
+rows = []
+for nm, kw in VARIANTS:
+    vals = []
+    for sd_ in SEEDS:
+        _, pp = run(nm, seed=sd_, quiet=True, **kw)
+        vals.append(100 * average_precision_score(_ytN, pp[_teN]))
+    rows.append({"모델": nm, "평균": round(float(np.mean(vals)), 1),
+                 "표준편차": round(float(np.std(vals)), 1),
+                 "최소": round(min(vals), 1), "최대": round(max(vals), 1),
+                 "시드별": " / ".join(f"{v:.1f}" for v in vals)})
+    print(f"  {nm:14s} {rows[-1]['평균']:5.1f} ± {rows[-1]['표준편차']:.1f}   ({rows[-1]['시드별']})",
+          flush=True)
+sv = pd.DataFrame(rows).set_index("모델")
+sv.to_csv(os.path.join(OUT, "stage34_seeds.csv"), encoding="utf-8-sig")
+print("  -> stage34_seeds.csv")
+d_bb = sv.loc["3m MLP", "평균"] - sv.loc["3  BiLSTM", "평균"]
+d_cbm = sv.loc["4m CBM(MLP)", "평균"] - sv.loc["4  CBM(LSTM)", "평균"]
+print(f"\nbackbone 교체 (개념층 없이) {d_bb:+.1f}  ·  (CBM) {d_cbm:+.1f}")
+print("표준편차보다 작으면 차이라고 말할 수 없다.")
+
+head("[판정] 앵커=N AUPRC")
 n = t.loc["앵커=N"]
-print(f"앵커=N AUPRC:  1단계 {n['1 lookup']} → 2단계 {n['2 XGB']} → "
-      f"3단계 {n['3 BiLSTM']} → 4단계 {n['4 CBM']} → 4b {n['4b CBM+Assessable']}")
-print(f"\n3단계 - 2단계 = {n['3 BiLSTM']-n['2 XGB']:+.1f}  → 원시 시계열이 요약 피처를 넘는가")
-print(f"4단계 - 3단계 = {n['4 CBM']-n['3 BiLSTM']:+.1f}  → 개념 병목의 비용")
-print(f"4b  - 4단계  = {n['4b CBM+Assessable']-n['4 CBM']:+.1f}  → 미관찰 앵커를 Assessable 로 살린 효과")
+print(f"  1 lookup        {n['1 lookup']}")
+print(f"  2 XGB(원 피처)   {n['2 XGB']}")
+print(f"  2z XGB(같은 Z)   {n['2z XGB(같은 Z)']}   ← backbone 비교의 상한")
+print(f"  3  BiLSTM        {n['3 BiLSTM']}")
+print(f"  3m MLP           {n['3m MLP']}")
+print(f"  4  CBM(LSTM)     {n['4 CBM(LSTM)']}")
+print(f"  4m CBM(MLP)      {n['4m CBM(MLP)']}")
+print(f"  4bm +Assessable  {n['4bm CBM(MLP)+Assess']}")
+print(f"\nbackbone 교체 효과 (개념층 없이) : MLP - BiLSTM = {n['3m MLP']-n['3 BiLSTM']:+.1f}")
+print(f"backbone 교체 효과 (CBM)         : {n['4m CBM(MLP)']-n['4 CBM(LSTM)']:+.1f}")
+print(f"MLP 가 같은 입력의 XGB 에 못 미치는 폭 : {n['3m MLP']-n['2z XGB(같은 Z)']:+.1f}")
+print(f"개념 병목 비용 (MLP backbone)     : {n['4m CBM(MLP)']-n['3m MLP']:+.1f}")
+print(f"Assessable 재활용                : {n['4bm CBM(MLP)+Assess']-n['4m CBM(MLP)']:+.1f}")
 print(f"\n총 {time.time()-t0:.0f}s")
 print("\n" + ("mobility/pain/GCS 포함본이다 — 3단계 판정은 확정이다."
                 if NCH > 6 else "[!] mobility/pain/GCS 미포함 — 하한이다."))
