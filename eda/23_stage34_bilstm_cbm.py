@@ -172,61 +172,101 @@ SFEAT = ["hr", "n_prev", "n_prev_pos", "n_prev_uta", "uta_frac", "since_conf", "
 S = cam[SFEAT].to_numpy(np.float32)
 
 # ---------------- 개념 라벨 ----------------
-# SPLIT_SPEC §16 의 predicate + horn_to_ltn 가 컴파일한 공리 19개가 참조하는 술어에 맞춘다.
-# 5개(v1)로는 예측을 지배하는 CAM 상태 말고는 병목을 통과하지 못해 CBM 이 baseline 아래로 갔다.
-# mobility/pain/GCS 가 추출된 뒤라 이제 §16 의 Mobility·Pain 을 실제로 넣을 수 있다.
+# 두 벌을 만든다.
+#   BIN  : 이진 임계 (v2). 지금까지 쓰던 것.
+#   CONT : 연속값 (v3). 같은 임상량을 임계 없이 그대로 개념으로 둔다.
+# -10.1 의 병목 비용이 정의의 거칠기 탓인지 가리려면 둘을 같은 폭에서 비교해야 한다.
+# 미관측(예: mobility 기록 없음)은 개념 손실에서 마스킹한다 — 중앙값으로 채우면 라벨 잡음이 된다.
 #
-# 채널 인덱스(정규화 전 raw X):
-#   0 rass_mean · 1 rass_binmin · 2 rass_obs · 3 benzo · 4 propofol · 5 dexmed
-#   6/7 gcs_eye · 8/9 gcs_verbal · 10/11 gcs_motor · 12/13 mob_braden
-#   14/15 mob_jhhlm · 16/17 pain_nrs · 18 pain_attempt
-def _mx(vi, mi, default=np.nan):
+# 채널(정규화 전 raw X): 0 rass_mean · 1 rass_binmin · 2 rass_obs · 3 benzo · 4 propofol
+#   · 5 dexmed · 6/7 gcs_eye · 8/9 gcs_verbal · 10/11 gcs_motor · 12/13 mob_braden
+#   · 14/15 mob_jhhlm · 16/17 pain_nrs · 18 pain_attempt
+def _agg(vi, mi, how):
     v, m = X[:, :, vi], X[:, :, mi] > 0
-    out = np.where(m, v, -np.inf).max(1)
-    return np.where(np.isfinite(out), out, default)
-
-
-def _mn(vi, mi, default=np.nan):
-    v, m = X[:, :, vi], X[:, :, mi] > 0
-    out = np.where(m, v, np.inf).min(1)
-    return np.where(np.isfinite(out), out, default)
+    if how == "min":
+        o = np.where(m, v, np.inf).min(1)
+    else:
+        o = np.where(m, v, -np.inf).max(1)
+    ok = np.isfinite(o)
+    return np.where(ok, o, 0.0).astype(np.float32), ok
 
 
 _rm = X[:, :, 2] > 0
 _rass_min = np.where(_rm, X[:, :, 1], np.inf).min(1)
-_rass_min = np.where(np.isfinite(_rass_min), _rass_min, 0.0)
-_rass_negmean = np.where(_rm, np.minimum(X[:, :, 0], 0), 0.0).sum(1) / np.maximum(_rm.sum(1), 1)
+_rass_ok = np.isfinite(_rass_min)
+_rass_min = np.where(_rass_ok, _rass_min, 0.0).astype(np.float32)
+_rass_negmean = (np.where(_rm, np.minimum(X[:, :, 0], 0), 0.0).sum(1)
+                 / np.maximum(_rm.sum(1), 1)).astype(np.float32)
+_one = np.ones(len(cam), bool)
+_nb = X.shape[1]
+_benzo_f = X[:, :, 3].mean(1); _prop_f = X[:, :, 4].mean(1); _dex_f = X[:, :, 5].mean(1)
+_age = cam["age"].to_numpy(np.float32)
+_male = (cam["is_male"].to_numpy() > 0)
+_lab = cam["labeled"].to_numpy()
+_curP = (cam.v.to_numpy() == "P")
+_curU = (cam.v.to_numpy() == "U")
+_npv = cam.n_prev.to_numpy(); _pf = cam.n_prev_pos.to_numpy() / np.maximum(_npv, 1)
+_uf = cam.n_prev_uta.to_numpy() / np.maximum(_npv, 1)
 
-CDEF = []          # (이름, 라벨 배열)
-CDEF.append(("DeepSedation", (_rass_min <= -4)))
-CDEF.append(("HighSedationIntensity", (_rass_negmean <= -2)))
-CDEF.append(("BenzoExposure", (X[:, :, 3].max(1) > 0)))
-CDEF.append(("PropofolExposure", (X[:, :, 4].max(1) > 0)))
-CDEF.append(("DexmedExposure", (X[:, :, 5].max(1) > 0)))
 if NCH > 6:
-    _gcs = (_mn(6, 7, 4.0) + _mn(8, 9, 5.0) + _mn(10, 11, 6.0))
-    CDEF.append(("LowGCS", (_gcs <= 8)))                      # PriorComa 대응
-    CDEF.append(("Immobility", (_mn(12, 13, 4.0) <= 2) | (_mn(14, 15, 8.0) <= 2)))
-    CDEF.append(("EarlyMobility", (_mx(14, 15, 0.0) >= 4) | (_mx(12, 13, 0.0) >= 4)))
-    CDEF.append(("SeverePain", (_mx(16, 17, 0.0) >= 4)))
-    CDEF.append(("PainUnassessable", (X[:, :, 18].max(1) > 0) & ~(X[:, :, 17].max(1) > 0)))
-CDEF.append(("OlderAge", (cam["age"].to_numpy() >= 65)))
-CDEF.append(("MaleSex", (cam["is_male"].to_numpy() > 0)))
-CDEF.append(("Assessable", cam["labeled"].to_numpy()))
-CDEF.append(("CurrentDelirium", (cam.v.to_numpy() == "P")))
-CDEF.append(("PriorDelirium", (cam.n_prev_pos.to_numpy() > 0)))
+    _ge, _geo = _agg(6, 7, "min"); _gv, _gvo = _agg(8, 9, "min"); _gm, _gmo = _agg(10, 11, "min")
+    _gcs = (_ge + _gv + _gm).astype(np.float32); _gcso = _geo & _gvo & _gmo
+    _mb, _mbo = _agg(12, 13, "min")
+    _mj, _mjo = _agg(14, 15, "min")
+    _mjx, _mjxo = _agg(14, 15, "max")
+    _pn, _pno = _agg(16, 17, "max")
+    _pa = (X[:, :, 18].max(1) > 0)
+else:
+    _gcs = _gcso = _mb = _mbo = _mj = _mjo = _mjx = _mjxo = _pn = _pno = _pa = None
 
-CONCEPTS = [n for n, _ in CDEF]
-CARR = np.stack([a.astype(np.float32) for _, a in CDEF], 1)
-# v1 의 5개 — 병목 폭 비교용
+# (이름, 값, 마스크, 종류)
+BIN_DEF = [("DeepSedation", (_rass_min <= -4), _one, "bin"),
+           ("HighSedationIntensity", (_rass_negmean <= -2), _one, "bin"),
+           ("BenzoExposure", (_benzo_f > 0), _one, "bin"),
+           ("PropofolExposure", (_prop_f > 0), _one, "bin"),
+           ("DexmedExposure", (_dex_f > 0), _one, "bin")]
+CONT_DEF = [("RASSmin", _rass_min, _rass_ok, "cont"),
+            ("RASSnegmean", _rass_negmean, _one, "cont"),
+            ("BenzoFrac", _benzo_f, _one, "cont"),
+            ("PropofolFrac", _prop_f, _one, "cont"),
+            ("DexmedFrac", _dex_f, _one, "cont")]
+if NCH > 6:
+    BIN_DEF += [("LowGCS", (_gcs <= 8), _gcso, "bin"),
+                ("Immobility", (_mb <= 2) | (_mj <= 2), _mbo | _mjo, "bin"),
+                ("EarlyMobility", (_mjx >= 4), _mjxo, "bin"),
+                ("SeverePain", (_pn >= 4), _pno, "bin"),
+                ("PainUnassessable", _pa & ~_pno, _one, "bin")]
+    CONT_DEF += [("GCStotal", _gcs, _gcso, "cont"),
+                 ("MobBraden", _mb, _mbo, "cont"),
+                 ("MobJHHLM", _mjx, _mjxo, "cont"),
+                 ("PainNRSmax", _pn, _pno, "cont"),
+                 ("PainUnassessable", _pa & ~_pno, _one, "bin")]
+_TAIL = [("OlderAge", (_age >= 65), _one, "bin"), ("MaleSex", _male, _one, "bin"),
+         ("Assessable", _lab, _one, "bin"), ("CurrentDelirium", _curP, _one, "bin"),
+         ("PriorDelirium", (cam.n_prev_pos.to_numpy() > 0), _one, "bin")]
+_TAILC = [("Age", _age, _one, "cont"), ("MaleSex", _male, _one, "bin"),
+          ("Assessable", _lab, _one, "bin"), ("CurrentDelirium", _curP, _one, "bin"),
+          ("CurrentUTA", _curU, _one, "bin"), ("PriorDeliriumFrac", _pf, _one, "cont"),
+          ("PriorUTAFrac", _uf, _one, "cont")]
+BIN_DEF += _TAIL
+CONT_DEF += _TAILC
+
+
+def _pack(defs):
+    names = [d[0] for d in defs]
+    arr = np.stack([np.asarray(d[1], dtype=np.float32) for d in defs], 1)
+    msk = np.stack([np.asarray(d[2], dtype=np.float32) for d in defs], 1)
+    typ = [d[3] for d in defs]
+    # 연속 개념은 train 통계로 표준화한다 (MSE 스케일 통일)
+    return names, arr, msk, typ
+
+
+CONCEPTS, CARR, CMASK, CTYPE = _pack(BIN_DEF)
+CONCEPTS_C, CARR_C, CMASK_C, CTYPE_C = _pack(CONT_DEF)
 V1 = ["DeepSedation", "BenzoExposure", "Assessable", "CurrentDelirium", "PriorDelirium"]
-CONCEPT_SETS = {
-    "5 (v1)": [CONCEPTS.index(x) for x in V1],
-    f"{len(CONCEPTS)} (확장)": list(range(len(CONCEPTS))),
-}
-print(f"개념 {len(CONCEPTS)}개 — 기저율")
-for i, n in enumerate(CONCEPTS):
-    print(f"    {n:22s} {100*CARR[:, i].mean():5.1f}%")
+CONCEPT_SETS = {"5 (v1)": [CONCEPTS.index(x) for x in V1]}
+print(f"개념 세트 — 이진 {len(CONCEPTS)}개 / 연속 {len(CONCEPTS_C)}개"
+      f" (연속 중 cont {sum(t=='cont' for t in CTYPE_C)}개)")
 
 # ================================================================ 분할 (test 는 20_/22_ 와 동일)
 lab_idx = np.where(cam.labeled.to_numpy())[0]
@@ -290,7 +330,20 @@ X = (X - xm) / xs
 
 Xt = torch.from_numpy(X); St = torch.from_numpy(S)
 Yt = torch.from_numpy(cam.y.to_numpy().astype(np.float32))
+# 연속 개념은 train 통계로 표준화
+_trm = (in_tr & L)
+_cs = CARR_C.copy()
+for i, t_ in enumerate(CTYPE_C):
+    if t_ == "cont":
+        w = _trm & (CMASK_C[:, i] > 0)
+        mu_, sd_ = _cs[w, i].mean(), _cs[w, i].std() + 1e-6
+        _cs[:, i] = (_cs[:, i] - mu_) / sd_
 Ct = torch.from_numpy(CARR)
+Mt = torch.from_numpy(CMASK)
+CtC = torch.from_numpy(_cs)
+MtC = torch.from_numpy(CMASK_C)
+TYPE_B = torch.tensor([t == "bin" for t in CTYPE])
+TYPE_C = torch.tensor([t == "bin" for t in CTYPE_C])
 Lt = torch.from_numpy(L.astype(np.float32))
 
 
@@ -298,7 +351,7 @@ Lt = torch.from_numpy(L.astype(np.float32))
 class Net(nn.Module):
     """backbone='bilstm' 은 시계열 텐서를, 'mlp' 는 요약 벡터 Z 를 받는다."""
 
-    def __init__(self, nch, nstat, hid=64, cbm=False, nconcept=len(CONCEPTS),
+    def __init__(self, nch, nstat, hid=64, cbm=False, nconcept=15,
                  backbone="bilstm", nz=0):
         super().__init__()
         self.cbm, self.backbone = cbm, backbone
@@ -313,6 +366,7 @@ class Net(nn.Module):
                 nn.Linear(hid * 4, hid * 2), nn.ReLU(), nn.Dropout(0.1))
             enc_in = hid * 2
         self.enc = nn.Sequential(nn.Linear(enc_in, hid), nn.ReLU(), nn.Dropout(0.1))
+        self.register_buffer('type_bin', torch.ones(nconcept, dtype=torch.bool))
         self.concept = nn.Linear(hid, nconcept)
         # CBM: 개념값만 통과시킨다 (병목). 비CBM: 표현 전체를 쓴다.
         self.out = nn.Linear(nconcept if cbm else hid, 1)
@@ -326,17 +380,24 @@ class Net(nn.Module):
             h_ = self.mlp(z)
         h_ = self.enc(h_)
         c = self.concept(h_)
-        return self.out(torch.sigmoid(c) if self.cbm else h_).squeeze(1), c
+        if not self.cbm:
+            return self.out(h_).squeeze(1), c
+        # 병목: 이진 개념은 sigmoid, 연속 개념은 예측값 그대로 통과
+        tb = self.type_bin.to(c.device)
+        z_ = torch.where(tb, torch.sigmoid(c), c)
+        return self.out(z_).squeeze(1), c
 
 
 def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048, backbone="bilstm",
-        seed=SEED, quiet=False, cidx=None):
+        seed=SEED, quiet=False, cidx=None, cset="bin"):
     torch.manual_seed(seed)
     np.random.seed(seed)
-    cidx = list(range(len(CONCEPTS))) if cidx is None else cidx
-    Csub = Ct[:, cidx]
+    _C, _M, _T = (Ct, Mt, TYPE_B) if cset == "bin" else (CtC, MtC, TYPE_C)
+    cidx = list(range(_C.shape[1])) if cidx is None else cidx
+    Csub, Msub, Tsub = _C[:, cidx], _M[:, cidx], _T[cidx]
     m = Net(NCH, len(SFEAT), cbm=cbm, nconcept=len(cidx),
             backbone=backbone, nz=Z.shape[1]).to(DEV)
+    m.type_bin.copy_(Tsub.to(DEV))
     opt = torch.optim.Adam(m.parameters(), lr=1e-3)
     bce = nn.BCEWithLogitsLoss(reduction="none")
     tr_mask = in_tr if use_unlabeled else (in_tr & L)
@@ -352,10 +413,15 @@ def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048, backbone="bilst
             j = perm[i:i + bs]
             xb, sb = Xt[j].to(DEV), St[j].to(DEV)
             yb, cb, lb = Yt[j].to(DEV), Csub[j].to(DEV), Lt[j].to(DEV)
+            mb_ = Msub[j].to(DEV); tb_ = Tsub.to(DEV)
             zb = Zt[j].to(DEV)
             logit, c = m(xb, sb, zb)
             ltask = (bce(logit, yb) * lb).sum() / lb.sum().clamp(min=1)
-            lcon = bce(c, cb).mean() if w_concept > 0 else torch.zeros((), device=DEV)
+            if w_concept > 0:
+                lb_ = torch.where(tb_.unsqueeze(0), bce(c, cb), (c - cb) ** 2)
+                lcon = (lb_ * mb_).sum() / mb_.sum().clamp(min=1)
+            else:
+                lcon = torch.zeros((), device=DEV)
             loss = ltask + w_concept * lcon
             opt.zero_grad(); loss.backward(); opt.step()
             tot += float(loss.detach()) * len(j)
@@ -394,17 +460,13 @@ def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048, backbone="bilst
 head(f"[학습] device={DEV}")
 res = {}
 _I5 = CONCEPT_SETS["5 (v1)"]
-_IALL = list(range(len(CONCEPTS)))
 res["3 BiLSTM"] = run("3 BiLSTM", cbm=False, use_unlabeled=False, w_concept=0.0)
-res["3m MLP"] = run("3m MLP", cbm=False, use_unlabeled=False, w_concept=0.0, backbone="mlp")
 res["4 CBM-5"] = run("4 CBM-5", cbm=True, use_unlabeled=False, w_concept=1.0, cidx=_I5)
-res[f"4x CBM-{len(CONCEPTS)}"] = run("4x CBM-확장", cbm=True, use_unlabeled=False,
-                                     w_concept=1.0, cidx=_IALL)
-# 용량 대조군: 같은 폭인데 개념 지도학습만 뺀다. 이득이 폭 때문인지 개념 때문인지 가른다.
-res[f"4f free-{len(CONCEPTS)}"] = run("4f free-확장", cbm=True, use_unlabeled=False,
-                                      w_concept=0.0, cidx=_IALL)
-res["4bx +Assessable"] = run("4bx +Assess", cbm=True, use_unlabeled=True,
-                             w_concept=1.0, cidx=_IALL)
+res[f"4x CBM-{len(CONCEPTS)} 이진"] = run("4x 이진", cbm=True, use_unlabeled=False, w_concept=1.0)
+res[f"4c CBM-{len(CONCEPTS_C)} 연속"] = run("4c 연속", cbm=True, use_unlabeled=False,
+                                            w_concept=1.0, cset="cont")
+res[f"4f free-{len(CONCEPTS_C)}"] = run("4f free", cbm=True, use_unlabeled=False,
+                                        w_concept=0.0, cset="cont")
 
 # 같은 Z 위의 XGBoost — backbone 비교의 상한 기준
 from xgboost import XGBClassifier
@@ -446,10 +508,11 @@ print(pd.DataFrame(rows).set_index("계층").to_string())
 head("[시드 3개] 앵커=N AUPRC — backbone 결론을 단일 시드로 내리지 않는다")
 SEEDS = [42, 7, 2024]
 VARIANTS = [
-    ("3  BiLSTM", dict(cbm=False, use_unlabeled=False, w_concept=0.0, backbone="bilstm")),
+    ("3  BiLSTM", dict(cbm=False, use_unlabeled=False, w_concept=0.0)),
     ("4  CBM-5", dict(cbm=True, use_unlabeled=False, w_concept=1.0, cidx=_I5)),
-    (f"4x CBM-{len(CONCEPTS)}", dict(cbm=True, use_unlabeled=False, w_concept=1.0, cidx=_IALL)),
-    (f"4f free-{len(CONCEPTS)}", dict(cbm=True, use_unlabeled=False, w_concept=0.0, cidx=_IALL)),
+    (f"4x 이진-{len(CONCEPTS)}", dict(cbm=True, use_unlabeled=False, w_concept=1.0)),
+    (f"4c 연속-{len(CONCEPTS_C)}", dict(cbm=True, use_unlabeled=False, w_concept=1.0, cset="cont")),
+    (f"4f free-{len(CONCEPTS_C)}", dict(cbm=True, use_unlabeled=False, w_concept=0.0, cset="cont")),
 ]
 _teN = cam.v.to_numpy()[res["3 BiLSTM"][0]] == "N"
 _ytN = cam.y.to_numpy()[res["3 BiLSTM"][0]].astype(int)[_teN]
@@ -468,13 +531,14 @@ for nm, kw in VARIANTS:
 sv = pd.DataFrame(rows).set_index("모델")
 sv.to_csv(os.path.join(OUT, "stage34_seeds.csv"), encoding="utf-8-sig")
 print("  -> stage34_seeds.csv")
-_w = sv.loc[f"4x CBM-{len(CONCEPTS)}", "평균"] - sv.loc["4  CBM-5", "평균"]
-_c = sv.loc[f"4x CBM-{len(CONCEPTS)}", "평균"] - sv.loc[f"4f free-{len(CONCEPTS)}", "평균"]
-_g = sv.loc["3  BiLSTM", "평균"] - sv.loc[f"4x CBM-{len(CONCEPTS)}", "평균"]
-print(f"\n병목 확장 5 -> {len(CONCEPTS)}        {_w:+.1f}")
-print(f"그중 개념 지도학습의 몫    {_c:+.1f}   (나머지는 병목 폭 자체의 효과)")
-print(f"남은 병목 비용 (vs 병목없음) {_g:+.1f}")
-print("표준편차보다 작으면 차이라고 말할 수 없다.")
+_b = sv.loc[f"4x 이진-{len(CONCEPTS)}", "평균"]
+_cc = sv.loc[f"4c 연속-{len(CONCEPTS_C)}", "평균"]
+_f = sv.loc[f"4f free-{len(CONCEPTS_C)}", "평균"]
+_n = sv.loc["3  BiLSTM", "평균"]
+print(f"\n연속 - 이진               {_cc-_b:+.1f}   <- 정의를 다듬어 줄어드나")
+print(f"연속 개념의 남은 비용      {_cc-_f:+.1f}   (같은 폭 자유 병목 대비)")
+print(f"자유 병목 자체의 비용      {_f-_n:+.1f}")
+print("\n연속-이진 차이가 SD 보다 작으면 '정의가 거칠어서'는 기각된다.")
 
 head("[판정] 앵커=N AUPRC (단일 시드)")
 n = t.loc["앵커=N"]
