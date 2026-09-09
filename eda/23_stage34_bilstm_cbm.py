@@ -171,22 +171,62 @@ SFEAT = ["hr", "n_prev", "n_prev_pos", "n_prev_uta", "uta_frac", "since_conf", "
          "anchor_N", "anchor_P", "anchor_U", "prev_N", "prev_P", "prev_none"]
 S = cam[SFEAT].to_numpy(np.float32)
 
-# ---------------- 개념 라벨 (SPLIT_SPEC §16 의 predicate 중 지금 만들 수 있는 것) ----------------
-# ⚠️ 처음엔 DeepSedation + Assessable 둘만 뒀는데, 그러면 예측을 지배하는 CAM 상태가
-#    병목 어디에도 실리지 않아 CBM 이 baseline 밑으로 떨어진다. 그건 CBM 의 성질이 아니라
-#    개념 집합을 잘못 고른 것이다. 관측 가능한 상태 개념을 넣어 다시 잡는다.
-#    Mobility / Pain 은 값이 없어 아직 못 넣는다 (6개 중 4개 + 파생 1개).
-rmin24 = X[:, :, 1].copy()
-rmin24[X[:, :, 2] == 0] = 0.0
-c_deep = (rmin24.min(1) <= -4).astype(np.float32)                 # DeepSedation
-c_benzo = (X[:, :, 3].max(1) > 0).astype(np.float32)              # BenzodiazepineExposure
-c_assess = cam["labeled"].to_numpy().astype(np.float32)           # Assessable (미래 — 보조)
-c_cur = (cam.v.to_numpy() == "P").astype(np.float32)              # CurrentDelirium (앵커 시점)
-c_prior = (cam.n_prev_pos.to_numpy() > 0).astype(np.float32)      # PriorDelirium (이력)
-CONCEPTS = ["DeepSedation", "BenzoExposure", "Assessable", "CurrentDelirium", "PriorDelirium"]
-CARR = np.stack([c_deep, c_benzo, c_assess, c_cur, c_prior], 1).astype(np.float32)
-print("개념 기저 — " + " · ".join(
-    f"{n} {100*CARR[:, i].mean():.1f}%" for i, n in enumerate(CONCEPTS)))
+# ---------------- 개념 라벨 ----------------
+# SPLIT_SPEC §16 의 predicate + horn_to_ltn 가 컴파일한 공리 19개가 참조하는 술어에 맞춘다.
+# 5개(v1)로는 예측을 지배하는 CAM 상태 말고는 병목을 통과하지 못해 CBM 이 baseline 아래로 갔다.
+# mobility/pain/GCS 가 추출된 뒤라 이제 §16 의 Mobility·Pain 을 실제로 넣을 수 있다.
+#
+# 채널 인덱스(정규화 전 raw X):
+#   0 rass_mean · 1 rass_binmin · 2 rass_obs · 3 benzo · 4 propofol · 5 dexmed
+#   6/7 gcs_eye · 8/9 gcs_verbal · 10/11 gcs_motor · 12/13 mob_braden
+#   14/15 mob_jhhlm · 16/17 pain_nrs · 18 pain_attempt
+def _mx(vi, mi, default=np.nan):
+    v, m = X[:, :, vi], X[:, :, mi] > 0
+    out = np.where(m, v, -np.inf).max(1)
+    return np.where(np.isfinite(out), out, default)
+
+
+def _mn(vi, mi, default=np.nan):
+    v, m = X[:, :, vi], X[:, :, mi] > 0
+    out = np.where(m, v, np.inf).min(1)
+    return np.where(np.isfinite(out), out, default)
+
+
+_rm = X[:, :, 2] > 0
+_rass_min = np.where(_rm, X[:, :, 1], np.inf).min(1)
+_rass_min = np.where(np.isfinite(_rass_min), _rass_min, 0.0)
+_rass_negmean = np.where(_rm, np.minimum(X[:, :, 0], 0), 0.0).sum(1) / np.maximum(_rm.sum(1), 1)
+
+CDEF = []          # (이름, 라벨 배열)
+CDEF.append(("DeepSedation", (_rass_min <= -4)))
+CDEF.append(("HighSedationIntensity", (_rass_negmean <= -2)))
+CDEF.append(("BenzoExposure", (X[:, :, 3].max(1) > 0)))
+CDEF.append(("PropofolExposure", (X[:, :, 4].max(1) > 0)))
+CDEF.append(("DexmedExposure", (X[:, :, 5].max(1) > 0)))
+if NCH > 6:
+    _gcs = (_mn(6, 7, 4.0) + _mn(8, 9, 5.0) + _mn(10, 11, 6.0))
+    CDEF.append(("LowGCS", (_gcs <= 8)))                      # PriorComa 대응
+    CDEF.append(("Immobility", (_mn(12, 13, 4.0) <= 2) | (_mn(14, 15, 8.0) <= 2)))
+    CDEF.append(("EarlyMobility", (_mx(14, 15, 0.0) >= 4) | (_mx(12, 13, 0.0) >= 4)))
+    CDEF.append(("SeverePain", (_mx(16, 17, 0.0) >= 4)))
+    CDEF.append(("PainUnassessable", (X[:, :, 18].max(1) > 0) & ~(X[:, :, 17].max(1) > 0)))
+CDEF.append(("OlderAge", (cam["age"].to_numpy() >= 65)))
+CDEF.append(("MaleSex", (cam["is_male"].to_numpy() > 0)))
+CDEF.append(("Assessable", cam["labeled"].to_numpy()))
+CDEF.append(("CurrentDelirium", (cam.v.to_numpy() == "P")))
+CDEF.append(("PriorDelirium", (cam.n_prev_pos.to_numpy() > 0)))
+
+CONCEPTS = [n for n, _ in CDEF]
+CARR = np.stack([a.astype(np.float32) for _, a in CDEF], 1)
+# v1 의 5개 — 병목 폭 비교용
+V1 = ["DeepSedation", "BenzoExposure", "Assessable", "CurrentDelirium", "PriorDelirium"]
+CONCEPT_SETS = {
+    "5 (v1)": [CONCEPTS.index(x) for x in V1],
+    f"{len(CONCEPTS)} (확장)": list(range(len(CONCEPTS))),
+}
+print(f"개념 {len(CONCEPTS)}개 — 기저율")
+for i, n in enumerate(CONCEPTS):
+    print(f"    {n:22s} {100*CARR[:, i].mean():5.1f}%")
 
 # ================================================================ 분할 (test 는 20_/22_ 와 동일)
 lab_idx = np.where(cam.labeled.to_numpy())[0]
@@ -290,10 +330,13 @@ class Net(nn.Module):
 
 
 def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048, backbone="bilstm",
-        seed=SEED, quiet=False):
+        seed=SEED, quiet=False, cidx=None):
     torch.manual_seed(seed)
     np.random.seed(seed)
-    m = Net(NCH, len(SFEAT), cbm=cbm, backbone=backbone, nz=Z.shape[1]).to(DEV)
+    cidx = list(range(len(CONCEPTS))) if cidx is None else cidx
+    Csub = Ct[:, cidx]
+    m = Net(NCH, len(SFEAT), cbm=cbm, nconcept=len(cidx),
+            backbone=backbone, nz=Z.shape[1]).to(DEV)
     opt = torch.optim.Adam(m.parameters(), lr=1e-3)
     bce = nn.BCEWithLogitsLoss(reduction="none")
     tr_mask = in_tr if use_unlabeled else (in_tr & L)
@@ -308,11 +351,11 @@ def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048, backbone="bilst
         for i in range(0, len(perm), bs):
             j = perm[i:i + bs]
             xb, sb = Xt[j].to(DEV), St[j].to(DEV)
-            yb, cb, lb = Yt[j].to(DEV), Ct[j].to(DEV), Lt[j].to(DEV)
+            yb, cb, lb = Yt[j].to(DEV), Csub[j].to(DEV), Lt[j].to(DEV)
             zb = Zt[j].to(DEV)
             logit, c = m(xb, sb, zb)
             ltask = (bce(logit, yb) * lb).sum() / lb.sum().clamp(min=1)
-            lcon = bce(c, cb).mean()
+            lcon = bce(c, cb).mean() if w_concept > 0 else torch.zeros((), device=DEV)
             loss = ltask + w_concept * lcon
             opt.zero_grad(); loss.backward(); opt.step()
             tot += float(loss.detach()) * len(j)
@@ -350,12 +393,18 @@ def run(name, cbm, use_unlabeled, w_concept, epochs=10, bs=2048, backbone="bilst
 
 head(f"[학습] device={DEV}")
 res = {}
+_I5 = CONCEPT_SETS["5 (v1)"]
+_IALL = list(range(len(CONCEPTS)))
 res["3 BiLSTM"] = run("3 BiLSTM", cbm=False, use_unlabeled=False, w_concept=0.0)
 res["3m MLP"] = run("3m MLP", cbm=False, use_unlabeled=False, w_concept=0.0, backbone="mlp")
-res["4 CBM(LSTM)"] = run("4 CBM(LSTM)", cbm=True, use_unlabeled=False, w_concept=1.0)
-res["4m CBM(MLP)"] = run("4m CBM(MLP)", cbm=True, use_unlabeled=False, w_concept=1.0, backbone="mlp")
-res["4bm CBM(MLP)+Assess"] = run("4bm CBM(MLP)+Assess", cbm=True, use_unlabeled=True,
-                                 w_concept=1.0, backbone="mlp")
+res["4 CBM-5"] = run("4 CBM-5", cbm=True, use_unlabeled=False, w_concept=1.0, cidx=_I5)
+res[f"4x CBM-{len(CONCEPTS)}"] = run("4x CBM-확장", cbm=True, use_unlabeled=False,
+                                     w_concept=1.0, cidx=_IALL)
+# 용량 대조군: 같은 폭인데 개념 지도학습만 뺀다. 이득이 폭 때문인지 개념 때문인지 가른다.
+res[f"4f free-{len(CONCEPTS)}"] = run("4f free-확장", cbm=True, use_unlabeled=False,
+                                      w_concept=0.0, cidx=_IALL)
+res["4bx +Assessable"] = run("4bx +Assess", cbm=True, use_unlabeled=True,
+                             w_concept=1.0, cidx=_IALL)
 
 # 같은 Z 위의 XGBoost — backbone 비교의 상한 기준
 from xgboost import XGBClassifier
@@ -398,9 +447,9 @@ head("[시드 3개] 앵커=N AUPRC — backbone 결론을 단일 시드로 내�
 SEEDS = [42, 7, 2024]
 VARIANTS = [
     ("3  BiLSTM", dict(cbm=False, use_unlabeled=False, w_concept=0.0, backbone="bilstm")),
-    ("3m MLP", dict(cbm=False, use_unlabeled=False, w_concept=0.0, backbone="mlp")),
-    ("4  CBM(LSTM)", dict(cbm=True, use_unlabeled=False, w_concept=1.0, backbone="bilstm")),
-    ("4m CBM(MLP)", dict(cbm=True, use_unlabeled=False, w_concept=1.0, backbone="mlp")),
+    ("4  CBM-5", dict(cbm=True, use_unlabeled=False, w_concept=1.0, cidx=_I5)),
+    (f"4x CBM-{len(CONCEPTS)}", dict(cbm=True, use_unlabeled=False, w_concept=1.0, cidx=_IALL)),
+    (f"4f free-{len(CONCEPTS)}", dict(cbm=True, use_unlabeled=False, w_concept=0.0, cidx=_IALL)),
 ]
 _teN = cam.v.to_numpy()[res["3 BiLSTM"][0]] == "N"
 _ytN = cam.y.to_numpy()[res["3 BiLSTM"][0]].astype(int)[_teN]
@@ -419,26 +468,20 @@ for nm, kw in VARIANTS:
 sv = pd.DataFrame(rows).set_index("모델")
 sv.to_csv(os.path.join(OUT, "stage34_seeds.csv"), encoding="utf-8-sig")
 print("  -> stage34_seeds.csv")
-d_bb = sv.loc["3m MLP", "평균"] - sv.loc["3  BiLSTM", "평균"]
-d_cbm = sv.loc["4m CBM(MLP)", "평균"] - sv.loc["4  CBM(LSTM)", "평균"]
-print(f"\nbackbone 교체 (개념층 없이) {d_bb:+.1f}  ·  (CBM) {d_cbm:+.1f}")
+_w = sv.loc[f"4x CBM-{len(CONCEPTS)}", "평균"] - sv.loc["4  CBM-5", "평균"]
+_c = sv.loc[f"4x CBM-{len(CONCEPTS)}", "평균"] - sv.loc[f"4f free-{len(CONCEPTS)}", "평균"]
+_g = sv.loc["3  BiLSTM", "평균"] - sv.loc[f"4x CBM-{len(CONCEPTS)}", "평균"]
+print(f"\n병목 확장 5 -> {len(CONCEPTS)}        {_w:+.1f}")
+print(f"그중 개념 지도학습의 몫    {_c:+.1f}   (나머지는 병목 폭 자체의 효과)")
+print(f"남은 병목 비용 (vs 병목없음) {_g:+.1f}")
 print("표준편차보다 작으면 차이라고 말할 수 없다.")
 
-head("[판정] 앵커=N AUPRC")
+head("[판정] 앵커=N AUPRC (단일 시드)")
 n = t.loc["앵커=N"]
-print(f"  1 lookup        {n['1 lookup']}")
-print(f"  2 XGB(원 피처)   {n['2 XGB']}")
-print(f"  2z XGB(같은 Z)   {n['2z XGB(같은 Z)']}   ← backbone 비교의 상한")
-print(f"  3  BiLSTM        {n['3 BiLSTM']}")
-print(f"  3m MLP           {n['3m MLP']}")
-print(f"  4  CBM(LSTM)     {n['4 CBM(LSTM)']}")
-print(f"  4m CBM(MLP)      {n['4m CBM(MLP)']}")
-print(f"  4bm +Assessable  {n['4bm CBM(MLP)+Assess']}")
-print(f"\nbackbone 교체 효과 (개념층 없이) : MLP - BiLSTM = {n['3m MLP']-n['3 BiLSTM']:+.1f}")
-print(f"backbone 교체 효과 (CBM)         : {n['4m CBM(MLP)']-n['4 CBM(LSTM)']:+.1f}")
-print(f"MLP 가 같은 입력의 XGB 에 못 미치는 폭 : {n['3m MLP']-n['2z XGB(같은 Z)']:+.1f}")
-print(f"개념 병목 비용 (MLP backbone)     : {n['4m CBM(MLP)']-n['3m MLP']:+.1f}")
-print(f"Assessable 재활용                : {n['4bm CBM(MLP)+Assess']-n['4m CBM(MLP)']:+.1f}")
+for k in t.columns:
+    if k != "n":
+        print(f"  {k:22s} {n[k]}")
+
 print(f"\n총 {time.time()-t0:.0f}s")
 print("\n" + ("mobility/pain/GCS 포함본이다 — 3단계 판정은 확정이다."
                 if NCH > 6 else "[!] mobility/pain/GCS 미포함 — 하한이다."))
