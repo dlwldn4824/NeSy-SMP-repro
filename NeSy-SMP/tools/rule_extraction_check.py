@@ -35,11 +35,18 @@ def norm(t):
     return (t["subject"], NORM_REL.get(t["predicate"], t["predicate"]), t["object"])
 
 
+CONCEPTS = ROOT / "configs" / "clinical_concepts.json"
+
+
 def load_gold():
-    cfg = json.loads((ROOT / "configs" / "clinical_concepts.json").read_text(encoding="utf-8"))
-    g_cfg = {norm(t) for t in cfg["triples"]}
+    cfg = json.loads(CONCEPTS.read_text(encoding="utf-8"))
+    g_cfg = {norm(t) for t in cfg["triples"]
+             if not norm(t)[1].startswith(("rdf-schema", "22-rdf", "hasOutcome"))}
     g_pkg = set()
-    for ln in (ROOT / "rules" / "pkg.txt").read_text(encoding="utf-8").splitlines():
+    pkg = ROOT / "rules" / "pkg.txt"
+    if not pkg.exists() or "padis" in CONCEPTS.name:
+        return g_cfg, g_pkg
+    for ln in pkg.read_text(encoding="utf-8").splitlines():
         p = ln.split("\t")
         if len(p) == 3:
             g_pkg.add(norm({"subject": p[0], "predicate": p[1], "object": p[2]}))
@@ -94,7 +101,7 @@ JSON 배열만 출력하세요. 설명 금지.
 
 
 def build_prompt(text_path: Path, out_path: Path, n_ex: int = 20):
-    cfg = json.loads((ROOT / "configs" / "clinical_concepts.json").read_text(encoding="utf-8"))
+    cfg = json.loads(CONCEPTS.read_text(encoding="utf-8"))
     vocab = json.loads((ROOT / "configs" / "relation_vocab.json").read_text(encoding="utf-8"))
     ex = cfg["triples"][:n_ex]
     body = PROMPT.format(
@@ -114,14 +121,18 @@ def main():
     ap.add_argument("--build-prompt", type=Path, help="가이드라인 원문 txt")
     ap.add_argument("--out", type=Path, default=ROOT / "tools" / "fewshot_prompt.txt")
     ap.add_argument("--score", type=Path, help="채점할 트리플 JSON")
+    ap.add_argument("--concepts", type=Path, help="개념 설정 (기본: sepsis)")
+    ap.add_argument("--n-ex", type=int, default=20, help="few-shot 예시 개수")
     args = ap.parse_args()
-
+    global CONCEPTS
+    if args.concepts:
+        CONCEPTS = args.concepts
     g_cfg, g_pkg = load_gold()
 
     if args.build_prompt:
         if not args.build_prompt.exists():
             sys.exit(f"원문 없음: {args.build_prompt}")
-        build_prompt(args.build_prompt, args.out)
+        build_prompt(args.build_prompt, args.out, args.n_ex)
         return
 
     if args.score:
@@ -141,9 +152,10 @@ def main():
         pred = {norm(t) for t in out}
         print(f"\n추출 {len(pred)}개")
 
-    score(pred, g_cfg, "configs/clinical_concepts.json triples")
-    score(pred, {t for t in g_pkg if t[1] != "rdf-schema#subClassOf"
-                 and t[1] != "22-rdf-syntax-ns#type"}, "rules/pkg.txt (관계 트리플만)")
+    score(pred, g_cfg, f"{CONCEPTS.name} 관계 트리플")
+    rel = {t for t in g_pkg if not t[1].startswith(("rdf-schema", "22-rdf"))}
+    if rel:
+        score(pred, rel, "rules/pkg.txt (관계 트리플만)")
 
 
 if __name__ == "__main__":
