@@ -1,3 +1,36 @@
+> ## 🔴 2026-09-15 정정 — 이 문서의 결론 세 개가 틀렸다
+>
+> 1. **"sepsis 가이드라인 원문이 없다" → 있다.** `pipeline_out/ssc2021_guideline.txt` (SSC 2021 전문, 6,371줄).
+>    파일명으로만 찾아서 놓쳤다.
+> 2. **"현재 파이프라인은 가이드라인을 읽지 않는다" → 반만 맞다.** 기본 경로는 하드코딩 10문장이지만,
+>    `--pdf` 모드로 **실제 SSC 2021 에서 추출한 결과**(`pipeline_out/extracted_triples.json`, 12개)가 이미 있다.
+> 3. **아래 PADIS few-shot 수치(P 63.6 / R 35.0)는 세션 오염뿐 아니라 설계 자체가 오염돼 있다.**
+>    few-shot 예시 12개가 **전부** 채점 gold(20개) 안에 있고, 맞힌 7개 중 5개가 예시에 이미 있던 것이다.
+>    새 세션에서 돌려도 이 수치는 의미가 없다.
+>
+> ### 실제 원문 regex 추출 — 겉보기 precision 100%, 근거로 보면 12개 중 2개
+>
+> | 트리플 | 근거 문장 | 지지하나 |
+> |---|---|:-:|
+> | Lactate → Death | "lactate 수치와 사망률의 연관은 잘 확립돼 있다" | ✅ |
+> | SepticShock → Death | "패혈성 쇼크의 높은 사망 위험을 고려해…" | ✅ |
+> | MeanArterialPressure → Death | "두 군의 90일 사망률이 **비슷했다**(41.0% vs 43.8%)" | ❌ **반대** |
+> | KidneyDisease → Death | "Tonelli M, Manns B… (2002)" — **참고문헌 목록** | ❌ |
+> | SepticShock → Sepsis | "qSOFA 를 단독 선별도구로 쓰지 말 것" | ❌ |
+> | Age → Death | MRSA 광범위 항생제 투여 | ❌ |
+> | Pneumonia → Death | 인플루엔자 폐렴에서 뉴라미니다제 억제제 효과 없음 | ❌ |
+> | HIV → Death | 아프리카 고용량 수액소생술 | ❌ |
+> | Sepsis → Death (2건) · SepticShock → Sepsis/Death (2건) | 프로토콜 준수·항생제 시점·ED 지연 | ❌ |
+>
+> **gold 와 일치하는데 근거가 틀린 이유:** 추출기가 gold 개념 사전의 단어가 "mortality" 근처에 나오면
+> gold 모양 트리플을 낸다. **gold 일치율은 추출 능력을 재지 못한다.**
+>
+> ### 그래서 채점 기준을 바꿔야 한다
+> - **(가) few-shot 예시와 채점 gold 가 겹치면 안 된다** — 교차 도메인(PADIS 규칙으로 sepsis 추출, 반대도) 또는 held-out
+> - **(나) '근거 문장이 트리플을 실제로 지지하나'를 1차 지표로** — gold 일치는 보조
+
+---
+
 # 규칙 추출 재현 점검 — 현재 파이프라인 vs few-shot
 
 `tools/rule_extraction_check.py` 로 잰 결과. 2026-09-10.
