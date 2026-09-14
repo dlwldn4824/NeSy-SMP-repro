@@ -28,6 +28,8 @@
 > ### 그래서 채점 기준을 바꿔야 한다
 > - **(가) few-shot 예시와 채점 gold 가 겹치면 안 된다** — 교차 도메인(PADIS 규칙으로 sepsis 추출, 반대도) 또는 held-out
 > - **(나) '근거 문장이 트리플을 실제로 지지하나'를 1차 지표로** — gold 일치는 보조
+>
+> → (가)·(나)를 적용한 sepsis 재추출 설계는 **맨 아래 §7** 과 `tools/FEWSHOT_SEPSIS_README.md`.
 
 ---
 
@@ -81,6 +83,14 @@
 ---
 
 ## 3. 🔴 "틀린" 4개 중 3개는 추출 오류가 아니라 가이드라인의 자기모순
+
+> **⚠️ 2026-09-15 정정 (`docs/KG_RULE_REVIEW.md` 검수 결과):** 기계환기는 자기모순이 **아니다.**
+> fs D-026 목록에는 "**섬망을 포함한** 신경·정신 질환"이 인자로 들어 있어 섬망 위험인자 목록일 수 없고,
+> 간호사 1인당 환자 수·업무량·시간대·침습 기구로 보아 **신체 억제대 사용 예측인자** 목록이다.
+> 즉 가이드라인 모순이 아니라 **추출이 억제대 문맥을 섬망으로 잘못 읽은 문맥 상실 오류**다 —
+> 문장 단위 추출이 맥락을 잃는다는 이 절의 결론을 오히려 더 강하게 뒷받침한다.
+> 덱스메데토미딘(예방 권고 안 함 vs 비교 우위)은 실제 긴장으로 남는다. 아편유사제는 문장 ID 체계가 달라
+> (fs D-032 = raw D-035) 재확인 필요.
 
 | 추출 | gold | 근거 문장 |
 |---|---|---|
@@ -147,3 +157,76 @@ python tools/rule_extraction_check.py --concepts configs/padis_concepts.json \
 python tools/rule_extraction_check.py --concepts configs/padis_concepts.json \
     --score tools/fewshot_padis_result.json
 ```
+
+---
+
+## 7. held-out 재추출 점검 — sepsis × SSC 2021 (2026-09-15 추가)
+
+랩 결정("기존 규칙을 few-shot 예시로 + SSC 2021 원문 → 재추출 → 기존 규칙과 비교 + 의미 정확도 검토")은 유지하고,
+위 배너의 두 결함을 고친 설계다. 실행 절차 전체는 **`tools/FEWSHOT_SEPSIS_README.md`**.
+
+### 7-1. 설계
+
+| 결함 | 고친 방법 |
+|---|---|
+| 예시로 보여준 규칙으로 채점 (순환) | gold 30개(clinical_concepts ∪ pkg, 오타 통합, subClassOf/type/hasOutcome 제외)를 **examples 11 / heldout 19** 로 분할. 프롬프트에는 examples 만. **recall 은 heldout 에서만** |
+| gold 일치 ≠ 근거 지지 | 모든 예측을 evidence 와 함께 **사람이 Y/부분/N 판정** (검토 CSV). 근거 지지 지표가 주지표 |
+| 원문 365KB | 서지·참고문헌 제거, **본문 전체**를 최상위 섹션 6개 청크로. 키워드로 섹션을 고르지 않음 |
+
+분할(`tools/sepsis_holdout_split.json`, seed 20260915)은 **주어 개념 단위**라 held-out 주어는 예시에 한 번도 주어로 안 나온다.
+카테고리(lab/vital 위험인자 · 동반질환 · Sepsis/SepticShock)와 관계(increasesRiskOf · associatedWith)가 양쪽에 모두 들어가게 층화했고,
+gold 에 1개뿐인 causedBy(Hypotension→Sepsis)는 heldout 에 뒀다.
+
+| | 합계 | increasesRiskOf | associatedWith | causedBy |
+|---|---:|---:|---:|---:|
+| examples | 11 | 10 | 1 | 0 |
+| heldout | 19 | 15 | 3 | 1 |
+
+### 7-2. 지표
+
+- **① recall(examples)** — 참고용. 보여준 것이라 높아도 의미 없음
+- **② recall(heldout)** · precision(비예시) — gold 기준. 단독으로 결론 내지 않는다
+- **③ gold 밖** — 오류 또는 gold 누락 후보. "같은 쌍이 gold 에 다른 술어로 있음" / "개념 목록 밖" / "허용 술어 밖" 태그
+- **주지표: 근거 지지 held-out recall** (판정 Y 인 held-out 트리플 / 19) 과 **근거 지지율** (판정 Y / 전체 예측)
+- 보조: evidence 가 원문에 실제로 있나 (자동 — `Y(본문)` / `Y(본문 밖: 참고문헌·서지)` / `N(원문에 없음)`)
+- 재현성: 같은 프롬프트를 **새 세션에서 2회 이상** 돌려 held-out 적중 집합 비교
+
+### 7-3. 기준선 — regex 추출 (`pipeline_out/extracted_triples.json`)
+
+```
+  held-out 분할: sepsis_holdout_split.json  (examples 11 / heldout 19)
+  ─ ① 예시셋 적중 — 참고용
+      recall(examples)  36.4% (4/11)
+  ─ ② held-out — 주지표. 프롬프트에 없던 gold
+      recall(heldout)   42.1% (8/19)
+      precision(비예시) 100.0% (8/8)
+      관계별: associatedWith 3/3 · causedBy 0/1 · increasesRiskOf 5/15
+  ─ ③ gold 밖 0개
+```
+
+gold 로만 보면 held-out recall 42% · precision 100% 로 그럴듯하다. 그러나 배너의 판독으로는 근거가 지지하는 held-out 트리플이
+Lactate→Death, SepticShock→Death **2개(잠정 10.5%)** 뿐이다. `tools/review_regex_baseline.csv` 판정 열은 비워 뒀으니 회의 전 확정할 것.
+자동 대조에서 `KidneyDisease→Death` 근거는 `Y(본문 밖: 참고문헌·서지)` 로 잡힌다.
+
+### 7-4. 실행
+
+```bash
+# (이미 생성됨) 분할 · 청크 프롬프트 6개
+python tools/make_sepsis_holdout_split.py
+python tools/rule_extraction_check.py --build-prompt pipeline_out/ssc2021_guideline.txt \
+    --examples-from tools/sepsis_holdout_split.json --chunk --out tools/fewshot_sepsis_holdout.txt
+
+# (사람) fewshot_sepsis_holdout_0N_*.txt 를 청크마다 '새 대화'에 그대로 붙여넣고
+#        응답을 tools/llm_runs/run1/fewshot_sepsis_holdout_0N_*.result.json 으로 저장
+
+# 병합 → 채점 + 검토 CSV
+python tools/merge_llm_outputs.py "tools/llm_runs/run1/fewshot_sepsis_holdout_*.result.json" -o tools/llm_runs/run1/merged.json
+python tools/rule_extraction_check.py --score tools/llm_runs/run1/merged.json \
+    --split tools/sepsis_holdout_split.json --review-csv tools/llm_runs/run1/review.csv
+
+# (사람) review.csv 판정 채우기 — gold_구분 열은 다 채운 뒤에 열람
+python tools/rule_extraction_check.py --score-review tools/llm_runs/run1/review.csv --split tools/sepsis_holdout_split.json
+```
+
+> ⚠️ 추출은 **이 리포를 본 적 없는 세션**에서만 돌린다. §5 의 PADIS 수치가 오염된 이유와 같다.
+> 기존 옵션(`--build-prompt` 단독, `--score` 단독, `--concepts`, `--n-ex`)의 동작은 바뀌지 않았다.
