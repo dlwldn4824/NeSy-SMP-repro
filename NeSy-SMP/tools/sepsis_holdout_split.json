@@ -1,0 +1,395 @@
+{
+  "name": "sepsis_holdout_split",
+  "seed": 20260915,
+  "rejection_attempt": 3,
+  "rationale": "기존 sepsis 규칙 전부를 few-shot 예시로 주고 같은 규칙으로 채점하면 일치가 추출 능력을 증명하지 못한다(순환). 그래서 gold 관계 트리플(clinical_concepts.json triples ∪ rules/pkg.txt, increaseRiskOf→increasesRiskOf 로 오타 통합, subClassOf/type/hasOutcome 제외)을 서로소인 examples 와 heldout 으로 나눈다. 프롬프트에는 examples 만 넣고, 추출 성능(recall)은 heldout 에서만 잰다. examples 적중은 '형식을 따라 했다'는 뜻일 뿐 참고치다. 분할 단위는 주어 개념 그룹이라 heldout 주어는 예시에 한 번도 주어로 나오지 않는다(별칭이 겹치는 Lactate/LactateNotClearing, MeanArterialPressure/Hypotension 은 한 그룹). 카테고리(lab/vital 위험인자, 동반질환, Sepsis/SepticShock)마다 양쪽에 최소 1그룹, 관계 increasesRiskOf·associatedWith 는 양쪽 모두에 들어가게 층화했다. causedBy 는 gold 에 1개(Hypotension→Sepsis)뿐이라 양쪽을 동시에 채울 수 없어 heldout 에 두었다 — 예시 없이 술어 목록만 보고 내는지 본다. 시드 고정 + 제약 만족할 때까지 재추첨(rejection sampling)이라 같은 시드면 같은 분할이 나온다. 주의: gold 일치는 근거 지지를 보장하지 않는다(regex 기준선 12개 중 근거가 실제로 지지하는 것은 약 2개) — held-out recall 은 반드시 근거 검토(review CSV)와 같이 본다.",
+  "gold_definition": {
+    "sources": [
+      "configs/clinical_concepts.json#triples",
+      "rules/pkg.txt"
+    ],
+    "normalize": {
+      "increaseRiskOf": "increasesRiskOf"
+    },
+    "excluded_predicates": [
+      "rdf-schema#subClassOf",
+      "22-rdf-syntax-ns#type",
+      "hasOutcome"
+    ],
+    "n_total": 30
+  },
+  "categories": {
+    "lab_vital_risk": [
+      "Lactate",
+      "LactateNotClearing",
+      "Bilirubin",
+      "Platelet",
+      "CReactiveProtein",
+      "WhiteBloodCells",
+      "MeanArterialPressure",
+      "Hypotension",
+      "Age"
+    ],
+    "comorbidity": [
+      "Cancer",
+      "Pneumonia",
+      "HIV",
+      "CirrhosisOfLiver",
+      "KidneyDisease",
+      "CardiacInsufficiency",
+      "ChronicDisease"
+    ],
+    "sepsis_septicshock": [
+      "Sepsis",
+      "SepticShock"
+    ]
+  },
+  "alias_groups": [
+    [
+      "Lactate",
+      "LactateNotClearing"
+    ],
+    [
+      "MeanArterialPressure",
+      "Hypotension"
+    ]
+  ],
+  "n_example_units_per_category": {
+    "lab_vital_risk": 3,
+    "comorbidity": 3,
+    "sepsis_septicshock": 1
+  },
+  "summary": {
+    "examples": {
+      "n": 11,
+      "by_relation": {
+        "associatedWith": 1,
+        "increasesRiskOf": 10
+      },
+      "by_category": {
+        "comorbidity": 6,
+        "lab_vital_risk": 3,
+        "sepsis_septicshock": 2
+      },
+      "by_object": {
+        "Death": 8,
+        "Sepsis": 3
+      }
+    },
+    "heldout": {
+      "n": 19,
+      "by_relation": {
+        "associatedWith": 3,
+        "causedBy": 1,
+        "increasesRiskOf": 15
+      },
+      "by_category": {
+        "comorbidity": 8,
+        "lab_vital_risk": 7,
+        "sepsis_septicshock": 4
+      },
+      "by_object": {
+        "Death": 13,
+        "Sepsis": 6
+      }
+    }
+  },
+  "examples": [
+    {
+      "subject": "Age",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "lab_vital_risk",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "Bilirubin",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "lab_vital_risk",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "Cancer",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "Cancer",
+      "predicate": "increasesRiskOf",
+      "object": "Sepsis",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "CardiacInsufficiency",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "CardiacInsufficiency",
+      "predicate": "increasesRiskOf",
+      "object": "Sepsis",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "Pneumonia",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "Pneumonia",
+      "predicate": "increasesRiskOf",
+      "object": "Sepsis",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "Sepsis",
+      "predicate": "associatedWith",
+      "object": "Death",
+      "category": "sepsis_septicshock",
+      "source": [
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "Sepsis",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "sepsis_septicshock",
+      "source": [
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "WhiteBloodCells",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "lab_vital_risk",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    }
+  ],
+  "heldout": [
+    {
+      "subject": "CReactiveProtein",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "lab_vital_risk",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "ChronicDisease",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "CirrhosisOfLiver",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "CirrhosisOfLiver",
+      "predicate": "increasesRiskOf",
+      "object": "Sepsis",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "HIV",
+      "predicate": "associatedWith",
+      "object": "Death",
+      "category": "comorbidity",
+      "source": [
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "HIV",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "HIV",
+      "predicate": "increasesRiskOf",
+      "object": "Sepsis",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "Hypotension",
+      "predicate": "causedBy",
+      "object": "Sepsis",
+      "category": "lab_vital_risk",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "Hypotension",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "lab_vital_risk",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "KidneyDisease",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "KidneyDisease",
+      "predicate": "increasesRiskOf",
+      "object": "Sepsis",
+      "category": "comorbidity",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "Lactate",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "lab_vital_risk",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "LactateNotClearing",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "lab_vital_risk",
+      "source": [
+        "clinical_concepts.json"
+      ]
+    },
+    {
+      "subject": "MeanArterialPressure",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "lab_vital_risk",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "Platelet",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "lab_vital_risk",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "SepticShock",
+      "predicate": "associatedWith",
+      "object": "Death",
+      "category": "sepsis_septicshock",
+      "source": [
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "SepticShock",
+      "predicate": "associatedWith",
+      "object": "Sepsis",
+      "category": "sepsis_septicshock",
+      "source": [
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "SepticShock",
+      "predicate": "increasesRiskOf",
+      "object": "Death",
+      "category": "sepsis_septicshock",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    },
+    {
+      "subject": "SepticShock",
+      "predicate": "increasesRiskOf",
+      "object": "Sepsis",
+      "category": "sepsis_septicshock",
+      "source": [
+        "clinical_concepts.json",
+        "pkg.txt"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,623 @@
+당신은 임상 가이드라인 원문에서 지식그래프 트리플을 추출합니다.
+입력은 Surviving Sepsis Campaign 2021 가이드라인 본문의 한 부분입니다 — [섹션 6/6: Long-term outcomes and goals of care].
+
+## 출력 형식
+JSON 배열만 출력하세요. 설명·마크다운 금지. 해당 트리플이 없으면 [] 를 출력하세요.
+[{"subject": "...", "predicate": "...", "object": "...", "evidence": "<근거가 된 원문 문장, 원문 그대로 복사>"}]
+
+## 허용된 술어 (이 밖의 것을 쓰지 마세요)
+- increasesRiskOf: subject 가 있거나 높으면 object 의 위험이 커진다
+- associatedWith: subject 와 object 가 연관된다 (방향·인과를 진술하지 않음)
+- causedBy: subject 가 object 에 의해 생긴다
+- decreasesRiskOf: subject 가 object 의 위험을 낮춘다
+- hasNoEffectOn: subject 가 object 에 영향/연관이 없다고 명시
+- precludes: subject 가 object 의 적용·평가를 불가능하게 한다
+
+## 허용된 개념 (subject/object 는 반드시 이 id 중 하나. 괄호 안은 원문에서 쓰일 수 있는 표현)
+- Lactate  (Lactate, serum lactate, elevated serum lactate, lactate level, lactic acid, blood lactate, hyperlactatemia, lactate measurements, lactate levels)
+- Bilirubin  (Bilirubin, total bilirubin, bilirubin total, elevated bilirubin)
+- Platelet  (Platelet, platelet count, platelets, thrombocytopenia)
+- CReactiveProtein  (CReactiveProtein, crp, c-reactive protein, c reactive protein)
+- WhiteBloodCells  (WhiteBloodCells, wbc, white blood cells, leukocytosis)
+- MeanArterialPressure  (MeanArterialPressure, map, mean arterial pressure, hypotension, permissive hypotension, arterial pressure)
+- Age  (Age, elderly, older adult, age risk)
+- Death  (Death, mortality, hospital death, expire)
+- Sepsis  (Sepsis, septic, septicemia)
+- Cancer  (Cancer, malignancy, neoplasm)
+- Pneumonia  (Pneumonia, pneumonia)
+- HIV  (HIV, hiv, aids)
+- CirrhosisOfLiver  (CirrhosisOfLiver, cirrhosis)
+- KidneyDisease  (KidneyDisease, kidney disease, renal failure, ckd)
+- CardiacInsufficiency  (CardiacInsufficiency, heart failure, cardiac failure)
+- ChronicDisease  (ChronicDisease, chronic condition, comorbidity)
+- Hypotension  (Hypotension, low blood pressure, hypotension)
+- SepticShock  (SepticShock, septic shock)
+- LactateNotClearing  (Lactate, lactate not clearing, persistent lactate, failure of lactate clearance, lactate clearance, lactate-guided, targeting serum lactate)
+
+## 형식 예시 — 기존에 승인된 트리플 11개 (출력 형식 참고)
+  {"subject": "Age", "predicate": "increasesRiskOf", "object": "Death"}
+  {"subject": "Bilirubin", "predicate": "increasesRiskOf", "object": "Death"}
+  {"subject": "Cancer", "predicate": "increasesRiskOf", "object": "Death"}
+  {"subject": "Cancer", "predicate": "increasesRiskOf", "object": "Sepsis"}
+  {"subject": "CardiacInsufficiency", "predicate": "increasesRiskOf", "object": "Death"}
+  {"subject": "CardiacInsufficiency", "predicate": "increasesRiskOf", "object": "Sepsis"}
+  {"subject": "Pneumonia", "predicate": "increasesRiskOf", "object": "Death"}
+  {"subject": "Pneumonia", "predicate": "increasesRiskOf", "object": "Sepsis"}
+  {"subject": "Sepsis", "predicate": "associatedWith", "object": "Death"}
+  {"subject": "Sepsis", "predicate": "increasesRiskOf", "object": "Death"}
+  {"subject": "WhiteBloodCells", "predicate": "increasesRiskOf", "object": "Death"}
+
+## 규칙
+- 위 예시는 **출력 형식 참고용**입니다. 예시에 있는 트리플이라도 아래 입력 원문에 근거 문장이 없으면 내지 마세요.
+- 예시에 없는 개념·술어라도 원문 근거가 있으면 추출하세요.
+- evidence 는 입력 원문에서 **그대로 복사한** 문장이어야 합니다(줄바꿈은 공백으로). 요약·번역·여러 문장 합성 금지.
+- evidence 문장 자체가 subject 와 object 사이의 관계를 진술해야 합니다.
+  두 개념이 같은 문장에 함께 등장하는 것만으로는 근거가 아닙니다.
+- 중재(치료·검사·프로그램)의 효과를 말하는 문장을 환자 특성 → 결과 트리플로 바꾸지 마세요.
+- 가이드라인이 "연관/효과 없음"을 명시하면 hasNoEffectOn 을 쓰세요.
+- 한 문장에서 여러 트리플이 나올 수 있습니다.
+- 개념 목록에 없는 대상은 버리세요.
+
+## 입력 가이드라인 원문 [섹션 6/6: Long-term outcomes and goals of care]
+Long-term outcomes and goals of care
+Patients who survive a protracted period of ICU care
+for sepsis typically face a long and complicated road to
+recovery. There will not only be physical rehabilitation
+challenges to overcome but also great uncertainty about
+the way to organize and coordinate care, both to promote
+recovery/avoid complications/recurrence and to ensure
+care is matched to patient and family goals of care.
+There is broad consensus that the current healthcare
+system is likely falling short of what optimal care during
+the recovery period might look like for this patient population. However, generating a robust evidence base upon
+which to make concrete recommendations about changes
+in the care paradigm has proven to be extraordinarily difficult. Some of the difficulties relate to:
+  • not all patients are the same, and understanding
+which patients ought to receive which interventions
+is very poor;
+  • not all healthcare delivery systems are the same—
+even within one system, some patients may be very
+well-supported while others may not—really complicating what ‘control’ care looks like;
+  • lack of understanding about dosing and intensity of
+many of the proposed interventions, and when and
+whether they should be combined in packages is generally missing.
+
+While these issues of patient heterogeneity, variable control care, and lack of understanding about ideal
+configuration of interventions are protean, they are
+exquisitely true in this setting: while two ICUs may be
+different, each ICU discharges patients into a broad and
+variable milieu of settings. The variation in both ICU and
+post-ICU management of critically ill patients increases
+the complexity of understanding and defining best
+practice.
+Thus, putting all this together, there are some overarching conceptual features about ‘best practice’ that the
+panel endorses, recognising, however, that the nature,
+timing, and combination of these broad aspects of care
+may vary, and strong unambiguous evidence for the ‘how
+to’ for these things is often going to be lacking.
+Goals of care
+Recommendations
+74. For adults with sepsis or septic shock, we recommend discussing
+goals of care and prognosis with patients and families over no such
+discussion
+Best Practice Statement
+75. For adults with sepsis or septic shock, we suggest addressing goals
+of care early (within 72 h) over late [72]
+Weak recommendation, low-quality evidence
+76. There is insufficient evidence to make a recommendation for any
+specific standardised criterion to trigger goals of care discussion
+Rationale
+Patients with sepsis or septic shock are at high risk of
+multi-organ failure, long-term functional sequelae, and
+death. Some patients may accept any and all treatment
+for their condition, but others may consider limitations
+depending on prognosis, invasiveness of interventions,
+and predicted quality of life (QoL). A discussion of goals
+of care and prognosis is essential to determine which
+treatments are acceptable and those interventions that
+are not desired [536].
+No studies were identified that compared discussions
+of goals of care and prognosis versus no such discussion in critically ill or septic patients. While advance care
+planning in patients with life-limiting illness may reduce
+use of life-sustaining treatments, it may also increase use
+of hospice and palliative care, and improve concordance
+between treatment and patient values [537]. The relevance of advance care planning for future health needs
+to goals of care discussions at the time of a critical illness
+is unclear. Despite lack of evidence, the panel recognised
+that discussion of prognosis and exploration of goals of
+care with patients and/or family is a necessary precondition to determine patient treatment preferences and
+providing value-concordant care. Thus, the panel made
+a best practice recommendation to discuss goals of care
+and prognosis with patients and families.
+The timing of discussions of goals of care and prognosis in the ICU was addressed in one study where 26%
+of patients had infection or sepsis as a primary diagnosis [538]. A multicomponent family support intervention included a meeting at 48 h after ICU admission that
+included discussion of goals of care and prognosis. The
+support intervention did not affect family psychological
+outcomes but did improve perceived quality of communication and perception of patient- and family-centeredness of care. A reduction in ICU length of stay was noted,
+yet it is unknown if the reduction is due to increased
+mortality. Based on this study, early (within 72 h of ICU
+admission) discussion of the goals of care is suggested.
+We identified several studies exploring the use of specific criteria to trigger a goals of care discussion in critically ill patients, though none report the proportion of
+patients with sepsis or septic shock. Conflict over valuesbased treatment was used to trigger ethics consultation
+in the intervention group in three randomised ICU studies [539–541]. Reductions in ICU and ventilator days in
+intervention patients who died before hospital discharge
+were found in two studies [539, 540], and the third study
+found overall shorter ICU and hospital stay in the ethics consultation group [541]. Ethics consultation did not
+affect overall mortality in any study. Duration of mechanical ventilation and duration of ICU stay were used to trigger specific interventions in two randomised studies [542,
+543]. The study by Carson et al. randomised patients after
+7  days of mechanical ventilation to a group receiving an
+informational brochure and two family meetings with palliative care specialists to address goals of care or a group
+receiving an informational brochure and meetings led
+by the ICU team [543]. Palliative care meetings failed to
+show benefit in decreasing anxiety and depression in surrogate decision makers in the intervention group but did
+increase post-traumatic stress disorder (PTSD) symptoms. No benefit was demonstrated on family satisfaction,
+ICU days, or hospital days. Andereck et  al. randomised
+patients after 5 days or more in a medical-surgical ICU to
+proactive ethics consultation versus usual care [542]. Ethics consultation did not result in a reduction in ICU stay,
+hospital stay, or life-sustaining treatments in patients who
+did not survive to discharge. Neither study demonstrated
+an effect of interventions on mortality. One study [544]
+investigated the use of an automated early warning system
+alert in patients hospitalised on medical units (27% with
+infection). The early warning system did not impact hospital mortality or hospital length of stay, but did reduce
+ICU transfers and ICU length of stay and increased documentation of advance directives and resuscitation status
+compared to the usual care group.
+
+Given the variety of triggers used in these studies and
+the lack of superiority of any single trigger, no recommendation can be made for specific criteria to initiate a
+goals of care discussion. The timing of and triggers for
+such discussions should take into account the current
+condition of the patient, premorbid health and QoL,
+prognosis, response to treatment, interventions under
+consideration, anticipated QoL following treatment,
+availability of resources, and readiness and ability of the
+patient or family to engage in the discussion.
+Public members judged it important to assess patient
+and family understanding of the information provided
+in goals of care discussion and for a member of the care
+team to check with them to determine if further explanations are needed. Additional input included the recommendation that a goals of care discussion should take into
+account chronic medical conditions in addition to sepsis.
+Palliative care
+Recommendations
+77. For adults with sepsis or septic shock, we recommend integrating
+principles of palliative care (which may include palliative care consultation based on clinician judgement) into the treatment plan, when
+appropriate, to address patient and family symptoms and suffering
+Best Practice Statement
+78. For adults with sepsis or septic shock, we suggest against routine
+formal palliative care consultation for all patients over palliative care
+consultation based on clinician judgement
+Weak recommendation, low-quality evidence
+Rationale
+While the goal of treating most patients with sepsis or
+septic shock is to improve survival, some patients have
+significant comorbidities that may be life limiting or significantly impair QoL. Palliative (supportive) care may be
+particularly helpful in patients with sepsis who are not
+responding to treatment or for whom sepsis is an endstage manifestation of their underlying chronic illness.
+Studies have evaluated palliative care interventions in the
+ICU but not specifically in patients with sepsis [543, 545–
+548]. However, indirect evidence from these studies was
+judged likely to apply to patients with sepsis.
+Criteria for patient inclusion and the interventions
+in these studies demonstrate significant heterogeneity.
+Inclusion criteria for ICU patients consisted of mechanical ventilation for 7  days [543], high risk on a palliative
+care screen [548], physician determination that care
+should not be escalated or care should be withdrawn
+[545], physician belief that the patient would die in a few
+days [547], or death in the ICU or within 30 h of transfer out of the ICU [546]. Interventions comprised formal
+palliative care consultation [543, 545, 548], a complex
+quality improvement project to improve end-of-life care
+[546], and a planned end-of-life conference conducted by
+intensivists according to specific guidelines along with a
+bereavement brochure [547].
+Various outcome measures are reported but none of the
+studies evaluated critical patient-centered outcomes such
+as QoL, physical or cognitive recovery, psychological outcomes, or symptoms. Only one study with a structured
+palliative care intervention [547] demonstrated a beneficial effect of lower prevalence of anxiety and depression symptoms and PTSD symptoms in family members
+90 days after the patient’s death. In contrast, Carson et al.
+found an increase in PTSD symptoms in family surrogate
+decision makers with palliative care consultation [543].
+Palliative care interventions had no significant impact
+on family satisfaction with care, ICU length of stay [543,
+545–548], hospital length of stay [543, 545, 548], or mortality [543, 545, 548].
+Overall evidence for routine formal palliative care
+interventions in ICU patients is of low quality and provides mixed evidence of benefit. Thus, the panel suggests
+against routine formal palliative care consultation for all
+patients with sepsis or septic shock, instead using clinician judgment to determine which patients and families
+may benefit from a palliative care consultation.
+Despite the lack of evidence for formal palliative care
+consultation, the panel and public members judged that
+the principles of palliative care, whether instituted by palliative care specialists, intensivists or other clinicians are
+essential to address symptoms and suffering in patients
+and their families. Therefore, the panel made a best practice statement recommending incorporation of palliative
+care principles in the care of patients with sepsis and septic shock.
+Peer support groups
+Recommendation
+79. For adult survivors of sepsis or septic shock and their families, we
+suggest referral to peer support groups over no such referral
+Weak recommendation, very low quality of evidence
+Rationale
+Peer support groups have been used to enhance recovery from illness when survivors have long-lasting disability but have only recently been used in critical care
+and sepsis [549–551]. With increased recognition of
+post-intensive care syndrome (PICS) in survivors of critical illness and their families, peer support represents a
+patient-centered approach to improve long-term outcomes [552, 553]. Public members suggested that referral to an individual peer support person during the sepsis
+hospitalisation may provide a means of support and hope
+for recovery while referring sepsis survivors and their
+
+families to a peer support group may help them regain
+functional and emotional health.
+Models of peer support are numerous and include
+community-based in person or virtual peer support; outpatient ICU follow-up clinics (with or without psychologist support); within-ICU peer support; and individual
+peer mentors [551]. We did not identify sufficient studies to allow for meta-analysis. Four observational studies examined the impact of peer support groups on ICU
+patients, though they were not specific to sepsis patients.
+These studies evaluated the impact of peer support in ICU
+survivors from a surgical ICU [554], two general ICUs
+[555–557] and two cardiac ICUs [555, 558]. Group models
+varied, with facilitated in-person [554, 557], group-based
+integrated with rehabilitation [555, 556] or a “buddy” with
+a former patient-to-patient programme [558]. In several
+qualitative studies, ICU survivors described peer support
+as a helpful aid to recovery [559– 563]. Three qualitative
+studies identified two common themes of peer support, (1)
+benefit of knowing that others shared similar experiences
+and (2) benefit of shared coping with others [564].
+Overall quality of evidence was judged to be very low
+for the impact of peer support groups on outcomes. No
+studies described costs associated with support groups,
+which will vary given the model and resource availability. Research evaluating support groups is needed with at
+least two RCTs planned [564–566].
+Despite the very low certainty of evidence, the panel made
+a weak recommendation in favour of referring patients and
+families to peer support, which will increase the equity of
+access to such services. As individuals who receive referral
+to peer support have the choice to participate or not (based
+on personal preference, timing, location, functional status,
+and resources required) a weak recommendation provides
+an opportunity to access support for sepsis survivors who
+otherwise may not know where to turn [552].
+Transitions of care
+Recommendations
+80. For adults with sepsis or septic shock, we suggest using a handoff
+process of critically important information at transitions of care, over no
+such handoff process
+Weak recommendation, very low-quality evidence
+81. There is insufficient evidence to make a recommendation for
+the use of any specific structured handoff tool over usual handoff
+processes
+Rationale
+Transitions of care are prone to communication errors,
+which have been identified as a barrier to the timely
+detection and management of sepsis [567]. Improving
+handoff at transitions in care represents an opportunity
+to improve patient outcomes across the entire spectrum of sepsis care, from hospitalisation to return to the
+community.
+We did not identify any studies specifically evaluating
+patients with sepsis. Structured handoff interventions for
+critically ill patients have been evaluated at many transitions of patient care (ED/ICU, OR/ICU, ICU/ward, and
+hospital/home). The majority are observational pre-post
+studies and report process measures such as completeness and accuracy of communication rather than clinical outcomes. There were insufficient data to allow for
+meta-analysis.
+A single RCT using a stepped-wedge design in 8 ICUs
+evaluated the impact of a standardised handoff process,
+finding no effect upon duration of mechanical ventilation, ICU length of stay or duration of handover [568].
+Observational studies of structured handoff process
+have demonstrated mixed effects, with some finding
+reductions in unexpected clinical events [569], or ICU
+readmission [570, 571] and others without impact upon
+length of stay [572], mortality [572, 573] or hospital readmission [572, 573].
+Overall quality of evidence was judged to be very low.
+While it is unclear whether structured handoffs impact
+important patient outcomes, many sepsis interventions and tests are time-dependent and communication
+failures may increase the chances of critical medical
+errors. Structured handoff processes appear to result
+in more complete and accurate transfer of information,
+without any undesirable effects. Thus, despite the low
+certainty of evidence, the panel made a weak recommendation in favour of structured handoff processes
+at transitions of care. Of the structured handover
+tools studied, none specifically applies to sepsis. Given
+the wide variety of hospital staffing models, medical
+records, and discharge processes, along with the lack of
+evidence to recommend any one tool over another, the
+panel chose to make no recommendation for a specific
+structured handover tool.
+Screening for economic or social support
+Recommendation
+82. For adults with sepsis or septic shock and their families, we recommend screening for economic and social support (including housing,
+nutritional, financial, and spiritual support), and make referrals where
+available to meet these needs
+Best Practice Statement
+Rationale
+Non-medical social needs and potentially modifiable factors such as economic and social support largely influence health outcomes. While survival from sepsis is
+
+improving, long-term health requires survivors to have
+the resources to recover and thrive. Notably, critically ill
+patients have a decline in socio-economic status (SES)
+after their illness [574]. Many observational studies
+describe the relationship between various socioeconomic
+supports and patient outcomes that suggest that low SES,
+substance abuse and poor nutritional status lead to poor
+outcomes, and that critical illness itself results in lower
+SES post-illness. Additionally, living in neighborhoods
+with low SES is associated with an increased risk of sepsis
+[575], community-acquired bacteremia [575] and death
+from bacteremia [576] and worse outcomes [577]. Racial
+disparities in sepsis [578] are at least partially explained
+by living in medically underserved neighborhoods [579].
+Screening for economic and social support may help
+reduce these inequities. Although socioeconomic screening is considered part of standard clinical practice, all
+clinical teams in many settings may not do it. This may be
+particularly true in the critical care setting where patients
+are often unable to communicate, and social determinants of health may not be addressed during management of the acute illness.
+No studies were identified comparing screening versus
+no screening for economic and social support. Furthermore, it is unlikely that many research studies would be
+conducted, since locally available social needs and supports vary. In LMIC where resources are limited, needs
+may be vast. Despite these variations, social and economic screening may identify challenges that sepsis survivors are experiencing, allowing clinicians to identify
+potential resources and referrals, which can assist to
+improve long-term health outcomes.
+Sepsis education for patients and families
+Recommendation
+83. For adults with sepsis or septic shock and their families, we suggest
+offering written and verbal sepsis education (diagnosis, treatment, and
+post‑ICU/post‑sepsis syndrome) prior to hospital discharge and in the
+follow‑up setting
+Weak recommendation, very low-quality evidence
+Rationale
+Almost 40% of sepsis survivors are re-hospitalised within
+3  months, often for preventable conditions [580], contributing to increased healthcare costs [581]. Given the
+risk of post-sepsis morbidity, sepsis education may have
+a role in the timely healthcare seeking behavior in sepsis survivors who experience complications. In an international survey of sepsis survivors from 41 countries,
+45% and 63% reported dissatisfaction with sepsis education at the acute and post-acute phase, respectively
+[582]. We identified six RCTs that evaluated educational
+interventions for critically ill patients and their families
+[583–588]. Only one specifically studied patients with
+sepsis [588], evaluating a complex intervention, which
+included  education along with primary care follow-up
+and post-discharge monitoring. Varied education methods were employed, including delivery by trained nurses
+[586, 588], multimedia nursing education [585], information booklets developed by nurses [584], a family
+information leaflet [583], and informational videos with
+accompanying web-based content [587].
+These studies provided limited data for review. ICU
+education did not appear to impact patients’ anxiety
+and depression [584, 586, 588], but did improve families’ satisfaction with care [583]. The panel judged that
+education would likely have variable acceptability, as
+a qualitative study showed that patients who survived
+sepsis had diverse viewpoints ranging from appreciating the education about sepsis to not being able to recall
+the education session, to even disliking it as a reminder
+of the severity of their condition [587]. Based on these
+data and feedback from the public panel, we suggest that
+multiple opportunities for education be offered prior to
+hospital discharge and in the follow-up setting, taking
+into account patients’ and/or families’ readiness to process information. Sepsis education is regarded as a low
+cost intervention and feasible, even in low-resource settings, as a number of online and published sepsis education resources exist [589]. Future studies are needed to
+better understand the effects, the cost-effectiveness, and
+the optimal approach for educating patients and families
+after sepsis.
+Shared decision making
+Recommendation
+84. For adults with sepsis or septic shock and their families, we recommend the clinical team provide the opportunity to participate in
+shared decision making in post‑ICU and hospital discharge planning to
+ensure discharge plans are acceptable and feasible
+Best Practice Statement
+Rationale
+Shared decision making (SDM) is a process in which
+health professionals, patients and their caregivers collaborate in making decisions about a patient’s care options
+[590]. This patient-centered approach may be less routinely used in post-ICU and hospital discharge planning
+than in other aspects of acute patient care. No studies
+were identified that compared SDM with other types of
+ICU or hospital discharge planning. Despite the lack of
+evidence, SDM in discharge planning as in other care
+decisions is more likely to result in decisions consistent
+
+with the values and preferences of the patient and family. Patient and family involvement in discharge planning may also increase family satisfaction. A small study
+of ICU relatives found that anxiety and depression rates
+were lower in those who preferred an active role or
+shared responsibility in decision-making compared to
+those who preferred a passive role [591]. A family care
+conference with nursing staff at the time of discharge
+from the ICU resulted in lower anxiety scores for family members compared to a control group although it is
+not clear that families participated in SDM [592]. Family caregivers of critically ill patients discharged home felt
+overwhelmed and unprepared and had difficulty managing expectations [593]. Communication through SDM
+at the time of ICU or hospital discharge may improve
+support for family caregivers as communication was
+found to be important to decision-making for family surrogates of chronic critically ill patients [594]. Studies of
+tools employed to promote SDM in patients with other
+serious illnesses show improved patient knowledge and
+awareness of treatment options [595]. Due to the potential benefits of SDM and the current emphasis on patientcentered care, the opportunity for patients and/or family
+to participate in SDM for ICU and hospital discharge
+planning is recommended as a best practice statement.
+Discharge planning
+Recommendations
+85. For adults with sepsis and septic shock and their families, we suggest
+using a critical care transition programme, compared to usual care,
+upon transfer to the floor
+Weak recommendation, very low-quality evidence
+86. For adults with sepsis and septic shock, we recommend reconciling
+medications at both ICU and hospital discharge
+Best Practice Statement
+87. For adult survivors of sepsis and septic shock and their families, we
+recommend including information about the ICU stay, sepsis and
+related diagnoses, treatments, and common impairments after sepsis in
+the written and verbal hospital discharge summary
+Best Practice Statement
+Rationale
+Transfer from ICU to general floor and discharge from
+the hospital are both vulnerable periods for patients, with
+high frequency of medication errors and information loss
+[596–602]. Sepsis patients, with longer than average hospitalisations and higher comorbidity burden, may be at
+particular risk for poor outcomes with transitions. Several studies, mostly before-and-after design, have examined the impact of critical care transition programmes
+on reducing ICU readmission or death among patients
+transferred from ICU to the ward [597, 601, 603–611].
+These programmes have used varied models, but generally involve ICU clinicians (e.g., nurse, respiratory therapist, and/or physician) following patients daily on the
+wards after transferring out of the ICU for a few days or
+until clinically stable. Meta-analysis of these studies suggests that critical care transition programmes reduce
+risk of in-hospital mortality and potentially reduce risk
+of ICU readmission. Effects on ICU workload and workflow have not been systematically examined. Public panel
+members were supportive of such programmes, as they
+may provide reassurance and a sense of protection to
+patients after they leave the ICU.
+Medication reconciliation is broadly recognised to be
+important during patient transitions. Hospitalisation and
+ICU admission are high-risk periods for unintentional
+medication error—both continuations of medications
+for temporary indications and unintentional discontinuations of chronic medications [596, 599, 600, 602].
+Medication reconciliation has been associated with
+fewer medication errors [598, 612] and may help reduce
+hospital readmission [613, 614]. Given the frequency
+of medication changes during an ICU stay, we recommend reconciling medications at both ICU and hospital discharge. Medication reconciliation surrounding
+sepsis hospitalisation involves getting the correct list of
+medications and adjusting medication dosing regularly
+in response to dynamic physiologic changes during and
+after critical illness [580].
+Key information from hospitalisation is often missing
+on hospital discharge documentation [615–618]. Information on post-intensive care syndrome (PICS) may be
+provided to only one in three ICU survivors [550, 618],
+mechanical ventilation, dialysis), and common impairments after sepsis. We recommend providing information about the ICU stay, sepsis diagnosis, key treatments
+(e.g. mechanical ventilation, dialysis), and post-ICU/
+post-sepsis syndrome." to replace sentence fragment
+"mechanical ventilation, dialysis) and common impairments after sepsis. Public panel members stressed the
+importance of providing information in both verbal
+and written form and assessing that the information
+was understood. There are a growing number of online
+resources and informational brochures regarding “post
+intensive care” / “post-sepsis syndrome" [580], but more
+research is needed to determine the optimal approaches
+to providing anticipatory guidance to patients and families after critical illness [582, 619].
+
+Recommendations
+88. For adults with sepsis or septic shock who developed new impairments, we recommend hospital discharge plans include follow‑up
+with clinicians able to support and manage new and long‑term
+sequelae
+Best Practice Statement
+89. There is insufficient evidence to make a recommendation on
+early post‑hospital discharge follow‑up compared to routine posthospital discharge follow‑up
+Rationale
+Many sepsis survivors experience short and/or long-term
+sequela such as cognitive and/or physical disability, with
+ongoing recovery persisting for months to years [620].
+Public panelists rated cognitive and physical recovery,
+psychologic symptoms in survivors and their families,
+QoL and readmission to the hospital and/or ICU as critically important outcomes. These outcomes were consistent with a 2019 qualitative analysis of health related QoL
+domains identified by sepsis survivors [621]. Follow-up
+with a provider after hospital discharge is one-step in the
+recovery process.
+Sepsis survivors are at risk for hospital readmission,
+which has been associated with increased mortality or
+discharge to hospice [622, 623]. Hospital readmission
+within 90 days of discharge occurs in approximately 40%
+of sepsis survivors and is associated with high costs [624].
+In addition, sepsis survivors are at increased risk for
+recurrent infection, AKI and new cardiovascular events
+compared to patients hospitalised for other diagnoses
+[580]. Observational studies in patients with congestive
+heart failure have associated early (within 7–14  days)
+post-discharge follow-up with reduced hospital readmissions [625]. Among older adults, early post discharge follow-up (within 7 days) with a primary care physician was
+associated with lower risk of 30-day readmission [626,
+627].
+Three studies, one RCT [628] and two observational
+studies [629, 630] evaluated early post-hospital follow-up
+in patients with critical illness. None of the three studies specifically evaluated a sepsis population or reported
+the proportion of sepsis patients. The interventions and
+QoL measures varied among the three studies each with
+severe limitations. In an analysis of older adults with
+severe sepsis, one study found that the combination of
+early home health care and a visit with a medical provider
+was associated with a reduced readmission risk [631].
+There were insufficient studies to allow meta-analysis and
+the limited evidence is of very low quality.
+Despite these limitations, the panel recommends follow-up with a provider after hospital discharge to manage new impairments associated with sepsis. Due to the
+low quality and lack of evidence specific to sepsis, we are
+unable to make a recommendation for early (7–14 days)
+provider follow-up versus routine follow-up upon hospital discharge. Timely, coordinated resources and provider
+follow-up may lead to improved QoL for sepsis survivors,
+however further research on the impact of post-discharge
+follow-up is needed.
+Cognitive therapy
+Recommendation
+90. There is insufficient evidence to make a recommendation on
+early cognitive therapy for adult survivors of sepsis or septic shock
+Rationale
+Sepsis is associated with newly acquired cognitive impairment and functional disability amongst survivors [620].
+Long-term impairments in memory, attention, verbal
+fluency, decision-making and executive functioning may
+be linked to a variety of mechanisms such as metabolic
+derangements, cerebral ischaemia, overwhelming inflammation, disrupted blood–brain barrier, oxidative stress,
+and severe microglial activation, particularly within
+the limbic system [632]. A feasibility, pilot, randomised
+trial in general medical/surgical ICU survivors comparing usual care to an intervention of combined in-home
+cognitive, physical, and functional rehabilitation following discharge showed improved executive functioning at
+3 months [633]. Some small single centre studies tested
+specific early cognitive therapies to enhance cognitive
+and overall functional recovery after critical illness [634,
+635].
+A proof-of-concept single-centre pilot study aimed
+to evaluate the efficacy and safety of the use of a multifaceted early intervention (cognitive therapy within ICU)
+in patients with respiratory failure and/or shock [634].
+ICU patients were randomised to receive either combined cognitive and physical therapy or physical therapy
+alone. The results demonstrated that the intervention
+was feasible and safe, but the study was underpowered
+and therefore inconclusive regarding its clinical effects
+on cognitive function and health-related QoL outcomes
+at 3-month follow-up. In addition, a prospective  cohort
+study testing a series of cognitive training sessions starting in the ICU and continued for up to 2 months, found
+overall minimal clinical relevance as Minimum Clinically Important Difference (MID) of Montreal Cognitive
+Assessment (MOCA) was small, with some meaningful
+results in younger patients, but not in the middle-aged or
+older population [635, 636].
+In view of these findings, the panel judged there to
+be insufficient evidence to make a recommendation. In
+centers where cognitive therapy is used, it could reasonably be continued as it is likely acceptable and feasible,
+
+but there is insufficient evidence to change practice in
+centers without such therapy. Further larger studies in
+patients with sepsis are required to determine the impact
+of early cognitive therapy, as well as costs and type of
+intervention.
+Post‑discharge follow‑up
+Recommendations
+91. For adult survivors of sepsis or septic shock, we recommend assessment and follow‑up for physical, cognitive, and emotional problems
+after hospital discharge
+Best Practice Statement
+92. For adult survivors of sepsis or septic shock, we suggest referral to a
+post‑critical illness follow‑up programme if available
+Weak recommendation, very low-quality evidence
+93. For adult survivors of sepsis or septic shock receiving mechanical
+ventilation for > 48 h or an ICU stay of > 72 h, we suggest referral to a
+post‑hospital rehabilitation programme
+Weak recommendation, very low-quality evidence
+Rationale
+Given the prevalence of new or worsening physical, cognitive, and emotional problems experienced by sepsis
+survivors [580, 620], we recommend assessment and follow-up for these problems after hospital discharge. There
+are insufficient data to suggest any specific tool to assess
+for these problems, and the optimal approach will vary
+by patient and setting. At a minimum, physicians should
+ask patients and families about new problems in these
+domains.
+Post-critical illness programmes have been developed as a means of screening for and addressing the
+multi-faceted issues faced by ICU survivors. These programmes vary in their structure, and are not consistently
+available worldwide [637]. Few randomised studies have
+assessed post-critical illness clinics [588, 628, 638, 639],
+and—consistent with a recent Cochrane review [640]—
+our meta-analysis found no differences from usual care
+in terms of mortality, QoL, physical function, or cognition, with possible small improvements in psychological
+symptoms (anxiety, depression, PTSD). More studies of
+post-sepsis follow-up programmes are in process [641,
+642]. We suggest offering referral to post-critical illness
+clinics where available. While efficacy data are equivocal,
+these programmes are consistently well-liked by patients
+and offer an environment to learn about challenges sepsis
+survivors face, as well as to pilot and test interventions
+for enhancing recovery [637, 643]. Lessons learned in
+post-critical care clinics could be adapted to other, morescalable interventions such as telehealth.
+Several randomised studies have assessed physical
+rehabilitation programmes for survivors of critical illness [581, 606, 644–651]. These studies focused on critically ill patients, generally defined by days in ICU or
+days with mechanical ventilation and begin on the floor
+or post-hospital setting. Meta-analysis suggests possible
+small improvements in QoL and depressive symptoms,
+but no difference in mortality, physical function, or anxiety. Nonetheless, based on their strong rationale, and
+benefit in related populations [580] (e.g., older patients
+with cognitive impairment, patients following stroke or
+traumatic brain injury), we suggest referral to rehabilitation programmes in survivors of sepsis. This suggestion
+is consistent with the guidance of several expert panels
+[646, 652, 653]. Future research is needed to determine
+an optimal approach to functional rehabilitation (timing,
+dosing, intensity, duration) and patient selection [643].
+

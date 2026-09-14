@@ -1,0 +1,55 @@
+{
+  "source": "ssc2021_guideline.txt",
+  "split": "sepsis_holdout_split.json",
+  "n_examples": 11,
+  "chunks": [
+    {
+      "id": "01_intro_screening",
+      "section": "Introduction + Screening and early treatment",
+      "prompt": "fewshot_sepsis_holdout_01_intro_screening.txt",
+      "prompt_chars": 25615,
+      "guideline_chars": 22141,
+      "result_file": "fewshot_sepsis_holdout_01_intro_screening.result.json"
+    },
+    {
+      "id": "02_infection",
+      "section": "Infection",
+      "prompt": "fewshot_sepsis_holdout_02_infection.txt",
+      "prompt_chars": 49755,
+      "guideline_chars": 46351,
+      "result_file": "fewshot_sepsis_holdout_02_infection.result.json"
+    },
+    {
+      "id": "03_haemodynamic",
+      "section": "Haemodynamic management",
+      "prompt": "fewshot_sepsis_holdout_03_haemodynamic.txt",
+      "prompt_chars": 41499,
+      "guideline_chars": 38067,
+      "result_file": "fewshot_sepsis_holdout_03_haemodynamic.result.json"
+    },
+    {
+      "id": "04_ventilation",
+      "section": "Ventilation",
+      "prompt": "fewshot_sepsis_holdout_04_ventilation.txt",
+      "prompt_chars": 30066,
+      "guideline_chars": 26658,
+      "result_file": "fewshot_sepsis_holdout_04_ventilation.result.json"
+    },
+    {
+      "id": "05_additional_therapies",
+      "section": "Additional therapies",
+      "prompt": "fewshot_sepsis_holdout_05_additional_therapies.txt",
+      "prompt_chars": 34673,
+      "guideline_chars": 31247,
+      "result_file": "fewshot_sepsis_holdout_05_additional_therapies.result.json"
+    },
+    {
+      "id": "06_longterm_goals",
+      "section": "Long-term outcomes and goals of care",
+      "prompt": "fewshot_sepsis_holdout_06_longterm_goals.txt",
+      "prompt_chars": 39517,
+      "guideline_chars": 36059,
+      "result_file": "fewshot_sepsis_holdout_06_longterm_goals.result.json"
+    }
+  ]
+}
