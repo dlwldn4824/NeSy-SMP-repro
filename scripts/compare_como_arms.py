@@ -93,6 +93,27 @@ if "동반질환 없음" in have and len(have) > 1:
     print(df.to_string())
     lines += ["## 동반질환이 AUC 에 준 효과 (arm − 없음)", "", md(df), ""]
 
+# fold 짝지은 차이: 세 arm 은 fold 배정이 같다(oof_predictions 로 확인) → fold 별 차이의 평균±SD, 양수 fold 수
+folds = {name: pd.read_csv(d / "table1_fold_metrics.csv").set_index(["fold", "model"])["AUC"]
+         for name, d in ARMS if name in have}
+pairs = [(a, b) for a, b in [("ICD", "동반질환 없음"), ("NLP", "동반질환 없음"), ("NLP", "ICD")]
+         if a in folds and b in folds]
+if pairs:
+    hdr = ["모델"] + [f"{a} − {b}" for a, b in pairs]
+    plines = ["| " + " | ".join(hdr) + " |", "|" + "|".join(["---"] + ["---:"] * len(pairs)) + "|"]
+    for mod in MODELS:
+        cells = []
+        for a, b in pairs:
+            ks = sorted(f for f, mm in folds[a].index if mm == mod)
+            dd = pd.Series([folds[a][(f, mod)] - folds[b][(f, mod)] for f in ks])
+            cells.append(f"{dd.mean():+.2f} ± {dd.std():.2f} ({(dd > 0).sum()}/{len(dd)})")
+        plines.append("| " + " | ".join([mod] + cells) + " |")
+    print("\n=== fold 짝지은 AUC 차이 ===")
+    print("\n".join(plines))
+    lines += ["## fold 짝지은 AUC 차이 (평균 ± SD, 양수인 fold 수)", "",
+              "세 arm 의 fold 배정은 동일하다(OOF hadm→fold 100% 일치). 그래서 fold 별로 짝지어 뺄 수 있다.", "",
+              *plines, ""]
+
 # 논문 대비: NeSy-SMP
 rows = []
 for name in have:
@@ -107,7 +128,11 @@ if rows:
     print(df.to_string())
     lines += ["## NeSy-SMP 논문 대비", "", md(df), ""]
 
-if "NLP" not in have:
+if "NLP" in have:
+    lines += ["> ⚠️ **NLP arm 해석 주의.** NLP 동반질환 커버리지는 76.6% (18,896 hadm 중 14,465).",
+              "> 퇴원기록이 없는 23.4% 는 `merge_comorbidities.py` 의 `fillna(0)` 로 '동반질환 없음'이 된다.",
+              "> ICD arm 은 거의 전원 커버라, **NLP − ICD 차이에는 추출 방식 차이와 커버리지 차이가 섞여 있다.**", ""]
+else:
     lines += ["> ⏳ **NLP arm 미완.** `xgboost.dll` 이 Windows 애플리케이션 제어 정책에 차단되어",
               "> 학습이 시작 30초 만에 중단됐다(`WinError 4551`). 해결되면 이 스크립트를 다시 돌리면 채워진다.", ""]
 
