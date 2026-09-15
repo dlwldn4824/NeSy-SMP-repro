@@ -17,6 +17,7 @@ import torch
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score,
+    average_precision_score,
     f1_score,
     precision_score,
     recall_score,
@@ -97,7 +98,14 @@ def predict_loader(model, loader, device):
     return np.asarray(y_true), np.asarray(y_pred), np.asarray(y_prob), hadms
 
 
-def train_bilstm(train_loader, val_loader, vocab_sizes, config, feature_names, device):
+def val_score(yt, yp, ypr, select="f1"):
+    """checkpoint 선택 기준. f1 = 원본(val macro-F1@0.5), auprc = 양성률이 낮은 설계용."""
+    if select == "auprc":
+        return average_precision_score(yt, ypr) if len(np.unique(yt)) > 1 else 0.0
+    return f1_score(yt, yp, average="macro", zero_division=0)
+
+
+def train_bilstm(train_loader, val_loader, vocab_sizes, config, feature_names, device, select="f1"):
     model = LSTMModel(vocab_sizes, config, 1, feature_names).to(device)
     opt = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
     crit = torch.nn.BCELoss()
@@ -113,8 +121,8 @@ def train_bilstm(train_loader, val_loader, vocab_sizes, config, feature_names, d
             loss.backward()
             opt.step()
             losses.append(loss.item())
-        yt, yp, _, _ = predict_loader(model, val_loader, device)
-        f1 = f1_score(yt, yp, average="macro", zero_division=0)
+        yt, yp, ypr, _ = predict_loader(model, val_loader, device)
+        f1 = val_score(yt, yp, ypr, select)
         print(f"  BiLSTM ep {epoch+1}/{config.num_epochs} loss={statistics.mean(losses):.4f} val_f1={f1:.4f}")
         if f1 > best_f1:
             best_f1 = f1
@@ -141,6 +149,8 @@ def train_ltn_variant(
     device,
     epochs_nesy,
     with_knowledge: bool,
+    kb: str = "simple",
+    select: str = "f1",
 ):
     Forall = ltn.Quantifier(ltn.fuzzy_ops.AggregPMeanError(p=2), quantifier="f")
     Not = ltn.Connective(ltn.fuzzy_ops.NotStandard())
@@ -198,6 +208,10 @@ def train_ltn_variant(
     w_D, w_K = 0.8, 0.2
     best_f1, best_state = -1.0, None
 
+    if with_knowledge and kb == "upstream":
+        up = UpstreamKnowledge(features_dict, scalers, sequence_length, device, Forall, Not, Implies, P)
+        opt = torch.optim.Adam(list(lstm.parameters()) + up.parameters(), lr=config.learning_rate)
+
     for epoch in range(epochs_nesy):
         lstm.train()
         train_loss = 0.0
@@ -216,7 +230,11 @@ def train_ltn_variant(
             if not formulas:
                 continue
             sat_D = SatAgg(*formulas)
-            if with_knowledge:
+            if with_knowledge and kb == "upstream":
+                know = up.formulas(x)
+                sat_K = SatAgg(*know)
+                loss = 1 - (w_D * sat_D + w_K * sat_K)
+            elif with_knowledge:
                 know = []
                 # Weak anchoring (D): threshold subset → Forall Pred(...)
                 m = (feat("Lactate")(x) > thr["Lactate"]).all(dim=1)
@@ -267,8 +285,8 @@ def train_ltn_variant(
             opt.step()
             train_loss += float(loss.detach().cpu())
             n_batches += 1
-        yt, yp, _, _ = predict_loader(lstm, val_loader, device)
-        f1 = f1_score(yt, yp, average="macro", zero_division=0)
+        yt, yp, ypr, _ = predict_loader(lstm, val_loader, device)
+        f1 = val_score(yt, yp, ypr, select)
         tag = "NeSy" if with_knowledge else "LTN"
         print(f"  {tag} ep {epoch+1}/{epochs_nesy} loss={train_loss/max(n_batches,1):.4f} val_f1={f1:.4f}")
         if f1 > best_f1:
@@ -277,6 +295,139 @@ def train_ltn_variant(
     if best_state:
         lstm.load_state_dict(best_state)
     return lstm
+
+
+class UpstreamKnowledge:
+    """원본 stratified_main.py (FabrizioDeSantis/NeSy-SMP, e7ee0ab) 519-640행 지식 규칙을 그대로 옮긴 것.
+
+    --kb upstream 은 '원본과 같게'가 목적이라 원본의 특이한 부분도 일부러 유지한다:
+    - 시퀀스 뒤쪽 0 패딩이 임계값 비교에 섞인다 (SBP <= 100 .any, GCS < 8 .any 는 패딩만 있어도 참).
+    - glucose 앵커링은 원본에서 `x[glucose_above_threshold==1]` (함수와 1 비교) 라 항상 빈 집합 → 적용 안 됨.
+    - 만성질환 조건의 `[:, 6] == 8` 은 항상 거짓.
+    - MAP 조건은 정의만 되고 어떤 공식에도 쓰이지 않는다.
+    """
+
+    def __init__(self, features_dict, scalers, sequence_length, device, Forall, Not, Implies, P):
+        self.fd, self.sc, self.L = features_dict, scalers, sequence_length
+        self.Forall, self.Not, self.Implies, self.P = Forall, Not, Implies, P
+        L = sequence_length
+        self.models = {
+            "lactate": MLP(L, 64), "creatinine": MLP(L, 64), "bilirubin": MLP(L, 64), "crp": MLP(L, 64),
+            "platelet": MLP(L, 64), "glucose": MLP(L, 64), "rr": MLP(L, 64), "abps": MLP(L, 64),
+            "gcs": MLP(L, 64), "lnc": SimpleMLP(L, 64), "chronic": SimpleMLP(23, 64), "wbc": MLP(L, 64),
+            "age": SimpleMLPAge(24, 64),
+        }
+        self.R = {k: ltn.Predicate(m.to(device)).to(device) for k, m in self.models.items()}
+        cols = [
+            ("lactate", "Lactate"), ("creatinine", "Creatinine (serum)"), ("bilirubin", "Total Bilirubin"),
+            ("glucose", "Glucose"), ("wbc", "White Blood Cells"), ("crp", "C-Reactive Protein"),
+            ("gcs", "gcs"), ("platelet", "Platelet Count"), ("abps", "Arterial Blood Pressure systolic"),
+            ("rr", "Respiratory Rate"),
+        ]
+        self.f = {name: ltn.Function(func=self._col(col)) for name, col in cols}
+        age_col = self._col("anchor_age")
+        self.f["age"] = ltn.Function(func=lambda x: age_col(x)[:, 0])
+        # 원본은 x[:, -23:]. note_missing 슬롯이 붙어 있으면 그 앞 23칸.
+        self.f["como"] = ltn.Function(func=lambda x: x[:, -N_COMO:][:, :23])
+
+    def parameters(self):
+        ps = []
+        for m in self.models.values():
+            ps += list(m.parameters())
+        return ps
+
+    def _col(self, name):
+        i, L = self.fd[name], self.L
+        return lambda x: x[:, (i * L - L) : (i * L)]
+
+    def _t(self, name, v):
+        return float(self.sc[name].transform(np.array([[v]]))[0][0])
+
+    def formulas(self, x):
+        c, t = self._col, self._t
+        Forall, Not, Implies, P, R, f = self.Forall, self.Not, self.Implies, self.P, self.R, self.f
+        como = x[:, -N_COMO:][:, :23]
+
+        lac = c("Lactate")(x)
+        m_lactate = (lac > t("Lactate", 4.0)).any(dim=1)
+        m_age = c("anchor_age")(x)[:, 0] > t("anchor_age", 65.0)
+        m_creat = (c("Creatinine (serum)")(x) >= t("Creatinine (serum)", 1.5)).all(dim=1)
+        rr = c("Respiratory Rate")(x)
+        m_rr = (rr >= t("Respiratory Rate", 29.0)).all(dim=1) | (rr < t("Respiratory Rate", 9.0)).all(dim=1)
+        m_sbp = (c("Arterial Blood Pressure systolic")(x) <= t("Arterial Blood Pressure systolic", 100.0)).any(dim=1)
+        m_bil = (c("Total Bilirubin")(x) >= t("Total Bilirubin", 2.0)).any(dim=1)
+        m_gcs = (c("gcs")(x) < t("gcs", 8.0)).any(dim=1)
+        m_plt = (c("Platelet Count")(x) < t("Platelet Count", 50.0)).all(dim=1)
+        m_crp = (c("C-Reactive Protein")(x) >= t("C-Reactive Protein", 100.0)).any(dim=1)
+        m_wbc = (c("White Blood Cells")(x) > t("White Blood Cells", 30.0)).any(dim=1)
+        m_chronic = ((como[:, 0] == 1) | (como[:, 1] == 1) | (como[:, 3] == 1) | (como[:, 4] == 1)
+                     | (como[:, 6] == 1) | (como[:, 7] == 1) | (como[:, 6] == 8) | (como[:, 12] == 1)
+                     | (como[:, 14] == 1) | (como[:, 18] == 1))
+        lac2 = t("Lactate", 2.0)
+        lnc = []
+        for seq in lac.detach().cpu().numpy():
+            nz = seq[seq != 0]
+            lnc.append(bool(np.all(np.diff(nz) >= 0) and np.any(seq > lac2)) if np.sum(seq != 0) > 1 else False)
+        m_lnc = torch.tensor(lnc, dtype=torch.bool, device=x.device)
+
+        def V(name, m):
+            return ltn.Variable(name, x[m])
+
+        def risk(key, v):
+            return R[key](f[key](v), f["como"](v), f["age"](v))
+
+        out = []
+        v = V("x_risk_gcs_low", m_gcs)
+        if v.value.numel() > 0:
+            out.append(Forall(v, risk("gcs", v)).value)
+        v = V("x_above_lactate", m_lactate)
+        if v.value.numel() > 0:
+            out.append(Forall(v, risk("lactate", v)).value)
+        v = V("x_below_platelet", m_plt)
+        if v.value.numel() > 0:
+            out.append(Forall(v, risk("platelet", v)).value)
+        v = V("x_lactate_not_clear", m_lnc)
+        if v.value.numel() > 0:
+            out.append(Forall(v, R["lnc"](f["lactate"](v))).value)
+        v = V("x_lactate_clearing", ~m_lnc)
+        if v.value.numel() > 0:
+            out.append(Forall(v, Not(R["lnc"](f["lactate"](v)))).value)
+        v = V("x_above_bilirubin", m_bil)
+        if v.value.numel() > 0:
+            out.append(Forall(v, risk("bilirubin", v)).value)
+        v_rr, v_sbp = V("x_risk_respiratory_rate", m_rr), V("x_risk_pressure_systolic", m_sbp)
+        if v_rr.value.numel() > 0 and v_sbp.value.numel() > 0:
+            out.append(Forall(v_rr, risk("rr", v_rr)).value)
+            out.append(Forall(v_sbp, risk("abps", v_sbp)).value)
+        v = V("x_above_creatinine", m_creat)
+        if v.value.numel() > 0:
+            out.append(Forall(v, risk("creatinine", v)).value)
+        v = V("x_above_crp", m_crp)
+        if v.value.numel() > 0:
+            out.append(Forall(v, risk("crp", v)).value)
+        v = V("x_chronic_condition", m_chronic)
+        if v.value.numel() > 0:
+            out.append(Forall(v, R["chronic"](f["como"](v))).value)
+        # glucose: 원본 버그로 항상 빈 집합 → 생략
+        v = V("x_above_wbc", m_wbc)
+        if v.value.numel() > 0:
+            out.append(Forall(v, risk("wbc", v)).value)
+        v = V("x_above_age", m_age)
+        if v.value.numel() > 0:
+            out.append(Forall(v, R["age"](f["age"](v), f["como"](v))).value)
+
+        xa = ltn.Variable("x_All", x)
+        out += [
+            Forall(xa, Implies(risk("lactate", xa), P(xa))).value,
+            Forall(xa, Implies(risk("bilirubin", xa), P(xa))).value,
+            Forall(xa, Implies(risk("platelet", xa), P(xa))).value,
+            Forall(xa, Implies(R["lnc"](f["lactate"](xa)), P(xa))).value,
+            Forall(xa, Implies(risk("crp", xa), P(xa))).value,
+            Forall(xa, Implies(R["chronic"](f["como"](xa)), P(xa))).value,
+            Forall(xa, Implies(risk("wbc", xa), P(xa))).value,
+            Forall(xa, Implies(R["age"](f["age"](xa), f["como"](xa)), P(xa))).value,
+        ]
+        return out
 
 
 def bootstrap_ci(y_true, y_pred, y_prob, n_boot=1000, seed=42):
@@ -311,6 +462,10 @@ def main():
     ap.add_argument("--epochs-nesy", type=int, default=20)
     ap.add_argument("--batch-size", type=int, default=32)
     ap.add_argument("--skip-nesy", action="store_true")
+    ap.add_argument("--kb", choices=["simple", "upstream"], default="simple",
+                    help="NeSy 지식 규칙: simple=기존 재구현, upstream=원본 stratified_main.py 규칙 그대로")
+    ap.add_argument("--only-nesy", action="store_true",
+                    help="RF/XGB/BiLSTM/LTN 은 지식 규칙과 무관하므로 건너뛰고 NeSy-SMP 만 학습")
     args = ap.parse_args()
 
     set_seed(args.seed)
@@ -346,6 +501,20 @@ def main():
             X_train, y_train, test_size=0.2, stratify=y_train, random_state=args.seed
         )
 
+        train_loader = DataLoader(SepsisDataset(X_train, y_train, feature_names), batch_size=args.batch_size, shuffle=True)
+        val_loader = DataLoader(SepsisDataset(X_val, y_val, feature_names), batch_size=args.batch_size)
+        test_loader = DataLoader(SepsisDataset(X_test, y_test, feature_names), batch_size=args.batch_size)
+        if args.only_nesy:
+            nesy = train_ltn_variant(
+                train_loader, val_loader, vocab_sizes, config, feature_names, scalers, sequence_length, device, args.epochs_nesy, True, args.kb
+            )
+            yt, yp, ypr, hadms = predict_loader(nesy, test_loader, device)
+            fold_rows.append({"fold": fold, "model": "NeSy-SMP", **metric_bundle(yt, yp, ypr, "macro")})
+            for i in range(len(yt)):
+                oof_rows.append({"fold": fold, "model": "NeSy-SMP", "hadm_id": hadms[i], "y_true": int(yt[i]),
+                                 "y_prob": float(ypr[i]), "y_pred": int(yp[i])})
+            continue
+
         Xtr, ytr = flat_xy(X_train, y_train)
         Xte, yte = flat_xy(X_test, y_test)
 
@@ -378,10 +547,6 @@ def main():
                 }
             )
 
-        train_loader = DataLoader(SepsisDataset(X_train, y_train, feature_names), batch_size=args.batch_size, shuffle=True)
-        val_loader = DataLoader(SepsisDataset(X_val, y_val, feature_names), batch_size=args.batch_size)
-        test_loader = DataLoader(SepsisDataset(X_test, y_test, feature_names), batch_size=args.batch_size)
-
         bilstm = train_bilstm(train_loader, val_loader, vocab_sizes, config, feature_names, device)
         yt, yp, ypr, hadms = predict_loader(bilstm, test_loader, device)
         m = metric_bundle(yt, yp, ypr, "macro")
@@ -404,7 +569,7 @@ def main():
                 )
 
             nesy = train_ltn_variant(
-                train_loader, val_loader, vocab_sizes, config, feature_names, scalers, sequence_length, device, args.epochs_nesy, True
+                train_loader, val_loader, vocab_sizes, config, feature_names, scalers, sequence_length, device, args.epochs_nesy, True, args.kb
             )
             yt, yp, ypr, hadms = predict_loader(nesy, test_loader, device)
             m = metric_bundle(yt, yp, ypr, "macro")
