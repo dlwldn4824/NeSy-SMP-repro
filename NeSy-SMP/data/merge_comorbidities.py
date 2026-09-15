@@ -14,6 +14,8 @@ def main() -> None:
     ap.add_argument("--wide", type=Path, required=True)
     ap.add_argument("--como-wide", type=Path, required=True)
     ap.add_argument("--output", type=Path, required=True)
+    ap.add_argument("--note-missing-flag", action="store_true",
+                    help="como-wide 에 없는 hadm 을 note_missing=1 로 표시 (NESY_NOTE_MISSING=1 로 학습)")
     args = ap.parse_args()
 
     wide = pd.read_csv(args.wide, low_memory=False)
@@ -26,6 +28,9 @@ def main() -> None:
     wide = wide.drop(columns=drop)
     keep = ["hadm_id"] + [c for c in COMORBIDITIES if c in como.columns]
     merged = wide.merge(como[keep], on="hadm_id", how="left")
+    if args.note_missing_flag:
+        merged["note_missing"] = (~merged["hadm_id"].isin(set(como["hadm_id"]))).astype(int)
+        print(f"note_missing hadm rate={merged.groupby('hadm_id')['note_missing'].first().mean():.1%}")
     for c in COMORBIDITIES:
         if c not in merged.columns:
             merged[c] = 0

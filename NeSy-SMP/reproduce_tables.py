@@ -28,7 +28,7 @@ from xgboost import XGBClassifier
 
 from data.dataset import ModelConfig, SepsisDataset
 from data.preprocessing import preprocess_eventlog
-from model.models import LSTMModel, MLP, SimpleMLP, SimpleMLPAge
+from model.models import N_COMO, LSTMModel, MLP, SimpleMLP, SimpleMLPAge
 
 PAPER_T1 = {
     "RF": {"Acc": 84.78, "F1": 74.77, "Prec": 83.07, "Rec": 71.48, "AUC": 88.11},
@@ -163,9 +163,9 @@ def train_ltn_variant(
     WBCRisk = ltn.Predicate(model_wbc).to(device)
     model_crp = MLP(sequence_length, 64).to(device)
     CRPRisk = ltn.Predicate(model_crp).to(device)
-    model_age = SimpleMLPAge(24, 64).to(device)  # age(1)+comorbidities(23)
+    model_age = SimpleMLPAge(N_COMO + 1, 64).to(device)  # age(1)+comorbidities(N_COMO)
     AgeRisk = ltn.Predicate(model_age).to(device)
-    model_chr = SimpleMLP(23, 64).to(device)
+    model_chr = SimpleMLP(N_COMO, 64).to(device)
     Chronic = ltn.Predicate(model_chr).to(device)
 
     params = list(lstm.parameters())
@@ -184,7 +184,7 @@ def train_ltn_variant(
     wbc_f = ltn.Function(func=lambda x: feat("White Blood Cells")(x))
     crp_f = ltn.Function(func=lambda x: feat("C-Reactive Protein")(x))
     age_s = ltn.Function(func=lambda x: feat("anchor_age")(x)[:, 0])
-    como_f = ltn.Function(func=lambda x: x[:, -23:])
+    como_f = ltn.Function(func=lambda x: x[:, -N_COMO:])
 
     thr = {
         "Lactate": scalers["Lactate"].transform([[4.0]])[0][0],

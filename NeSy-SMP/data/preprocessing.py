@@ -5,6 +5,18 @@ import numpy as np
 from collections import Counter
 import random
 import torch
+import os
+
+COMORBIDITY_COLS = ['acute kidney injury', 'aids', 'atrial fibrillation', 'cad', 'cancer',
+        'cerebrovascular accident', 'cirrhosis', 'copd', 'dementia', 'diabetes',
+        'diabetes mellitus', 'heart failure', 'hiv', 'hypertension',
+        'kidney disease', 'kidney failure', 'leukemia', 'lymphoma',
+        'metastatic cancer', 'metastatic disease', 'peptic ulcer disease',
+        'pneumonia', 'trauma']
+# NESY_NOTE_MISSING=1: 동반질환 출처(퇴원기록)가 없는 입원을 24번째 정적 변수로 표시.
+# fillna(0) 이 '기록 없음'과 '동반질환 없음'을 섞는 문제를 모델이 구분할 수 있게 한다.
+if os.environ.get("NESY_NOTE_MISSING") == "1":
+    COMORBIDITY_COLS = COMORBIDITY_COLS + ["note_missing"]
 
 def stratified_sampling(data):
     df_non_null_labels = data.dropna(subset=["hospital_expire_flag"])
@@ -57,12 +69,7 @@ def create_training_data(data, window_size):
     # Create n-grams for test data
     for id_value, group in data.groupby('hadm_id'):
         group = group.drop(columns=["hadm_id"])
-        group_comorbidities = group[['acute kidney injury', 'aids', 'atrial fibrillation', 'cad', 'cancer',
-        'cerebrovascular accident', 'cirrhosis', 'copd', 'dementia', 'diabetes',
-        'diabetes mellitus', 'heart failure', 'hiv', 'hypertension',
-        'kidney disease', 'kidney failure', 'leukemia', 'lymphoma',
-        'metastatic cancer', 'metastatic disease', 'peptic ulcer disease',
-        'pneumonia', 'trauma']]
+        group_comorbidities = group[COMORBIDITY_COLS]
         # take only the first row of comorbidities
         group_comorbidities = group_comorbidities.iloc[0]
         # convert to list
@@ -150,12 +157,9 @@ def preprocess_eventlog(data, seed, sampling=False):
             data[column_num] = scaler.fit_transform(data[[column_num]])
             scalers[column_num] = scaler
 
-    comorbidities = ['acute kidney injury', 'aids', 'atrial fibrillation', 'cad', 'cancer',
-        'cerebrovascular accident', 'cirrhosis', 'copd', 'dementia', 'diabetes',
-        'diabetes mellitus', 'heart failure', 'hiv', 'hypertension',
-        'kidney disease', 'kidney failure', 'leukemia', 'lymphoma',
-        'metastatic cancer', 'metastatic disease', 'peptic ulcer disease',
-        'pneumonia', 'trauma']
+    comorbidities = COMORBIDITY_COLS
+    if "note_missing" in comorbidities:
+        assert "note_missing" in data.columns, "NESY_NOTE_MISSING=1 인데 CSV 에 note_missing 열이 없음"
     
     for comorbidity in comorbidities:
         if comorbidity not in data.columns:
@@ -173,12 +177,7 @@ def preprocess_eventlog(data, seed, sampling=False):
                     "Daily Weight", "Brain Natiuretic Peptide (BNP)", "Direct Bilirubin", "C-Reactive Protein", "Creatinine (whole blood)", 
                     "Glucose", "Lactate", "Lymphocytes", "Neutrophils", "White Blood Cells", "Alanine Aminotransferase (ALT)", 
                     "Asparate Aminotransferase (AST)", "gcs",
-                    'anchor_age', 'acute kidney injury', 'aids', 'atrial fibrillation', 'cad', 'cancer',
-                    'cerebrovascular accident', 'cirrhosis', 'copd', 'dementia', 'diabetes',
-                    'diabetes mellitus', 'heart failure', 'hiv', 'hypertension',
-                    'kidney disease', 'kidney failure', 'leukemia', 'lymphoma',
-                    'metastatic cancer', 'metastatic disease', 'peptic ulcer disease',
-                    'pneumonia', 'trauma', 'hospital_expire_flag']]
+                    'anchor_age', *COMORBIDITY_COLS, 'hospital_expire_flag']]
     # Group by 'id' and count the size of each group
     group_sizes = data.groupby('hadm_id').size()
 

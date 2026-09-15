@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 from typing import List, Tuple, Dict
@@ -5,6 +6,9 @@ from torch.nn.utils.rnn import pack_padded_sequence
 import torch.nn.functional as F
 
 from dataclasses import dataclass
+
+# 동반질환 슬롯 수. data/preprocessing.py 의 COMORBIDITY_COLS 와 같은 환경변수로 맞춘다.
+N_COMO = 24 if os.environ.get("NESY_NOTE_MISSING") == "1" else 23
 
 @dataclass
 class ModelConfig:
@@ -43,7 +47,7 @@ class LSTMModel(nn.Module):
         self.attention_combine = nn.Linear(config.hidden_size*2, 1)
         self.dropout = nn.Dropout(0.3)
 
-        self.lin_com = nn.Linear(23, config.hidden_size)
+        self.lin_com = nn.Linear(N_COMO, config.hidden_size)
         self.fc_lstm = nn.Linear(config.hidden_size*2, config.hidden_size)
         self.fc_comb = nn.Linear(config.hidden_size*3, config.hidden_size)
         self.fc_last = nn.Linear(config.hidden_size, self.num_classes)
@@ -77,8 +81,8 @@ class LSTMModel(nn.Module):
         return output
 
     def forward(self, x):
-        x_com = x[:, -23:]  # Extract comorbidities
-        x = x[:, :-23]  # Remove comorbidities from main input
+        x_com = x[:, -N_COMO:]  # Extract comorbidities
+        x = x[:, :-N_COMO]  # Remove comorbidities from main input
         cat = self._get_embeddings(x)
         
         out, _ = self.lstm(cat)
@@ -167,7 +171,7 @@ class MLP(nn.Module):
         super(MLP, self).__init__()
         # input_size = concept sequence length; concat comorbidities(23)+age(1)
         # (upstream hardcoded Linear(254) for their 6h seq≈230; use dynamic dim)
-        self.fc1 = nn.Linear(input_size + 23 + 1, hidden_size)
+        self.fc1 = nn.Linear(input_size + N_COMO + 1, hidden_size)
         self.elu = nn.ELU()
         self.fc2 = nn.Linear(hidden_size, hidden_size)
         self.fc3 = nn.Linear(hidden_size, 1)
