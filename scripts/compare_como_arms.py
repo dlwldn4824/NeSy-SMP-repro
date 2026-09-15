@@ -24,6 +24,7 @@ ARMS = [
     ("동반질환 없음", RES / "results_s3_6h"),
     ("ICD", RES / "results_s3_6h_como"),
     ("NLP", RES / "results_s3_6h_como_nlp"),
+    ("NLP+기록없음", RES / "results_s3_6h_como_nlp_nm"),
 ]
 # reproduce_tables.py 의 PAPER_T1 (6h, 5-fold macro)
 PAPER = {
@@ -96,7 +97,8 @@ if "동반질환 없음" in have and len(have) > 1:
 # fold 짝지은 차이: 세 arm 은 fold 배정이 같다(oof_predictions 로 확인) → fold 별 차이의 평균±SD, 양수 fold 수
 folds = {name: pd.read_csv(d / "table1_fold_metrics.csv").set_index(["fold", "model"])["AUC"]
          for name, d in ARMS if name in have}
-pairs = [(a, b) for a, b in [("ICD", "동반질환 없음"), ("NLP", "동반질환 없음"), ("NLP", "ICD")]
+pairs = [(a, b) for a, b in [("ICD", "동반질환 없음"), ("NLP", "동반질환 없음"), ("NLP", "ICD"),
+                         ("NLP+기록없음", "NLP"), ("NLP+기록없음", "ICD")]
          if a in folds and b in folds]
 if pairs:
     hdr = ["모델"] + [f"{a} − {b}" for a, b in pairs]
