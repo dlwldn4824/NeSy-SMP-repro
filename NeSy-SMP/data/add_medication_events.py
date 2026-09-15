@@ -76,7 +76,10 @@ def main():
           f"({ev.hadm_id.nunique() / wide.hadm_id.nunique():.1%})")
     print(ev["concept:name"].value_counts().to_string())
 
-    numeric = [c for c in wide.columns if pd.api.types.is_float_dtype(wide[c]) and c not in ("anchor_age",)]
+    ID_COLS = ("hadm_id", "subject_id", "anchor_age", "hospital_expire_flag")
+    wide["hadm_id"] = wide["hadm_id"].astype("int64")
+    # 측정 열만 비운다. id·정적 열이 float 으로 읽혀도 측정으로 오인하지 않게 명시적으로 뺀다.
+    numeric = [c for c in wide.columns if pd.api.types.is_float_dtype(wide[c]) and c not in ID_COLS]
     static = [c for c in wide.columns if c not in numeric + ["time:timestamp", "concept:name", "medication", "hadm_id"]]
     first = wide.drop_duplicates("hadm_id").set_index("hadm_id")[static]
     new = ev.join(first, on="hadm_id")
@@ -90,6 +93,7 @@ def main():
     print(f"rows/hadm before median {wide.groupby('hadm_id').size().median():.0f} → after median {per.median():.0f} "
           f"p99 {per.quantile(.99):.0f} max {per.max()} | >230 {(per > 230).sum():,}")
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    assert out["hadm_id"].notna().all() and out["subject_id"].notna().all(), "id 가 빈 행이 생겼다"
     out.to_csv(args.output, index=False)
     print(f"saved {args.output} rows={len(out):,}")
 

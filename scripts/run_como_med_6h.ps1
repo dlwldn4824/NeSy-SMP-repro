@@ -1,6 +1,6 @@
 # 약물 투여 이벤트 arm — ICD 동반질환 arm(events_6h_wide_s3_como.csv)에 inputevents 약물 투여를 넣은 판.
 # 비교 대상: results_s3_6h_como (같은 입력에서 약물만 없음). 지식 규칙은 같게 --kb simple(기본값).
-# 앞 GPU 작업(rolling_s12_h24)이 끝날 때까지 기다린다.
+# 앞 GPU 작업(kb_upstream_icd_6h)이 끝날 때까지 기다린다.
 $ErrorActionPreference = 'Continue'
 $py   = 'C:\dev\NeSy-SMP-repro\.venv\Scripts\python.exe'
 $out  = 'C:\data\mimic-iv-derived'
@@ -8,8 +8,8 @@ $repo = 'C:\dev\NeSy-SMP-repro\NeSy-SMP'
 $log  = Join-Path $out 'como_med_6h.log'
 function L($m){ $t = Get-Date -Format 'HH:mm:ss'; Add-Content $log "$t $m"; Write-Host "$t $m" }
 
-$prev = Join-Path $out 'rolling_s12_h24.log'
-L 'WAIT for rolling_s12_h24'
+$prev = Join-Path $out 'kb_upstream_icd_6h.log'
+L 'WAIT for kb_upstream_icd_6h'
 while ($true) {
     $txt = if (Test-Path $prev) { Get-Content $prev -Raw } else { '' }
     if ($txt -match 'DONE|FAIL') { break }
