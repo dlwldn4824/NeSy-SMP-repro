@@ -1,4 +1,4 @@
-# 우선순위 대기열 (2026-09-17 재편) — 현재 6h 논문 조건 학습이 끝나면 12h 로 넘어가지 않고 아래 순서로 실행
+﻿# 우선순위 대기열 (2026-09-17 재편) — 현재 6h 논문 조건 학습이 끝나면 12h 로 넘어가지 않고 아래 순서로 실행
 #   1 sens_axiom_6h       Missing-aware (패치 S1 + 기록 P6)            논문 조건 입력
 #   2 paper_log_6h        원본 코드 재실행 (기록 P6 만 추가)           논문 조건 입력  → satisfaction 비교 기준 · 시드 미고정 편차
 #   3 sens_validrange_6h  원본 코드 (기록 P6)                          극단값 제거 입력
@@ -18,21 +18,7 @@ function Stop-Tree($procId) {
     Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
 }
 
-# --- 1) 기존 run_paper_train.ps1 의 6h 가 끝나기를 기다렸다가 그 체인(12h 이후)을 멈춘다
-$base = (Get-Content $log).Count
-L 'QUEUE WAIT for paper 6h'
-while ($true) {
-    $new = Get-Content $log | Select-Object -Skip $base
-    if ($new -match ' (OK|FAIL) 6h$') { break }
-    Start-Sleep -Seconds 30
-}
-Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" |
-    Where-Object { $_.CommandLine -match 'run_paper_train\.ps1|run_sensitivity_6h\.ps1' } |
-    ForEach-Object { Stop-Tree $_.ProcessId }
-Start-Sleep -Seconds 5
-$partial = Join-Path $repo 'results_paper_12h'
-if ((Test-Path $partial) -and -not (Test-Path (Join-Path $partial 'stratified_results.txt'))) { Remove-Item -Recurse -Force $partial }
-L 'QUEUE stopped old chain (12h+) after 6h'
+# 6h 논문 조건 학습은 09-17 06:15 완료. 기존 체인(12h 이후)은 수동으로 멈췄다 (자동 감지 루프가 동작하지 않아 제거).
 
 $runs = @(
     @{ name = 'sens_axiom_6h';      code = 'upstream_sensitivity_axiom'; data = 'events_6h_wide_paper_como.csv' },
