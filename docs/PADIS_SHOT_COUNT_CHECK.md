@@ -51,7 +51,7 @@
 
 | 정답 트리플 | 원문 (2018 PADIS) | 해석 |
 |---|---|---|
-| Delirium increasesRiskOf **Death** | Delirium 결과 항목: 섬망은 사망률과 **일관되게 연관된다고 밝혀지지 않았다** ("NOT been consistently shown to be associated with … mortality") | **정답이 원문과 반대** — gold 오류 후보 |
+| Delirium increasesRiskOf **Death** | Delirium 결과 항목: 섬망은 사망률과 **일관되게 연관된다고 밝혀지지 않았다** ("NOT been consistently shown to be associated with … mortality") | **원문이 정답을 뒷받침하지 않음** (일관된 연관 없음) — gold 점검 대상 |
 | Delirium increasesRiskOf Immobility | 섬망 → 운동제한을 진술한 문장을 찾지 못함 | 원문 근거 없음 |
 | DeepSedation increasesRiskOf Delirium | 얕은 진정 비교에서 섬망 결과는 효과가 뚜렷하지 않다는 서술 · 깊은 진정 → 섬망 직접 진술 없음 (진정 강도 → 섬망은 추출됨) | 원문 근거 약함 |
 | DeepSedation precludes Assessable | "RASS −3 환자는 평가 불가로 간주" · 통증 절의 "RASS ≤ −4 에서는 행동 척도 사용 불가" | 개념 경계 차이 — 추출기는 `DeepSedation precludes SeverePain`(통증 평가)으로 냄 |
@@ -67,7 +67,7 @@
 
 1. **원문이 위험인자를 문장으로 쓰는가가 결과를 정한다.** SSC 2021 은 치료 가이드라인이라 기존 sepsis 규칙 19개 중 1개만 원문에 있었다. PADIS 2018 은 "위험인자 / 영향 없음"을 ungraded statement 로 명시해 14개 중 10개 쌍이 원문에서 나온다.
 2. **예시의 효과가 반대로 나타났다.** sepsis 에서는 예시가 근거 지지율을 올렸지만(오류 감소), PADIS 에서는 예시가 원문의 "연관"을 "위험 증가"로 바꾸게 해 엄격 기준 근거 지지율을 내렸다. 두 경우 모두 **무엇을 뽑는지는 원문이 정하고, 예시는 표현을 정답 쪽으로 맞춘다.**
-3. **정답(gold) 자체를 점검해야 한다.** Delirium → Death 는 2018 원문과 반대이고, 위험인자 대부분은 원문이 `associatedWith` 수준으로만 진술한다. PADIS KG 승인(사람 검토) 때 이 두 가지를 같이 봐야 한다.
+3. **정답(gold) 자체를 점검해야 한다.** Delirium → Death 는 2018 원문이 "일관된 연관 없음"이라고 쓰고, strong evidence 위험인자(나이·치매·벤조디아제핀 등)는 원문이 `associatedWith` 수준으로만 진술한다. PADIS KG 승인(사람 검토) 때 이 두 가지를 같이 봐야 한다.
 
 ## 한계
 - 판정자도 LLM · 확인용 14개(1개 = 7.1%p) · 조건당 2회.
