@@ -1,0 +1,800 @@
+당신은 임상 가이드라인 원문에서 지식그래프 트리플을 추출합니다.
+입력은 Surviving Sepsis Campaign 2021 가이드라인 본문의 한 부분입니다 — [섹션 2/6: Infection].
+
+## 출력 형식
+JSON 배열만 출력하세요. 설명·마크다운 금지. 해당 트리플이 없으면 [] 를 출력하세요.
+[{"subject": "...", "predicate": "...", "object": "...", "evidence": "<근거가 된 원문 문장, 원문 그대로 복사>"}]
+
+## 허용된 술어 (이 밖의 것을 쓰지 마세요)
+- increasesRiskOf: subject 가 있거나 높으면 object 의 위험이 커진다
+- associatedWith: subject 와 object 가 연관된다 (방향·인과를 진술하지 않음)
+- causedBy: subject 가 object 에 의해 생긴다
+- decreasesRiskOf: subject 가 object 의 위험을 낮춘다
+- hasNoEffectOn: subject 가 object 에 영향/연관이 없다고 명시
+- precludes: subject 가 object 의 적용·평가를 불가능하게 한다
+
+## 허용된 개념 (subject/object 는 반드시 이 id 중 하나. 괄호 안은 원문에서 쓰일 수 있는 표현)
+- Lactate  (Lactate, serum lactate, elevated serum lactate, lactate level, lactic acid, blood lactate, hyperlactatemia, lactate measurements, lactate levels)
+- Bilirubin  (Bilirubin, total bilirubin, bilirubin total, elevated bilirubin)
+- Platelet  (Platelet, platelet count, platelets, thrombocytopenia)
+- CReactiveProtein  (CReactiveProtein, crp, c-reactive protein, c reactive protein)
+- WhiteBloodCells  (WhiteBloodCells, wbc, white blood cells, leukocytosis)
+- MeanArterialPressure  (MeanArterialPressure, map, mean arterial pressure, hypotension, permissive hypotension, arterial pressure)
+- Age  (Age, elderly, older adult, age risk)
+- Death  (Death, mortality, hospital death, expire)
+- Sepsis  (Sepsis, septic, septicemia)
+- Cancer  (Cancer, malignancy, neoplasm)
+- Pneumonia  (Pneumonia, pneumonia)
+- HIV  (HIV, hiv, aids)
+- CirrhosisOfLiver  (CirrhosisOfLiver, cirrhosis)
+- KidneyDisease  (KidneyDisease, kidney disease, renal failure, ckd)
+- CardiacInsufficiency  (CardiacInsufficiency, heart failure, cardiac failure)
+- ChronicDisease  (ChronicDisease, chronic condition, comorbidity)
+- Hypotension  (Hypotension, low blood pressure, hypotension)
+- SepticShock  (SepticShock, septic shock)
+- LactateNotClearing  (Lactate, lactate not clearing, persistent lactate, failure of lactate clearance, lactate clearance, lactate-guided, targeting serum lactate)
+
+## 형식 예시 — 기존에 승인된 트리플 0개 (출력 형식 참고)
+
+
+## 규칙
+- 위 예시는 **출력 형식 참고용**입니다. 예시에 있는 트리플이라도 아래 입력 원문에 근거 문장이 없으면 내지 마세요.
+- 예시에 없는 개념·술어라도 원문 근거가 있으면 추출하세요.
+- evidence 는 입력 원문에서 **그대로 복사한** 문장이어야 합니다(줄바꿈은 공백으로). 요약·번역·여러 문장 합성 금지.
+- evidence 문장 자체가 subject 와 object 사이의 관계를 진술해야 합니다.
+  두 개념이 같은 문장에 함께 등장하는 것만으로는 근거가 아닙니다.
+- 중재(치료·검사·프로그램)의 효과를 말하는 문장을 환자 특성 → 결과 트리플로 바꾸지 마세요.
+- 가이드라인이 "연관/효과 없음"을 명시하면 hasNoEffectOn 을 쓰세요.
+- 한 문장에서 여러 트리플이 나올 수 있습니다.
+- 개념 목록에 없는 대상은 버리세요.
+
+## 입력 가이드라인 원문 [섹션 2/6: Infection]
+Infection
+Diagnosis of infection
+Recommendation
+11. For adults with suspected sepsis or septic shock but unconfirmed
+infection, we recommend continuously re‑evaluating and searching
+for alternative diagnoses and discontinuing empiric antimicrobials if an
+alternative cause of illness is demonstrated or strongly suspected
+Best Practice statement
+Rationale
+In previous versions of these guidelines, we highlighted
+the importance of obtaining a full screen for infectious agents prior to starting antimicrobials wherever
+it is possible to do so in a timely fashion [12, 13]. As a
+best practice statement, we recommended that appropriate routine microbiologic cultures (including blood)
+should be obtained before starting antimicrobial therapy
+in patients with suspected sepsis and septic shock if it
+results in no substantial delay in the start of antimicrobials (i.e. < 45  min). This recommendation has not been
+updated in this version but remains as valid as before.
+The signs and symptoms of sepsis are nonspecific and
+often mimic multiple other diseases [90–92]. Since there
+is no “gold standard” test to diagnose sepsis, the bedside
+provider cannot have a differential diagnosis of sepsis
+alone in a patient with organ dysfunction. Indeed, a third
+or more of patients initially diagnosed with sepsis turn
+out to have non-infectious conditions [90, 93, 94]. Best
+practice is to continually assess the patient to determine
+if other diagnoses are more or less likely, especially since
+a patient’s clinical trajectory can evolve significantly after
+hospital admission, increasing or decreasing the likelihood of a diagnosis of sepsis. With this uncertainty, there
+can be significant challenges in determining when it is
+“appropriate” to de-escalate or discontinue antibiotics.
+Another major challenge is implementing a system that
+reminds clinicians to focus on the fact that the patient is
+still receiving antibiotics each day, especially as providers
+rotate in and out of the care team. Systems that promote
+such reassessment by automatic stop orders, electronic
+prompts, or mandatory check lists all seem useful in
+theory, but each has disadvantages in terms of provider
+acceptance or assuring that providers thoughtfully assess
+the need for antibiotics rather than checking a box in the
+electronic record or reflexively acknowledging a prompt,
+without considering its underlying rationale [95].
+We did not identify any direct or indirect evidence
+assessing this important issue. Thus, clinicians are
+strongly encouraged to discontinue antimicrobials if a
+non-infectious syndrome (or an infectious syndrome that
+does not benefit from antimicrobials) is demonstrated
+or strongly suspected. Since this situation is not always
+apparent, continued reassessment of the patient should
+optimise the chances of infected patients receiving antimicrobial therapy and non-infected patients avoiding
+therapy that is not indicated.
+Time to antibiotics
+Recommendations
+12. For adults with possible septic shock or a high likelihood for sepsis, we
+recommend administering antimicrobials immediately, ideally within
+1 h of recognition
+Strong recommendation, low quality of evidence (Septic shock)
+Strong recommendation, very low quality of evidence (Sepsis without shock)
+13. For adults with possible sepsis without shock, we recommend rapid
+assessment of the likelihood of infectious versus non‑infectious causes
+of acute illness
+Best Practice Statement
+Remarks
+Rapid assessment includes history and clinical examination, tests for both
+infectious and non‑infectious causes of acute illness and immediate treatment for acute conditions that can mimic sepsis. Whenever
+possible this should be completed within 3 h of presentation so that a
+decision can be made as to the likelihood of an infectious cause of the
+patient’s presentation and timely antimicrobial therapy provided if the
+likelihood of sepsis is thought to be high
+14. For adults with possible sepsis without shock, we suggest a timelimited course of rapid investigation and if concern for infection
+persists, the administration of antimicrobials within 3 h from the time
+when sepsis was first recognised
+Weak recommendation, very low quality of evidence
+15. For adults with a low likelihood of infection and without shock, we
+suggest deferring antimicrobials while continuing to closely monitor
+the patient.
+Weak recommendation, very low quality of evidence
+Rationale
+Early administration of appropriate antimicrobials is one
+of the most effective interventions to reduce mortality in
+patients with sepsis [96– 98]. Delivering antimicrobials to
+patients with sepsis or septic shock should therefore be
+treated as an emergency. The imperative to provide antimicrobials as early as possible, however, must be balanced
+against the potential harms associated with administering
+unnecessary antimicrobials to patients without infection
+[99, 100]. These include a range of adverse events such as
+allergic or hypersensitivity reactions, kidney injury, thrombocytopenia, Clostridioides difficile infection, and antimicrobial resistance [101–106]. Accurately diagnosing sepsis
+is challenging as sepsis can present in subtle ways, and
+some presentations that first appear to be sepsis turn out
+to be non-infectious conditions [90, 93, 107, 108]. Evaluating the likelihood of infection and severity-of-illness
+for each patient with suspected sepsis should inform the
+necessity and urgency of antimicrobials [99, 100].
+The mortality reduction associated with early antimicrobials appears strongest in patients with septic shock,
+where a number of studies have reported a strong association between time-to-antibiotics and death in patients
+with septic shock but weaker associations in patients
+
+without septic shock [98, 109, 110]. In a study of 49,331
+patients treated at 149 New York hospitals, each additional hour of time from ED arrival to administration of
+antimicrobials was associated with 1.04 increased odds of
+in-hospital mortality, p < 0.001 (1.07 (95% CI 1.05–1.09)
+for patients receiving vasopressors vs. 1.01 (95% CI 0.99–
+1.04) for patients not on vasopressors) [98]. In a study of
+35,000 patients treated at Kaiser Permanente Northern
+California, each additional hour of time from ER arrival
+to administration of antimicrobials was associated with
+1.09 increased odds of in-hospital mortality (1.07 for
+patients with “severe” sepsis (lactate ≥ 2, at least one episode of hypotension, required non-invasive or invasive
+mechanical ventilation or has organ dysfunction) and
+1.14 for patients with septic shock); which equated to a
+0.4% absolute mortality increase for “severe” sepsis and
+a 1.8% absolute increase for septic shock [110]. Finally, in
+a study of 10,811 patients treated in four Utah hospitals,
+each hour delay in time from ED arrival to administration
+of antimicrobials was associated with 1.16 increased odds
+of in-hospital and 1.10 increased odds of 1-year mortality (1.13 in patients with hypotension vs 1.09 in patients
+without hypotension) [111]. Other studies, however, did
+not observe an association between antimicrobial timing
+and mortality [112–117].
+It should be noted that all the aforementioned studies
+were observational analyses and hence at risk of bias due
+to insufficient sample size, inadequate risk-adjustment,
+blending together the effects of large delays until antibiotics with short delays, or other study design issues [118].
+In patients with sepsis without shock, the association
+between time to antimicrobials and mortality within
+the first few hours from presentation is less consistent
+[98, 110]. Two RCTs have been published [119, 120].
+One failed to achieve a difference in time-to-antimicrobials between arms [120]. The other found no significant difference in mortality despite a 90-min difference
+in median time interval to antimicrobial administration
+[119]. Observational studies do, however, suggest that
+mortality may increase after intervals exceeding 3–5  h
+from hospital arrival and/or sepsis recognition [98, 111,
+119, 120]. We therefore suggest initiating antibiotics in
+patients with possible sepsis without shock as soon as
+sepsis appears to be the most likely diagnosis, and no
+later than 3 h after sepsis was first suspected if concern
+for sepsis persists at that time.
+Overall, given the high risk of death with septic shock
+and the strong association of antimicrobial timing and
+mortality, the panel issued a strong recommendation to
+administer antimicrobials immediately, and within 1 h,
+in all patients with potential septic shock. In addition,
+for patients with confirmed/very likely sepsis, we recommend antimicrobials be administered immediately
+(Fig. 1). For patients with possible sepsis without shock,
+we recommend a rapid assessment of infectious and
+non-infectious etiologies of illness be undertaken to
+determine, within 3  h, whether antibiotics should be
+administered or whether antibiotics should be deferred
+while continuing to monitor the patient closely.
+Limited data from resource-limited settings suggest that
+timely administration of antimicrobials in patients with sepsis
+and septic shock is beneficial and potentially feasible [121–
+126]. Access and availability of a wide range of antimicrobials in such settings may however vary [54, 55, 57, 59, 61]. The
+availability and turn-around time for laboratory testing, rapid
+infectious diagnostic, imaging, etc. varies widely by regions
+and settings. As such, the rapid assessment of infectious and
+non-infectious etiologies of illness will differ across settings,
+depending on what is feasible to achieve. Recent recommendations pertaining to the use of antimicrobials in patients
+with sepsis and septic shock in resource-limited settings are
+in line with the current recommendations [123].
+Biomarkers to start antibiotics
+Recommendation
+16. For adults with suspected sepsis or septic shock, we suggest against
+using procalcitonin plus clinical evaluation to decide when to start
+antimicrobials, as compared to clinical evaluation alone
+Weak recommendation, very low quality of evidence
+Rationale
+Procalcitonin is undetectable in healthy states, but rises
+rapidly in response to pro-inflammatory stimuli, especially
+bacterial infections [127]. In theory, procalcitonin levels in
+combination with clinical evaluation may facilitate the diagnosis of serious bacterial infections and prompt early initiation of antimicrobials. In a meta-analysis of 30 studies (3244
+patients), procalcitonin had a pooled sensitivity of 77% and
+specificity of 79% for sepsis in critically ill patients [128].
+We identified direct evidence from three RCTs that compared procalcitonin-guided protocols for antibiotic initiation vs usual care [129–131]. A meta-analysis of the three
+trials (n = 1769 ICU patients) found no difference in shortterm mortality (RR 0.99; 95% CI 0.86–1.15), length of ICU
+stays (MD 0.19  days; 95% CI − 0.98 to 1.36) or length of
+hospitalisation (MD 7.00  days; 95% CI − 26.24 to 12.24).
+Long-term mortality, readmission rates and hospital-free
+days were not reported in any of the trials, and no relevant
+studies on the costs associated with use of procalcitonin
+were found. In general, knowledge about the undesirable
+effects was lacking, and the quality of evidence was very
+low. Published guidelines for the management of community-acquired pneumonia recommend initiation of antimicrobials for patients with community-acquired pneumonia
+regardless of procalcitonin level [132].
+
+With no apparent benefit, unknown costs, and limited
+availability in some settings including low- and middleincome countries (LMICs), the panel issued a weak
+recommendation against using procalcitonin to guide
+antimicrobial initiation in addition to clinical evaluation.
+Antimicrobial choice
+Recommendations
+17. For adults with sepsis or septic shock at high risk of methicillin resistant staph aureus (MRSA), we recommend using empiric antimicrobials
+with MRSA coverage over using antimicrobials without MRSA coverage
+Best Practice statement
+18. For adults with sepsis or septic shock at low risk of methicillin resistant
+staph aureus (MRSA), we suggest against using empiric antimicrobials
+with MRSA coverage, as compared with using antimicrobials without
+MRSA coverage
+Weak recommendation, low quality of evidence
+Rationale
+The decision on whether to include an antibiotic active
+against MRSA in an empiric treatment regimen for sepsis and septic shock depends upon (a) the likelihood that
+the patient’s infection is caused by MRSA, (b) the risk of
+harm associated with withholding treatment for MRSA
+in a patient with MRSA, and (c) the risk of harm associated with MRSA treatment in a patient without MRSA.
+MRSA accounts for approximately 5% of culture-positive infections among critically ill patients [133], and may
+be decreasing according to some reports [134, 135]. The
+incidence of MRSA varies, however, by region (ranging
+from ~ 2% in Western Europe to 10% in North America)
+and by patient-related characteristics [133, 136, 137].
+Patient-related risk factors for MRSA include prior history
+of MRSA infection or colonisation, recent IV antibiotics,
+history of recurrent skin infections or chronic wounds,
+presence of invasive devices, haemodialysis, recent hospital admissions and severity of illness [136, 138–142].
+Observational data on the impact of including MRSA
+coverage in empiric regimens vary. Some studies focus on
+patients with documented MRSA infections, while others
+evaluate the impact of MRSA coverage in undifferentiated patients. Among patients with documented MRSA
+infections, delays of > 24–48  h until antibiotic administration are associated with increased mortality in some
+studies [143–147], but not in others [148–154]. Among
+undifferentiated patients with pneumonia or sepsis,
+Antibiotic Timing
+or probable
+*Rapid assessment includes history and clinical examination, tests for both infectious and non-infectious causes of acute illness
+and immediate treatment for acute conditions that can mimic sepsis. Whenever possible this should be completed within 3 hours
+of presentation so that a decision can be made as to the likelihood of an infectious cause of the patient’s presentation and timely
+antimicrobial therapy provided if the likelihood is thought to be high.
+Shock is present Shock is absent
+Sepsis is possible
+Rapid assessment* of
+infectious vs noninfectious
+causes of acute illness
+Administer antimicrobials
+within 3 hours if concern
+for infection persists
+Administer antimicrobials
+immediately, ideally within
+1 hour of recognition
+Administer antimicrobials immediately, ideally within 1 hour of
+recognition
+Fig. 1 Recommendations on timing of antibiotic administration
+
+broad-spectrum regimens including agents active against
+MRSA were associated with higher mortality, particularly
+among patients without MRSA [137, 151, 155, 156]. The
+undesirable effects associated with unnecessary MRSA
+coverage are also supported by studies showing an association between early discontinuation of MRSA coverage
+and better outcomes in patients with negative nares or
+bronchoalveolar lavage (BAL) MRSA PCR [157–159].
+Failure to cover for MRSA in a patient with MRSA may be
+harmful, but unnecessary MRSA coverage in a patient without MRSA may also be harmful. Data from RCTs, including
+the evaluation of nasal swab testing to withhold therapy for
+MRSA, are warranted, and studies on rapid diagnostic tools
+and clinical prediction rules for MRSA are needed.
+Recommendations
+19. For adults with sepsis or septic shock and high risk for multidrug
+resistant (MDR) organisms, we suggest using two antimicrobials with
+gram‑negative coverage for empiric treatment over one gram‑negative
+agent
+Weak recommendation, very low quality of evidence
+20. For adults with sepsis or septic shock and low risk for MDR organisms,
+we suggest against using two Gram‑negative agents for empiric
+treatment, as compared to one Gram‑negative agent
+Weak recommendation, very low quality of evidence
+21. For adults with sepsis or septic shock, we suggest against using
+double gram‑negative coverage once the causative pathogen and the
+susceptibilities are known
+Weak recommendation, very low quality of evidence
+Rationale
+Considering the increasing frequency of MDR bacteria in
+many parts of the world and associations between delays
+in active therapy and worse outcomes, the initial use of
+multidrug therapy is often required to ensure the empiric
+regimen includes at least one effective agent that is active
+against the offending organism [12, 13]. In the empiric
+phase—before causative agent(s) and susceptibilities are
+known, the optimal choice of antibiotic therapy depends
+on the local prevalence of resistant organisms, patient
+risk factors for resistant organisms, and the severity of
+illness.  In the directed/targeted phase, once causative
+agent(s) and susceptibilities are known, sustained double gram-negative coverage is rarely necessary except for
+patients with highly resistant organisms.
+This was borne out in a recent systematic review with
+meta-analysis of 10 RCTs, no differences in mortality
+or other patient-important outcomes between empiric
+mono- vs. combination antibiotic therapy in adult ICU
+patients with severe sepsis or septic shock were observed,
+also when taking disease severity into consideration
+[160]. Results from the largest RCT included in the metaanalysis (a comparison of sustained courses of moxifloxacin and meropenem vs meropenem alone in a low
+endemic resistance setting) were consistent with the findings from the meta-analysis [161].
+Recommendations about the use  of more than one
+gram-negative agent for empiric treatment over one
+gram-negative agent are challenging given clinical heterogeneity, including patient characteristics, source of
+infection, causative agents, and antibiotic resistance patterns. Local information about the resistance patterns of
+the most common causative agents of sepsis is essential
+to choose the most appropriate empiric antibiotic therapy. For this reason, we refrained from proposing recommendations regarding double gram-negative coverage in
+patients with sepsis or septic shock overall, but instead
+recommend tailoring the use of double coverage based
+on patients’ risk of MDR pathogens. Factors to guide this
+decision include: proven infection or colonisation with
+antibiotic-resistant organisms within the preceding year,
+local prevalence of antibiotic-resistant organisms, hospital-acquired/healthcare associated (versus communityacquired infection), broad-spectrum antibiotic use within
+the preceding 90 days, concurrent use selective digestive
+decontamination (SDD), travel to a highly endemic country within the preceding 90  days (see https:// resis tance
+map. cddep. org/) and hospitalisation abroad within the
+preceding 90  days [162–164]. In the directed/targeted
+phase, once causative agent(s) and susceptibilities are
+known, sustained double gram-negative coverage is not
+necessary except possibly for patients with highly resistant organisms with no proven safe and efficacious therapeutic option.
+The overall quality of evidence was very low, and the
+direct costs of antibiotics can increase with the routine
+use of multiple agents for treatment. This may specifically
+have an impact in resource-limited settings.
+In general, in patients at high risk for MDR organisms,
+we suggest using  two gram negative agents for empiric
+treatment to increase the likelihood of adequate coverage, while in patients with a low risk for MDR organisms,
+we suggest using  a single agents for empiric treatment,
+as there are no apparent benefits of using two agents and
+the a risk of antimicrobial-associated undesirable effects,
+including direct toxicity, Clostridioides difficile infection
+and development of antibiotic resistance [165]. Empiric
+double coverage of gram-negative bacilli is most important in patients at high risk for resistant organisms with
+severe illness, particularly septic shock.
+
+Antifungal therapy
+Recommendations
+22. For adults with sepsis or septic shock at high risk of fungal infection, we suggest using empiric antifungal therapy over no antifungal
+therapy
+Weak recommendation, low quality of evidence
+23. For adults with sepsis or septic shock at low risk of fungal infection,
+we suggest against empiric use of antifungal therapy
+Weak recommendation, low quality of evidence
+Rationale
+Sepsis and septic shock due to fungi are most commonly
+observed in ICUs and are associated with poor outcomes [166–170]. Some observational studies suggested
+that prompt initiation of appropriate empiric antifungal
+therapy may be associated with a reduction in mortality, however these studies do not prove a causal relationship between antifungal therapy and outcome, nor do
+they clarify the role of timing of treatment, and some
+other studies have failed to show this association [167,
+171–173].
+In an updated meta-analysis of empiric antifungal
+therapy versus no antifungal therapy in adult critically ill patients, no difference in short-term mortality
+was observed. In the largest and most recent RCT—
+EMPIRICUS—there was also no difference in outcome
+between patients receiving empiric antifungal therapy
+(micafungin) and patients receiving placebo [174]. The
+overall quality of evidence was low, and treatment with
+empiric antifungals may be associated with increased
+costs.
+While patients with sepsis or septic shock may not in
+general benefit from empiric antifungals, some patients
+with particular risk factors for fungal infection may, for
+example patients with febrile neutropenia who fail to
+defervesce after 4–7  days of broad-spectrum antibacterial therapy are at increased risk of having fungal disease
+(Table 2) [175, 176]. The risk of Candida sepsis or septic
+shock for other immunosuppressed populations is highly
+disease- and therapy-specific. Importantly, the decision
+to start empiric antifungal therapy depends on the type
+and number of risk factors, along with the local epidemiology of fungal infections.
+Accordingly, we suggest using empiric antifungal
+therapy in patients at high risk of fungal infection, while
+we suggest avoiding this if the risk is low. The choice of
+antifungal agent for empiric therapy depends on multiple issues including host factors, prior colonisation and
+infection, prior exposure to prophylactic or therapeutic
+antifungal therapy, comorbidities, and the toxicities and
+drug interactions of the therapeutic options.
+Antiviral therapy
+Recommendation
+24. We make no recommendation on the use of antiviral agents
+Rationale
+Viral infections encompass a broad spectrum of pathogens and diseases in humans but—apart from specific
+clinical situations such as epidemics/pandemics—are
+rarely the primary cause of sepsis. In a recent large
+international point prevalence study, viruses were documented in less than 4% of infections [133].
+Historically, influenza has been one of the more common viral causes of sepsis. However, it is unclear to what
+extent the primary viral infection as opposed to bacterial
+pneumonia co-infection is the cause of organ dysfunction
+in these patients [219–222]. More recently, SARS-CoV-2
+(causing COVID-19) is now responsible for many cases
+of infection and sepsis [223]. The ongoing pandemic due
+to SARS-CoV-2 has resulted in the understanding of this
+condition changing very rapidly [224].
+While there appears to be no overall effect of neuraminidase inhibitors on mortality in patients with influenza-related pneumonia, there may be an effect when
+administered early in the course of the disease [225]. For
+detailed information on specific antiviral therapy, including for influenza and SARS CoV-2, please refer to dedicated clinical practice guidelines [226–228].
+Immunocompromised patients are particularly vulnerable to viral infections, including patients with neutropenia, human immunodeficiency virus (HIV) infection,
+haematological malignancies and haematopoietic stem
+cell transplantation or solid organ transplants; in these
+patients herpes simplex virus, Epstein-Barr virus, cytomegalovirus, and respiratory viruses such as adenoviruses, can cause severe disease [229]. Tropical and
+subtropical regions have endemic and epidemic outbreaks
+of zoonotic viral infections including those caused by
+Dengue, Ebola, Lassa, Marburg, Sin Nombre and Chikungunya virus. Many of these can manifest with clinical
+signs of sepsis, particularly in their early stages. Unfortunately, effective therapies are lacking for most of these
+viruses.
+The desirable effects of empiric antiviral therapy are
+unknown, and as for other antimicrobial agents there is
+a risk of undesirable effects [165]. Data on cost effectiveness were not available.
+Due to the rapidly changing position related to antiviral
+therapies in critically ill patients presenting with several
+acute respiratory failure, this panel decided not to issue
+a recommendation on antiviral therapies and to refer the
+reader to more specific guidelines [226].
+
+Delivery of antibiotics
+Recommendation
+25. For adults with sepsis or septic shock, we suggest using prolonged
+infusion of beta‑lactams for maintenance (after an initial bolus) over
+conventional bolus infusion
+Weak recommendation, moderate quality of evidence
+Rationale
+Beta-lactam antibiotics may be subject to changes in
+important pharmacokinetic parameters in the setting
+of sepsis and septic shock resulting in sub-therapeutic
+concentrations [230, 231]. As opposed to conventional
+intermittent infusion (infusion ≤ 30  min), administration by prolonged IV infusion, either as an extended infusion (antibiotic infused over at least half of the dosing
+interval) or as a continuous infusion, results in sustained
+beta-lactam concentrations which align with the pharmacodynamics of these drugs.
+Two meta-analyses reported similar results supporting reduced short-term mortality (RR 0.70; 95% CI 0.57–
+0.87) with prolonged infusion of beta-lactams [232, 233].
+No trials assessed the undesirable effects of continuous
+infusion, and the desirable effects were deemed important, while the overall quality of evidence was moderate.
+Prolonged infusion is a feasible intervention if suitable IV
+access is present, and resources are available to ensure
+the beta-lactam is infused over the necessary duration.
+The latter may be an issue in some resource limited settings, including LMICs.
+Administration of a loading dose of antibiotic before
+prolonged infusion is essential to avoid delays to achieving effective beta-lactam concentrations [234]. Over the
+course of therapy, both extended and continuous infusions
+will occupy a venous catheter/lumen more than an intermittent infusion and drug-stability and drug-drug compatibility considerations are important to ensure effectiveness
+of antibiotic and other IV drug therapies [235].
+The reduction in short-term mortality from prolonged
+infusion of beta-lactams is significant with the intervention being feasible with negligible cost implications and
+no data suggesting inferior outcomes with prolonged
+infusion. Accordingly, we suggest prolonged infusion of
+beta-lactams over conventional bolus infusion in patients
+with sepsis and septic shock if the necessary equipment
+is available. Further research is needed on long-term
+outcomes, on the effect on emergence of antimicrobial
+resistance, and on costs of prolonged versus bolus infusion of beta-lactams [236].
+Pharmacokinetics and pharmacodynamics
+Recommendation
+26. For adults with sepsis or septic shock, we recommend optimising
+dosing strategies of antimicrobials based on accepted pharmacokinetic/pharmacodynamic (PK/PD) principles and specific drug properties
+Best Practice Statement
+Rationale
+Antibiotics are subject to changes in PK/PD parameters in
+sepsis and septic shock where resultant concentrations may
+be too low risking clinical failure, or too high leading to toxicity (Table 3) [237–239]. Augmented renal clearance [240],
+AKI [241], hypoalbuminemia [242], RRT [243,  244], and
+extracorporeal membrane oxygenation [245, 246] are examples of common scenarios that affect the concentrations
+of some antibiotics. Administration of antibiotics using an
+approach that adheres to PK/PD principles and using dosing
+regimens developed in patients with sepsis and septic shock
+is more likely to result in effective and safe drug concentrations compared to use of dosing recommendations provided
+in the manufacturer’s product information [247].
+We did not identify any relevant data quantifying the
+value of dosing based on PK/PD principles in adults with
+sepsis and septic shock. Although there are no data on this
+topic directly derived from adults with sepsis and septic
+shock, data from a broader patient population, critically
+ill patients, support an increased likelihood of achieving
+effective and safe antibiotic concentrations when applying
+PK/PD principles to dosing [248]. The application of PK/
+PD principles can be aided by clinical pharmacists [249].
+Some studies in critically ill patients have reported benefits in terms of clinical cure [237, 250–253].
+Applying a PK/PD approach to antibiotic dosing
+requires support from knowledgeable clinician team
+members [254], use of a patient population-specific
+guideline document [255], use of therapeutic drug monitoring [256], and/or use of dosing software [238, 248].
+Some of these potential approaches to application of PK/
+PD-based dosing require extra resources, some of which
+may not be available in all settings, in which case freely
+available resources such as dosing nomograms can be
+used [234, 257, 258]. Guidance on how to apply a PK/PD
+approach for specific drug classes have been described
+elsewhere [237]. Further research is needed on short- and
+long-term mortality outcomes, effect on emergence of
+antimicrobial resistance, impact on drug stability within
+prolonged infusions and health economics of different
+PK/PD-based approaches to dosing (see Table 3).
+
+Table 1 Table of current recommendations and changes from the previous 2016 recommendations
+
+Use of therapeutic drug monitoring has been described
+for all drugs, although it is not widely available for most.
+Source control
+Recommendation
+27. For adults with sepsis or septic shock, we recommend rapidly identifying or excluding a specific anatomical diagnosis of infection that requires
+emergent source control and implementing any required source control
+intervention as soon as medically and logistically practical
+Best Practice Statement
+Rationale
+Appropriate source control is a key principle in the
+management of  sepsis  and  septic shock [12, 13]. Source
+control may include drainage of an abscess, debriding
+infected necrotic tissue, removal of a potentially infected
+device, or definitive control of a source of ongoing microbial contamination [262]. Foci of infection readily amenable to source control include intra-abdominal abscesses,
+gastrointestinal perforation, ischaemic bowel or volvulus, cholangitis, cholecystitis, pyelonephritis associated
+with obstruction or abscess, necrotizing soft tissue infection, other deep space infection (e.g., empyema or septic
+arthritis), and implanted device infections [262].
+Source control of infectious foci was associated with
+improved survival in recent observational and cluster randomised studies [120, 263, 264]. Source control
+should be achieved as soon as possible following initial
+resuscitation [265, 266]. While there are limited data
+to conclusively issue a recommendation regarding the
+timeframe in which source control should be obtained,
+smaller studies suggest that source control within 6–12 h
+is advantageous [265–271]. Studies generally show
+reduced survival beyond that point. The failure to show
+benefit with source control implemented in less than 6 h
+may be a consequence of the limited number of patients
+and the heterogeneity of the intervention. Therefore, any
+required source control intervention in  sepsis  and  septic shock  should ideally be implemented as soon as
+medically and logistically practical after the diagnosis
+is made [120]. Clinical experience suggests that without
+adequate source control, many severe presentations will
+not stabilise or improve despite rapid resuscitation and
+provision of appropriate antimicrobials. In view of this
+fact, prolonged efforts at medical stabilisation in lieu of
+source control for severely ill patients, particularly those
+with septic shock, are generally not advised [272].
+The selection of optimal source control methods must
+weigh the benefits and risks of the specific intervention, the
+patient’s preference, clinician’s expertise, availability, risks of
+the procedure, potential delays, and the probability of the
+procedure’s success. In general, the least invasive option that
+will effectively achieve source control should be pursued.
+Open surgical intervention should be considered when
+other interventional approaches are inadequate or cannot be
+provided in a timely fashion. Surgical exploration may also
+be indicated when diagnostic uncertainty persists despite
+radiologic evaluation, when the probability of success with a
+percutaneous procedure is uncertain, or when the undesirable effects of a failed procedure are high. Logistic factors
+unique to each institution, such as surgical or interventional
+staff availability, may also play a role in the decision. Future
+research is needed to investigate the optimal timing and
+method of source control in patients with sepsis and septic
+shock with a source of infection amenable to drainage.
+Recommendation
+28. For adults with sepsis or septic shock, we recommend prompt
+removal of intravascular access devices that are a possible source of
+sepsis or septic shock after other vascular access has been established
+Best Practice Statement
+Rationale
+Removal of a potentially infected intravascular access
+device is considered a part of adequate source control
+[262]. An intravascular device suspected to be a source of
+sepsis should be removed after establishing another site for
+vascular access and following successful initial resuscitation [265, 266]. In the absence of septic shock or fungemia,
+some implanted tunnelled catheter infections may be
+treated effectively with prolonged antimicrobial therapy
+if removal of the catheter is not practical [273]. However,
+catheter removal with adequate antimicrobial therapy is
+definitive and is the preferred treatment in most cases.
+We identified one relevant RCT [274] and two observational studies [275, 276]. There was no evidence of a difference in mortality, however, the studies were hampered
+by significant limitations, including risk of confounding
+by indication (the observational studies) and imprecision
+(the RCT), which is why the results should be interpreted
+cautiously. The quality of evidence was very low.
+De‑escalation of antibiotics
+Recommendation
+29. For adults with sepsis or septic shock, we suggest daily assessment
+for de‑escalation of antimicrobials over using fixed durations of therapy
+without daily reassessment for de‑escalation
+Weak recommendation, very low quality of evidence
+Rationale
+Antimicrobial exposure is linked to the development of
+antimicrobial resistance and efforts to reduce both the
+
+number of antibiotics administered and their spectrum
+of therapy are therefore important strategies in patients
+with sepsis and septic shock [165]. This is particularly relevant in empiric therapy where broad-spectrum therapy
+is recommended, as the causative pathogen has not yet
+been identified. Once both the pathogen(s) and susceptibilities are known, antimicrobial de-escalation—i.e. stopping an antimicrobial that is no longer necessary (in case
+of combination therapy) or changing an antimicrobial to
+narrow the spectrum is encouraged. Given the adverse
+societal and individual risks to continued unnecessary
+antimicrobial therapy, thoughtful de-escalation of antimicrobials based on adequate clinical improvement is
+appropriate even if cultures are negative. Early discontinuation of all antimicrobial therapy if infection is ruled
+out is advisable [277]. Antimicrobial de-escalation should
+ideally be done as soon as possible, and rapid diagnostic
+techniques may facilitate this.
+We identified direct evidence from 13 studies (1968
+patients) [277], including 1 RCT [278]. In our metaanalysis, we observed improved short-term mortality in
+patients who were de-escalated (RR 0.72; 95% CI 0.57–
+0.91) (Supplementary Appendix 2). Long-term mortality
+was evaluated in one study only and did not demonstrate
+a difference (RR 0.99; 95% CI 0.64–1.52). De-escalation
+was associated with shorter length of stay in the hospital
+(MD −5.56 days; 95% CI −7.68 to −3.44), but not in the
+ICU (MD −2.6 days; 95% CI −5.91 to 0.72).
+Most studies were observational, and there are concerns that de-escalation is used primarily in patients who
+are getting better, which is why the reported improved
+short-term mortality should be interpreted with caution
+[277, 279].
+De-escalation is in generally safe, may offer cost savings when unnecessary antibiotics are discontinued, and
+reduced risk of antimicrobial resistance and reduced toxicity and side-effects may be important [280]. Based on the
+overall very low quality of evidence, RCTs are warranted
+along with more studies on antimicrobial resistance.
+Duration of antibiotics
+Recommendation
+30. For adults with an initial diagnosis of sepsis or septic shock and
+adequate source control, we suggest using shorter over longer duration of antimicrobial therapy
+Weak recommendation, very low quality of evidence
+Rationale
+Restricting antimicrobial therapy to the shortest course
+associated with better outcomes is an important part of
+antimicrobial stewardship [281–285]. The optimal duration of antimicrobial therapy for a given patient with sepsis
+or septic shock depends on many factors, including host,
+microbe, drug, and anatomical site (Table 2) [99, 100].
+There have been considerable efforts over the past two
+decades to clarify the optimal duration of antimicrobial
+therapy by comparing “short” courses with traditional
+(“longer”) courses. There are data from RCTs in specific
+conditions such as pneumonia [286–289], urinary tract
+infections [290], bacteremia [291, 292], and intraabdominal infections [293]. In many of the trials, the shorter
+course was just as effective as the longer course but associated with fewer adverse consequences. Very few trials,
+however, focussed exclusively on critically ill patients
+with sepsis or septic shock, and the overall quality of evidence was very low.
+Given the lack of definitive and generalizable data
+regarding the optimal duration of therapy for patients
+who are critically ill, it is not surprising that there is considerably practice variation [281, 294]. Specialist consultation appears to be associated with improved patient
+outcomes for a variety of infectious syndromes [295–
+300]. This has generally been ascribed to improvements
+in microbial appropriateness of the empiric antimicrobial
+regimen provided. However, it is also possible that reducing the duration of unnecessary therapy may account for
+at least part of the benefit.
+Thus, for adults with an initial diagnosis of sepsis or
+septic shock and adequate source control, we suggest
+a shorter course of antibiotics, as this is less costly, has
+fewer undesirable effects without impacting adversely on
+outcomes (see Table 4).
+Biomarkers to discontinue antibiotics
+Recommendation
+31. For adults with an initial diagnosis of sepsis or septic shock and
+adequate source control where optimal duration of therapy is unclear,
+we suggest using procalcitonin AND clinical evaluation to decide
+when to discontinue antimicrobials over clinical evaluation alone
+Weak recommendation, low quality of evidence
+Rationale
+Shorter durations of antimicrobial therapy are in general recommended; however, critically ill patients
+often receive antimicrobials for more days than necessary [288, 301, 306]. While typically clinical evaluation alone is used to decide duration, biomarkers could
+
+offer additional information. C Reactive Protein is often
+used in this regard. Procalcitonin has been studied
+most extensively both in critically ill and non-critically
+ill patients, both for initiation and discontinuation of
+therapy [307].
+We identified direct evidence from 14 RCTs (n  = 4499
+patients) that assessed use of procalcitonin to guide
+antimicrobial treatment duration in patients with sepsis (two trials included critically ill patients in general)
+[308–321]. A meta-analysis suggested improved mortality in patients who were managed using procalcitonin versus control (RR 0.89; 95% CI 0.80–0.99), while
+there was no effect on length of stay in ICU or hospital.
+Antibiotic exposure was consistently lower in patients
+who were managed with procalcitonin and clinical
+evaluation, however, in many trials the total duration
+of therapy was still 7 days or longer in the intervention
+group. Also, the algorithms for antimicrobial therapy,
+frequency of procalcitonin monitoring and the thresholds (or percentage change in procalcitonin concentration) for discontinuation differed across the trials.
+Therefore, the overall quality of evidence was judged to
+be low.
+The undesirable effects of using procalcitonin along
+with clinical evaluation to decide when to discontinue
+antimicrobials are considered minimal, and do not
+Table 2 Examples of risk factors for fungal infection
+The decision to start empirical antifungal therapy depends on the type and number of risk factors, along with the locale epidemiology of fungal infections
+Risk factors for Candida sepsis
+ Candida colonisation at multiple sites [177–179]
+ Surrogate markers such as Serum Beta‑D‑Glucan assay [177]
+ Neutropenia [180, 181]
+ Immunosuppression [173, 180, 181]
+ Severity of illness (High APACHE score) [182, 183]
+ Longer ICU length of stay [183]
+ Central venous catheters and other intravascular devices [168, 180, 181, 184]
+ Persons who inject drugs [185]
+ Total parenteral nutrition [186]
+ Broad spectrum antibiotics [178, 187]
+ Gastrointestinal tract perforations and anastomotic leaks [186, 188–190]
+ Emergency gastrointestinal or hepatobiliary surgery [190]
+ Acute renal failure and haemodialysis [186, 188]
+ Severe thermal injury [191–193]
+ Prior surgery [186]
+Risk factors for endemic yeast (cryptococcus, histoplasma, blastomyces, coccidioidomycosis)
+ Antigen markers such as cryptococcal, histoplasma or blastomyces assays [194–196]
+ HIV infection [197–200]
+ Solid organ transplantation [199, 201–203]
+ High dose corticosteroid therapy [199]
+ Haematopoietic stem cell transplantation [204]
+ Certain biologic response modifiers [205, 206]
+ Diabetes mellitus [207]
+Risk factor for invasive mold infection
+ Neutropenia [204, 208]
+ Surrogate markers such as Serum or Bronchoalveolar Lavage Galactomannan Assay [209–211]
+ Haematopoietic stem cell transplantation [204, 208, 212]
+ Solid organ transplantation [202, 212–214]
+ High dose corticosteroid therapy [215, 216]
+ Certain biologic response modifiers [206, 217, 218]
+
+outweigh the potential benefits [322]. Limited data on
+the cost-effectiveness are available, although a single
+centre study reported decreased hospital costs associated with PCT-guided antibiotic in medical ICU patient
+with undifferentiated sepsis [323]. Procalcitonin testing
+may not be available in all countries and healthcare settings, including LMICs.
+Based on apparent benefit and no obvious undesirable effects, we suggest using procalcitonin along with
+clinical evaluation to decide when to discontinue antimicrobials in adults with an initial diagnosis of sepsis
+or septic shock and adequate source control, if the optimal duration of therapy is unclear and if procalcitonin
+is available.
+Table 3 Guidance for PK/PD-based dosing for specific drug classes
+AUC 0–24 ratio of area under the concentration–time curve from 0 to 24 h, MIC minimum inhibitory concentration, fT>MIC time overdosing interval that free (unbound)
+drug is maintained above the MIC, Cmax maximum concentration in a dosing interval, Cmin minimum concentration in a dosing interval
+a Other considerations than those listed may have been listed in studies in critically ill patient sub-populations
+Drug or drug class PK/PD index associated
+with bacterial killing or
+efficacy
+Drug concentration target Considerations for optimised  dosinga References
+Antibacterials
+ Aminoglycosides AUC 0–24/MIC; Cmax/MIC AUC 70–100
+Cmax/MIC 8–10
+Use extended interval dosing with patient
+weight and kidney function
+[237]
+ Beta‑lactams fT>MIC Cmin > MIC Use prolonged infusions, consider patient
+weight and kidney function
+[253]
+ Colistin AUC 0–24/MIC Unspecified Use patient weight and kidney function [259]
+ Daptomycin AUC 0–24/MIC; Cmax/MIC AUC 0–24/MIC > 200 Use patient weight and kidney function [237]
+ Fluoroquinolones AUC 0–24/MIC; Cmax/MIC AUC 0–24/MIC 80–125 Use kidney function [237]
+ Vancomycin AUC 0–24/MIC AUC 0–24/MIC 400 Use patient weight and kidney function [260]
+Antifungals
+ Fluconazole AUC 0–24/MIC AUC 0–24/MIC 100 Use patient weight and kidney function [261]
+ Posaconazole AUC 0–24/MIC Cmin 1–4 mg/L Use formulation‑specific dose [261]
+ Voriconazole AUC 0–24/MIC Cmin 2–6 mg/L Use patient weight [261]
+Table 4 Planned duration of empirical antimicrobial therapy in RCTs of shorter versus longer duration of therapy according to clinical syndrome
+Population/syndrome RCT/systematic review (data extracted from) Shorter duration Longer duration Outcomes
+Pneumonia [301] Capellier (2012) 8 days 15 days No difference
+[301, 302] Chastre (2003) 8 days 15 days No difference
+[302] El Moussaoui (2006) 3 days 8 days No difference
+[301–303] Fekih Hassen (2009) 7 days 10 days No difference
+[302, 303] File (2007) 5 days 7 days No difference
+[302, 303] Kollef (2012) 7 days 10 days No difference
+[302, 303] Leophonte (2002) 5 days 10 days No difference
+[301] Medina (2007) 8 days 12 days No difference
+[302, 303] Siegel (1999) 7 days 10 days No difference
+[302, 303] Tellier (2004) 5 days 7 days No difference
+Bacteremia [302] Chaudhry (2000) 5 days 10 days No difference
+[302] Runyon (1991) 5 days 10 days No difference
+[304] Yahav (2018) 7 days 14 days No difference
+Intra‑abdominal infection [305] Montravers (2018) 8 days 15 days No difference
+[293] Sawyer (2015) Max. 5 days Max. 10 days No difference
+Urinary tract infection [290] Peterson (2008) 5 days 10 days No difference
+
