@@ -1,0 +1,53 @@
+[
+ {
+  "spec_id": "M1",
+  "concept": "MeanArterialPressure",
+  "statement_type": "treatment_target",
+  "variable": "Arterial Blood Pressure mean",
+  "operator": null,
+  "threshold": 65,
+  "unit": "mm Hg",
+  "time_window": {"anchor": null, "start_h": null, "end_h": null},
+  "aggregation": null,
+  "combine": null,
+  "missing_policy": null,
+  "consequent": {"predicate": "targetOf", "object": "SepticShock"},
+  "provenance": {"variable": "source", "operator": "unspecified", "threshold": "source", "unit": "source", "time_window": "unspecified", "aggregation": "unspecified", "missing_policy": "unspecified"},
+  "evidence": "For adults with septic shock on vasopressors, we recommend an initial target mean arterial pressure (MAP) of 65 mm Hg over higher MAP targets",
+  "note": "Initial resuscitation target for adults with septic shock on vasopressors; text gives target value 65 without an explicit comparison operator. Not a patient risk condition."
+ },
+ {
+  "spec_id": "M2",
+  "concept": "MeanArterialPressure",
+  "statement_type": "risk_condition",
+  "variable": "Arterial Blood Pressure mean",
+  "operator": "<",
+  "threshold": 60,
+  "unit": "mm Hg",
+  "time_window": {"anchor": null, "start_h": null, "end_h": null},
+  "aggregation": null,
+  "combine": null,
+  "missing_policy": null,
+  "consequent": {"predicate": "associatedWith", "object": "OrganHypoperfusion"},
+  "provenance": {"variable": "source", "operator": "source", "threshold": "source", "unit": "source", "time_window": "unspecified", "aggregation": "unspecified", "missing_policy": "unspecified"},
+  "evidence": "While some tissues, such as the brain and kidneys have the ability to auto-regulate blood flow, MAPs below a threshold, usually understood to be approximately 60 mm Hg, are associated with decreased organ perfusion, which tracks linearly with MAP [79].",
+  "note": "Threshold described as approximately 60 mm Hg."
+ },
+ {
+  "spec_id": "M3",
+  "concept": "MeanArterialPressure",
+  "statement_type": "treatment_target",
+  "variable": "Arterial Blood Pressure mean",
+  "operator": ">",
+  "threshold": 65,
+  "unit": "mm Hg",
+  "time_window": {"anchor": null, "start_h": null, "end_h": null},
+  "aggregation": null,
+  "combine": null,
+  "missing_policy": null,
+  "consequent": {"predicate": "targetOf", "object": "SepticShock"},
+  "provenance": {"variable": "source", "operator": "source", "threshold": "source", "unit": "source", "time_window": "unspecified", "aggregation": "unspecified", "missing_policy": "unspecified"},
+  "evidence": "Previous SSC guidelines recommended targeting a MAP of greater than 65 mm Hg for initial resuscitation.",
+  "note": "Historical target from previous SSC guidelines, superseded by Recommendation 9."
+ }
+]

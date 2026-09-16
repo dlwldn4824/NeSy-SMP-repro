@@ -1,0 +1,34 @@
+{
+  "_comment": "연결 명세 소규모 시험 정답. 추출 실행 전에 작성. 원문(조각 텍스트)에 글자 그대로 있는 것만 source, 나머지는 unspecified. match_key = (chunk, variable 또는 concept, consequent.object). aggregation/time_window/missing_policy 는 네 조각 모두 원문에 없음 → 정답 null.",
+  "items": [
+    {"chunk": "Q", "id": "Q1", "concept": "GlasgowComaScale", "variable": "gcs", "operator": "<", "threshold": 15, "unit": null, "statement_type": ["risk_condition", "diagnostic_criterion"], "combine_min_count": 2, "consequent_object": ["Death", "ProlongedICUStay"]},
+    {"chunk": "Q", "id": "Q2", "concept": "RespiratoryRate", "variable": "Respiratory Rate", "operator": ">=", "threshold": 22, "unit": "breaths/min", "statement_type": ["risk_condition", "diagnostic_criterion"], "combine_min_count": 2, "consequent_object": ["Death", "ProlongedICUStay"]},
+    {"chunk": "Q", "id": "Q3", "concept": "SystolicBloodPressure", "variable": "Arterial Blood Pressure systolic", "operator": "<=", "threshold": 100, "unit": "mmHg", "statement_type": ["risk_condition", "diagnostic_criterion"], "combine_min_count": 2, "consequent_object": ["Death", "ProlongedICUStay"]},
+
+    {"chunk": "L", "id": "L1", "concept": "Lactate", "variable": "Lactate", "operator": null, "threshold": null, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death"], "note": "사망과의 연관만 진술, 수치 없음"},
+    {"chunk": "L", "id": "L2", "concept": "Lactate", "variable": "Lactate", "operator": null, "threshold": [1.6, 2.5], "unit": "mmol/L", "statement_type": ["diagnostic_criterion"], "consequent_object": ["Sepsis"], "note": "연구마다 기준 1.6~2.5 — 하나로 고르면 오답"},
+    {"chunk": "L", "id": "L3", "concept": "Lactate", "variable": "Lactate", "operator": null, "threshold": null, "unit": null, "statement_type": ["diagnostic_criterion"], "consequent_object": ["SepticShock"], "optional": true, "note": "Sepsis-3 패혈성 쇼크 정의의 일부 — 수치 없음"},
+
+    {"chunk": "M", "id": "M1", "concept": "MeanArterialPressure", "variable": "Arterial Blood Pressure mean", "operator": null, "threshold": 65, "unit": "mm Hg", "statement_type": ["treatment_target"], "consequent_object": null, "note": "치료 목표 — 위험 조건(MAP<65→사망)으로 바꾸면 오답. operator 는 '=목표'이므로 null 또는 == 허용"},
+    {"chunk": "M", "id": "M2", "concept": "MeanArterialPressure", "variable": "Arterial Blood Pressure mean", "operator": "<", "threshold": 60, "unit": "mm Hg", "statement_type": ["risk_condition"], "consequent_object": ["OrganHypoperfusion"], "note": "approximately 60 — 결과는 장기 관류 저하, 사망 아님"},
+
+    {"chunk": "K", "id": "K1", "concept": "Age", "variable": "anchor_age", "operator": ">=", "threshold": 65, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Sepsis"], "code": {"operator": ">", "aggregation": "first", "consequent": "Death"}},
+    {"chunk": "K", "id": "K2", "concept": "CReactiveProtein", "variable": "C-Reactive Protein", "operator": ">=", "threshold": 100, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death"], "code": {"operator": ">=", "aggregation": "any", "consequent": "Death"}},
+    {"chunk": "K", "id": "K3", "concept": "Lactate", "variable": "Lactate", "operator": ">=", "threshold": 4, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death"], "code": {"operator": ">", "aggregation": "any", "consequent": "Death"}},
+    {"chunk": "K", "id": "K4", "concept": "WhiteBloodCells", "variable": "White Blood Cells", "operator": ">=", "threshold": 30, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death"], "code": {"operator": ">", "aggregation": "any", "consequent": "Death"}},
+    {"chunk": "K", "id": "K5", "concept": "Bilirubin", "variable": "Total Bilirubin", "operator": ">=", "threshold": 2, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death"], "code": {"operator": ">=", "aggregation": "any", "consequent": "Death"}},
+    {"chunk": "K", "id": "K6", "concept": "Platelet", "variable": "Platelet Count", "operator": "<=", "threshold": 50, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death"], "code": {"operator": "<", "aggregation": "all", "consequent": "Death"}},
+    {"chunk": "K", "id": "K7", "concept": "MeanArterialPressure", "variable": "Arterial Blood Pressure mean", "operator": "<=", "threshold": 65, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death"], "code": {"operator": "<", "aggregation": "any", "consequent": "(정의만, 공식에 안 씀)"}},
+    {"chunk": "K", "id": "K8", "concept": "Cancer", "variable": "cancer", "operator": "present", "threshold": null, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death", "Sepsis"], "operator_alt": ["==", null]},
+    {"chunk": "K", "id": "K9", "concept": "Pneumonia", "variable": "pneumonia", "operator": "present", "threshold": null, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death", "Sepsis"], "operator_alt": ["==", null]},
+    {"chunk": "K", "id": "K10", "concept": "HIV", "variable": "hiv", "operator": "present", "threshold": null, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death", "Sepsis"], "operator_alt": ["==", null]},
+    {"chunk": "K", "id": "K11", "concept": "CirrhosisOfLiver", "variable": "cirrhosis", "operator": "present", "threshold": null, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death", "Sepsis"], "operator_alt": ["==", null]},
+    {"chunk": "K", "id": "K12", "concept": "KidneyDisease", "variable": "kidney disease", "operator": "present", "threshold": null, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death", "Sepsis"], "operator_alt": ["==", null]},
+    {"chunk": "K", "id": "K13", "concept": "CardiacInsufficiency", "variable": "heart failure", "operator": "present", "threshold": null, "unit": null, "statement_type": ["risk_condition"], "consequent_object": ["Death", "Sepsis"], "operator_alt": ["==", null]},
+    {"chunk": "K", "id": "K14", "concept": "ChronicDisease", "variable": null, "statement_type": ["not_groundable", "risk_condition"], "consequent_object": ["Death"], "optional": true},
+    {"chunk": "K", "id": "K15", "concept": "SepticShock", "variable": null, "statement_type": ["not_groundable"], "consequent_object": ["Death", "Sepsis"], "optional": true},
+    {"chunk": "K", "id": "K16", "concept": "Hypotension", "variable": null, "statement_type": ["not_groundable"], "consequent_object": ["Death", "Sepsis"], "optional": true, "note": "임계값 없음 — MAP/SBP 변수를 붙이면 variable 은 허용하되 threshold 를 지어내면 오답"},
+    {"chunk": "K", "id": "K17", "concept": "SingleOrganDysfunctionSyndrome", "variable": null, "statement_type": ["not_groundable"], "consequent_object": ["Death", "Sepsis"], "optional": true},
+    {"chunk": "K", "id": "K18", "concept": "MultipleOrganDysfunctionSyndrome", "variable": null, "statement_type": ["not_groundable"], "consequent_object": ["Death", "Sepsis"], "optional": true}
+  ]
+}

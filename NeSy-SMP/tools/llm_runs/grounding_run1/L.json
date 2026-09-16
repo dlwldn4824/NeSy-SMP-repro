@@ -1,0 +1,53 @@
+[
+ {
+  "spec_id": "R3-lactate-sepsis-screen",
+  "concept": "Lactate",
+  "statement_type": "diagnostic_criterion",
+  "variable": "Lactate",
+  "operator": null,
+  "threshold": [1.6, 2.5],
+  "unit": "mmol/L",
+  "time_window": {"anchor": null, "start_h": null, "end_h": null},
+  "aggregation": null,
+  "combine": null,
+  "missing_policy": null,
+  "consequent": {"predicate": "definesOrDiagnoses", "object": "Sepsis"},
+  "provenance": {"variable": "source", "operator": "unspecified", "threshold": "source", "unit": "source", "time_window": "unspecified", "aggregation": "unspecified", "missing_policy": "unspecified"},
+  "evidence": "The lactate cutoffs determining an elevated level ranged from 1.6 to 2.5  mmol/L, although diagnostic characteristics were similar regardless of the cutoff.",
+  "note": "Source gives only a range of cutoffs (1.6-2.5 mmol/L) across studies for an 'elevated' level; no single threshold chosen. Adjunctive test to modify pretest probability of sepsis in suspected sepsis; not sufficient alone to rule in/out."
+ },
+ {
+  "spec_id": "R3-lactate-mortality",
+  "concept": "Lactate",
+  "statement_type": "risk_condition",
+  "variable": "Lactate",
+  "operator": null,
+  "threshold": null,
+  "unit": null,
+  "time_window": {"anchor": null, "start_h": null, "end_h": null},
+  "aggregation": null,
+  "combine": null,
+  "missing_policy": null,
+  "consequent": {"predicate": "associatedWith", "object": "Death"},
+  "provenance": {"variable": "source", "operator": "unspecified", "threshold": "unspecified", "unit": "unspecified", "time_window": "unspecified", "aggregation": "unspecified", "missing_policy": "unspecified"},
+  "evidence": "The association of lactate level with mortality in patients with suspected infection and sepsis is well established [45, 46].",
+  "note": "Direction and threshold of association not stated in this sentence."
+ },
+ {
+  "spec_id": "R3-lactate-septic-shock",
+  "concept": "Lactate",
+  "statement_type": "diagnostic_criterion",
+  "variable": "Lactate",
+  "operator": ">",
+  "threshold": null,
+  "unit": null,
+  "time_window": {"anchor": null, "start_h": null, "end_h": null},
+  "aggregation": null,
+  "combine": null,
+  "missing_policy": null,
+  "consequent": {"predicate": "definesOrDiagnoses", "object": "SepticShock"},
+  "provenance": {"variable": "source", "operator": "source", "threshold": "unspecified", "unit": "unspecified", "time_window": "unspecified", "aggregation": "unspecified", "missing_policy": "unspecified"},
+  "evidence": "Its use is currently recommended as part of the SSC Hour-1 sepsis bundle for those patients with sepsis [47, 48], and an elevated lactate is part of the Sepsis-3 definition of septic shock [49].",
+  "note": "'elevated' interpreted as operator '>'; Sepsis-3 threshold not given in input. Lactate is only one part of the septic shock definition; other components not stated here."
+ }
+]

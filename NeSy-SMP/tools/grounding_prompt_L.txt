@@ -1,0 +1,73 @@
+당신은 임상 지식(가이드라인 문장 또는 지식그래프)을 환자 데이터에서 실행할 수 있는 조건 명세(grounding spec)로 옮깁니다.
+입력: Surviving Sepsis Campaign 2021 가이드라인 본문 — 권고 3
+
+## 출력 형식
+JSON 배열만 출력하세요. 설명·마크다운 금지. 명세로 옮길 것이 없으면 [] 를 출력하세요.
+각 원소는 아래 필드를 모두 가집니다 (값이 없으면 null):
+{
+ "spec_id": "문자열. 조각 안에서 고유",
+ "concept": "KG 개념 id (예: Lactate, GlasgowComaScale)",
+ "statement_type": "risk_condition | diagnostic_criterion | treatment_target | not_groundable",
+ "variable": "변수 카탈로그의 feature 이름 또는 null",
+ "operator": "< | <= | > | >= | == | between | present | null",
+ "threshold": "숫자 | [하한, 상한] (between 또는 원문이 범위만 줄 때) | null",
+ "unit": "원문 단위 문자열 또는 null",
+ "time_window": {
+  "anchor": "prediction_time | icu_admission | infection_onset | null",
+  "start_h": "숫자 | null",
+  "end_h": "숫자 | null"
+ },
+ "aggregation": "any | all | max | min | mean | latest | first | trend_nonincreasing | trend_nondecreasing | null",
+ "combine": "null 또는 {group, min_count, simultaneous} — 여러 조건 중 n개 이상",
+ "missing_policy": "unknown | false | true | null",
+ "consequent": {
+  "predicate": "increasesRiskOf | predicts | definesOrDiagnoses | targetOf | associatedWith",
+  "object": "Death | Sepsis | SepticShock | OrganHypoperfusion | ProlongedICUStay | 기타 개념 id"
+ },
+ "provenance": {
+  "variable|operator|threshold|unit|time_window|aggregation|missing_policy": "source | catalog | unspecified"
+ },
+ "evidence": "입력 원문에서 그대로 복사한 문장 (줄바꿈은 공백)",
+ "note": "선택 — 모호함·가정"
+}
+
+## 변수 카탈로그 (variable 은 반드시 이 이름 중 하나 또는 null)
+- Lactate  [mmol/L]
+- Total Bilirubin  [mg/dL]
+- Platelet Count  [K/uL]
+- C-Reactive Protein  [mg/L]
+- White Blood Cells  [K/uL]
+- Creatinine (serum)  [mg/dL]
+- Glucose  [mg/dL]
+- Arterial Blood Pressure systolic  [mmHg]
+- Arterial Blood Pressure mean  [mmHg]
+- Arterial Blood Pressure diastolic  [mmHg]
+- Heart Rate  [bpm]
+- Respiratory Rate  [breaths/min]
+- Temperature Celsius  [°C]
+- gcs  [points (3-15)]
+- anchor_age  [years]
+- cancer  [0/1 flag]
+- pneumonia  [0/1 flag]
+- hiv  [0/1 flag]
+- cirrhosis  [0/1 flag]
+- kidney disease  [0/1 flag]
+- heart failure  [0/1 flag]
+
+## 규칙
+1. **입력에 적힌 것만 채우세요.** 입력에 없는 연산자·임계값·단위·시간 창·집계 방식·결측 처리는 추측하지 말고 null 로 두고 provenance 를 "unspecified" 로 적으세요.
+   - 흔히 쓰는 기준(예: 임상 상식, 다른 가이드라인, SOFA 점수표)을 알고 있어도 입력에 없으면 쓰지 마세요.
+   - variable 을 카탈로그에서 골랐고 입력에 변수 이름이 직접 없으면 provenance.variable = "catalog". unit 을 카탈로그에서 가져왔으면 provenance.unit = "catalog".
+2. 원문이 임계값을 하나로 정하지 않고 범위만 주면(예: "기준이 a~b 로 다양했다") threshold = [a, b], operator = null 로 두고 note 에 적으세요. 하나를 고르지 마세요.
+3. statement_type:
+   - risk_condition: 환자 상태가 결과(사망 등)의 위험·예측과 연결됨
+   - diagnostic_criterion: 진단·정의·선별 기준
+   - treatment_target: 치료 목표값·치료 방법 (환자 위험 조건으로 바꾸지 마세요)
+   - not_groundable: 개념은 있으나 카탈로그 변수로 조건을 만들 수 없음 (variable = null)
+4. 여러 조건 중 n 개 이상일 때 성립하는 규칙이면 각 조건을 따로 적고 combine 에 같은 group, min_count, simultaneous 를 적으세요.
+5. evidence 는 입력에서 그대로 복사하세요 (지식그래프 입력이면 해당 코드 줄들을 그대로). 요약·번역·합성 금지.
+6. 지식그래프 입력이면: 임계값이 붙은 개념, 결과(Death/Sepsis 등)와 연결된 개념만 명세로 옮기세요. 속성 선언(domain/range)만 있고 조건이 없는 것은 옮기지 마세요. 결과 개념 자체(Death, Outcome, Patient 등)는 옮기지 마세요.
+7. consequent.object 는 입력이 말하는 결과를 그대로 쓰세요 (입력이 Sepsis 라고 하면 Death 로 바꾸지 마세요).
+
+## 입력
+Recommendation 3. For adults suspected of having sepsis, we suggest measuring blood lactate Weak recommendation, low-quality evidence Rationale The association of lactate level with mortality in patients with suspected infection and sepsis is well established [45, 46]. Its use is currently recommended as part of the SSC Hour-1 sepsis bundle for those patients with sepsis [47, 48], and an elevated lactate is part of the Sepsis-3 definition of septic shock [49]. It has been suggested that lactate can also be used to screen for the presence of sepsis among undifferentiated adult patients with clinically suspected (but not confirmed) sepsis. Several studies have assessed the use of lactate in this context [50–52]. The lactate cutoffs determining an elevated level ranged from 1.6 to 2.5  mmol/L, although diagnostic characteristics were similar regardless of the cutoff. Sensitivities range from 66 to 83%, with specificities ranging from 80 to 85%. Pooled positive and negative likelihood ratios from the three studies are 4.75 and 0.29, respectively. Studies showed an association between the use of point-of-care lactate measurements at presentation and reduced mortality; however, the results are inconsistent [53]. In summary, the presence of an elevated or normal lactate level significantly increases or decreases, respectively, the likelihood of a final diagnosis of sepsis in patients with suspected sepsis. However, lactate alone is neither sensitive nor specific enough to rule-in or rule-out the diagnosis on its own. Lactate testing may not be readily available in many resource-limited settings [54– 61]. Therefore, we issued a weak recommendation favouring the use of serum lactate as an adjunctive test to modify the pretest probability of sepsis in patients with suspected but not confirmed sepsis.

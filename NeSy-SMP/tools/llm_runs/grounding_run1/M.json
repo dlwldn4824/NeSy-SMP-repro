@@ -1,0 +1,52 @@
+[
+ {
+  "spec_id": "M_rec9_map_target",
+  "concept": "MeanArterialPressure",
+  "statement_type": "treatment_target",
+  "variable": "Arterial Blood Pressure mean",
+  "operator": null,
+  "threshold": 65,
+  "unit": "mm Hg",
+  "time_window": {"anchor": null, "start_h": null, "end_h": null},
+  "aggregation": null,
+  "combine": null,
+  "missing_policy": null,
+  "consequent": {"predicate": "targetOf", "object": "SepticShock"},
+  "provenance": {
+   "variable": "source",
+   "operator": "unspecified",
+   "threshold": "source",
+   "unit": "source",
+   "time_window": "unspecified",
+   "aggregation": "unspecified",
+   "missing_policy": "unspecified"
+  },
+  "evidence": "For adults with septic shock on vasopressors, we recommend an initial target mean arterial pressure (MAP) of 65 mm Hg over higher MAP targets",
+  "note": "Initial resuscitation target for adults with septic shock on vasopressors; the comparison direction (exact vs. at least 65) is not stated in the recommendation, so operator is left null. Not a patient risk condition."
+ },
+ {
+  "spec_id": "M_map_below_60_hypoperfusion",
+  "concept": "MeanArterialPressure",
+  "statement_type": "risk_condition",
+  "variable": "Arterial Blood Pressure mean",
+  "operator": "<",
+  "threshold": 60,
+  "unit": "mm Hg",
+  "time_window": {"anchor": null, "start_h": null, "end_h": null},
+  "aggregation": null,
+  "combine": null,
+  "missing_policy": null,
+  "consequent": {"predicate": "associatedWith", "object": "OrganHypoperfusion"},
+  "provenance": {
+   "variable": "source",
+   "operator": "source",
+   "threshold": "source",
+   "unit": "source",
+   "time_window": "unspecified",
+   "aggregation": "unspecified",
+   "missing_policy": "unspecified"
+  },
+  "evidence": "While some tissues, such as the brain and kidneys have the ability to auto-regulate blood flow, MAPs below a threshold, usually understood to be approximately 60 mm Hg, are associated with decreased organ perfusion, which tracks linearly with MAP [79].",
+  "note": "Threshold described as approximately 60 mm Hg; decreased organ perfusion mapped to OrganHypoperfusion."
+ }
+]

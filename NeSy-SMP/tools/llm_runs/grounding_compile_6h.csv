@@ -1,0 +1,34 @@
+﻿concept,type,variable,명세,→,집계,참%,unknown%,사망률|참,사망률|거짓,실행,원저자 코드 조건,코드 조건 참%,코드 사망률|참
+Age,risk_condition,anchor_age,>= 65,Sepsis,any (기본값),58.0,0.0,17.4,11.8,OK,> 65 (first),55.5,17.5
+CReactiveProtein,risk_condition,C-Reactive Protein,>= 100,Death,any (기본값),0.5,99.0,13.8,5.7,OK,>= 100 (any),0.5,13.8
+Lactate,risk_condition,Lactate,>= 4,Death,any (기본값),5.4,60.0,64.5,12.2,OK,> 4 (any),5.1,66.8
+WhiteBloodCells,risk_condition,White Blood Cells,>= 30,Death,any (기본값),2.6,5.4,47.8,11.7,OK,> 30 (any),2.5,47.7
+Bilirubin,risk_condition,Total Bilirubin,>= 2,Death,any (기본값),10.6,66.0,30.2,15.3,OK,>= 2 (any),10.6,30.2
+Platelet,risk_condition,Platelet Count,<= 50,Death,any (기본값),5.7,5.4,36.3,11.2,OK,< 50 (all),3.7,33.5
+MeanArterialPressure,risk_condition,Arterial Blood Pressure mean,<= 65,Death,any (기본값),72.9,0.3,16.8,9.5,OK,< 65 (any),69.9,17.1
+Cancer,risk_condition,cancer,present None,Death,flag,4.5,0.0,21.9,14.7,OK,,,
+Cancer,risk_condition,cancer,present None,Sepsis,flag,4.5,0.0,21.9,14.7,OK,,,
+Pneumonia,risk_condition,pneumonia,present None,Death,flag,4.0,0.0,19.1,14.9,OK,,,
+Pneumonia,risk_condition,pneumonia,present None,Sepsis,flag,4.0,0.0,19.1,14.9,OK,,,
+HIV,risk_condition,hiv,present None,Death,flag,0.7,0.0,13.4,15.1,OK,,,
+HIV,risk_condition,hiv,present None,Sepsis,flag,0.7,0.0,13.4,15.1,OK,,,
+CirrhosisOfLiver,risk_condition,cirrhosis,present None,Death,flag,3.2,0.0,18.4,14.9,OK,,,
+CirrhosisOfLiver,risk_condition,cirrhosis,present None,Sepsis,flag,3.2,0.0,18.4,14.9,OK,,,
+KidneyDisease,risk_condition,kidney disease,present None,Death,flag,0.5,0.0,14.6,15.0,OK,,,
+KidneyDisease,risk_condition,kidney disease,present None,Sepsis,flag,0.5,0.0,14.6,15.0,OK,,,
+CardiacInsufficiency,risk_condition,heart failure,present None,Death,flag,1.3,0.0,14.2,15.1,OK,,,
+CardiacInsufficiency,risk_condition,heart failure,present None,Sepsis,flag,1.3,0.0,14.2,15.1,OK,,,
+ChronicDisease,not_groundable,,None None,Death,,,,,,건너뜀 (위험 조건 아님 / 변수 없음),,,
+SepticShock,not_groundable,,None None,Death,,,,,,건너뜀 (위험 조건 아님 / 변수 없음),,,
+SepticShock,not_groundable,,None None,Sepsis,,,,,,건너뜀 (위험 조건 아님 / 변수 없음),,,
+Hypotension,not_groundable,,None None,Death,,,,,,건너뜀 (위험 조건 아님 / 변수 없음),,,
+SingleOrganDysfunctionSyndrome,not_groundable,,None None,Death,,,,,,건너뜀 (위험 조건 아님 / 변수 없음),,,
+MultipleOrganDysfunctionSyndrome,not_groundable,,None None,Death,,,,,,건너뜀 (위험 조건 아님 / 변수 없음),,,
+GlasgowComaScale,risk_condition,gcs,< 15,Death,any (기본값),72.6,0.2,19.2,3.3,OK,< 8 (any),27.3,34.5
+RespiratoryRate,risk_condition,Respiratory Rate,>= 22,Death,any (기본값),89.3,0.1,15.4,12.0,OK,>= 29 (all),0.2,80.4
+SystolicBloodPressure,risk_condition,Arterial Blood Pressure systolic,<= 100,Death,any (기본값),70.9,1.2,16.5,9.9,OK,<= 100 (any),70.9,16.5
+GlasgowComaScale,risk_condition,gcs,< 15,ProlongedICUStay,any (기본값),72.6,0.2,19.2,3.3,OK,< 8 (any),27.3,34.5
+RespiratoryRate,risk_condition,Respiratory Rate,>= 22,ProlongedICUStay,any (기본값),89.3,0.1,15.4,12.0,OK,>= 29 (all),0.2,80.4
+SystolicBloodPressure,risk_condition,Arterial Blood Pressure systolic,<= 100,ProlongedICUStay,any (기본값),70.9,1.2,16.5,9.9,OK,<= 100 (any),70.9,16.5
+MeanArterialPressure,treatment_target,Arterial Blood Pressure mean,None 65,SepticShock,,,,,,건너뜀 (위험 조건 아님 / 변수 없음),,,
+MeanArterialPressure,risk_condition,Arterial Blood Pressure mean,< 60,OrganHypoperfusion,any (기본값),50.7,0.3,19.3,10.2,OK,< 65 (any),69.9,17.1
