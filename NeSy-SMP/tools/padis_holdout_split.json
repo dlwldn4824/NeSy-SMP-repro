@@ -1,0 +1,171 @@
+{
+ "name": "padis_holdout_split",
+ "seed": 20260917,
+ "rejection_attempt": 1,
+ "gold_definition": "configs/padis_concepts.json triples, subClassOf/hasOutcome 제외",
+ "n_gold": 20,
+ "categories": {
+  "risk_factor": [
+   "Benzodiazepine",
+   "BloodTransfusion",
+   "DeepSedation",
+   "SedationIntensity",
+   "PhysicalRestraint",
+   "SeverePain",
+   "Age",
+   "Dementia",
+   "Trauma",
+   "Hypertension"
+  ],
+  "protective": [
+   "Dexmedetomidine",
+   "EarlyMobility",
+   "Melatonin"
+  ],
+  "no_effect": [
+   "MechanicalVentilation",
+   "OpioidUse",
+   "PatientSex"
+  ],
+  "delirium_consequence": [
+   "Delirium"
+  ]
+ },
+ "alias_groups": [
+  [
+   "DeepSedation",
+   "SedationIntensity"
+  ]
+ ],
+ "note": "주어 그룹 단위 분할. precludes 는 gold 에 1개뿐이라 heldout. one-shot 예시는 examples 중 random.Random(20260917).choice",
+ "examples": [
+  {
+   "subject": "BloodTransfusion",
+   "predicate": "increasesRiskOf",
+   "object": "Delirium",
+   "category": "risk_factor"
+  },
+  {
+   "subject": "MechanicalVentilation",
+   "predicate": "hasNoEffectOn",
+   "object": "Delirium",
+   "category": "no_effect"
+  },
+  {
+   "subject": "Melatonin",
+   "predicate": "decreasesRiskOf",
+   "object": "Delirium",
+   "category": "protective"
+  },
+  {
+   "subject": "PhysicalRestraint",
+   "predicate": "increasesRiskOf",
+   "object": "Delirium",
+   "category": "risk_factor"
+  },
+  {
+   "subject": "SeverePain",
+   "predicate": "increasesRiskOf",
+   "object": "Delirium",
+   "category": "risk_factor"
+  },
+  {
+   "subject": "Trauma",
+   "predicate": "increasesRiskOf",
+   "object": "Delirium",
+   "category": "risk_factor"
+  }
+ ],
+ "oneshot_example": {
+  "subject": "SeverePain",
+  "predicate": "increasesRiskOf",
+  "object": "Delirium",
+  "category": "risk_factor"
+ },
+ "heldout": [
+  {
+   "subject": "Age",
+   "predicate": "increasesRiskOf",
+   "object": "Delirium",
+   "category": "risk_factor"
+  },
+  {
+   "subject": "Benzodiazepine",
+   "predicate": "increasesRiskOf",
+   "object": "Delirium",
+   "category": "risk_factor"
+  },
+  {
+   "subject": "DeepSedation",
+   "predicate": "increasesRiskOf",
+   "object": "Delirium",
+   "category": "risk_factor"
+  },
+  {
+   "subject": "DeepSedation",
+   "predicate": "precludes",
+   "object": "Assessable",
+   "category": "risk_factor"
+  },
+  {
+   "subject": "Delirium",
+   "predicate": "increasesRiskOf",
+   "object": "Death",
+   "category": "delirium_consequence"
+  },
+  {
+   "subject": "Delirium",
+   "predicate": "increasesRiskOf",
+   "object": "Immobility",
+   "category": "delirium_consequence"
+  },
+  {
+   "subject": "Dementia",
+   "predicate": "increasesRiskOf",
+   "object": "Delirium",
+   "category": "risk_factor"
+  },
+  {
+   "subject": "Dexmedetomidine",
+   "predicate": "decreasesRiskOf",
+   "object": "Delirium",
+   "category": "protective"
+  },
+  {
+   "subject": "EarlyMobility",
+   "predicate": "decreasesRiskOf",
+   "object": "Delirium",
+   "category": "protective"
+  },
+  {
+   "subject": "Hypertension",
+   "predicate": "increasesRiskOf",
+   "object": "Delirium",
+   "category": "risk_factor"
+  },
+  {
+   "subject": "OpioidUse",
+   "predicate": "hasNoEffectOn",
+   "object": "Delirium",
+   "category": "no_effect"
+  },
+  {
+   "subject": "PatientSex",
+   "predicate": "hasNoEffectOn",
+   "object": "Delirium",
+   "category": "no_effect"
+  },
+  {
+   "subject": "SedationIntensity",
+   "predicate": "increasesRiskOf",
+   "object": "Death",
+   "category": "risk_factor"
+  },
+  {
+   "subject": "SedationIntensity",
+   "predicate": "increasesRiskOf",
+   "object": "Delirium",
+   "category": "risk_factor"
+  }
+ ]
+}
