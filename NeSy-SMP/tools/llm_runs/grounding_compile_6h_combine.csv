@@ -1,0 +1,7 @@
+﻿group,조건,m,동시 기준,참%,unknown%,사망률|참,사망률|거짓,최대 동시 참 개수: 입원%/사망률
+qSOFA_death,gcs < 15 · Respiratory Rate >= 22 · Arterial Blood Pressure systolic <= 100,2,같은 시각,62.3,37.7,20.3,40.0,0개:0.9%/사망 4.7%  1개:36.8%/사망 6.4%  2개:53.2%/사망 15.9%  3개:9.1%/사망 45.6%
+qSOFA_death,gcs < 15 · Respiratory Rate >= 22 · Arterial Blood Pressure systolic <= 100,2,직전 값 1h 유효,75.6,22.5,18.1,6.0,0개:0.9%/사망 4.7%  1개:23.5%/사망 5.4%  2개:57.4%/사망 12.4%  3개:18.2%/사망 36.2%
+qSOFA_death,gcs < 15 · Respiratory Rate >= 22 · Arterial Blood Pressure systolic <= 100,2,직전 값 계속 유효 (LOCF),79.6,12.7,17.8,3.3,0개:0.9%/사망 4.7%  1개:19.5%/사망 4.5%  2개:54.4%/사망 10.9%  3개:25.2%/사망 32.6%
+qSOFA_icustay,gcs < 15 · Respiratory Rate >= 22 · Arterial Blood Pressure systolic <= 100,2,같은 시각,62.3,37.7,20.3,40.0,0개:0.9%/사망 4.7%  1개:36.8%/사망 6.4%  2개:53.2%/사망 15.9%  3개:9.1%/사망 45.6%
+qSOFA_icustay,gcs < 15 · Respiratory Rate >= 22 · Arterial Blood Pressure systolic <= 100,2,직전 값 1h 유효,75.6,22.5,18.1,6.0,0개:0.9%/사망 4.7%  1개:23.5%/사망 5.4%  2개:57.4%/사망 12.4%  3개:18.2%/사망 36.2%
+qSOFA_icustay,gcs < 15 · Respiratory Rate >= 22 · Arterial Blood Pressure systolic <= 100,2,직전 값 계속 유효 (LOCF),79.6,12.7,17.8,3.3,0개:0.9%/사망 4.7%  1개:19.5%/사망 4.5%  2개:54.4%/사망 10.9%  3개:25.2%/사망 32.6%

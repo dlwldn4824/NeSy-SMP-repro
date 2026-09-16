@@ -77,7 +77,32 @@
   - 집계: 혈소판만 `all`(모든 시점) — KG 에는 집계가 없음
   - 결과: 나이 KG 는 Sepsis 위험, 코드는 사망 위험
   - 코드에만 있는 조건: GCS < 8 · 호흡수 · 수축기혈압 · 크레아티닌 (KG·SSC 에 수치 없음)
-- **SSC qSOFA 기준을 관찰 창 `any` 로 한 개씩 쓰면 너무 넓다:** 호흡수 ≥ 22 한 번이라도 = 89.3%, GCS < 15 = 72.6%. 원문은 "**동시에** 2개 이상"이라 `combine` 을 실행해야 의미가 있다 → 컴파일러에 **아직 미구현**.
+- **SSC qSOFA 기준을 관찰 창 `any` 로 한 개씩 쓰면 너무 넓다:** 호흡수 ≥ 22 한 번이라도 = 89.3%, GCS < 15 = 72.6%. 원문은 "**동시에** 2개 이상"이다 → §4-1.
+
+### 4-1. combine 실행 — qSOFA "3개 중 2개 이상 동시" (6h)
+
+'동시'의 시간 폭은 원문에 없어 세 가지로 계산했다 (컴파일 기본값 후보).
+시각마다: 참 개수 ≥ 2 → 참 · 참 + 모름 < 2 → 거짓 · 나머지 모름 (아직 측정 안 된 변수 = 모름). 입원: 한 시각이라도 참 → 참.
+
+| '동시' 기준 | 참% | 모름% | 거짓% | 사망률 참 / 거짓 |
+|---|---:|---:|---:|---|
+| 같은 시각 (타임스탬프 일치) | 62.3 | **37.7** | 0.0 (수 명) | 20.3 / — |
+| 직전 값 1시간 유효 | 75.6 | 22.5 | 1.9 | 18.1 / 6.0 |
+| 직전 값 계속 유효 (LOCF) | 79.6 | 12.7 | 7.7 | 17.8 / 3.3 |
+
+입원별 **최대 동시 충족 개수**와 사망률 (전체 15.0%):
+
+| '동시' 기준 | 0개 | 1개 | 2개 | 3개 |
+|---|---|---|---|---|
+| 같은 시각 | 0.9% · 4.7% | 36.8% · 6.4% | 53.2% · 15.9% | 9.1% · **45.6%** |
+| 1시간 유효 | 0.9% · 4.7% | 23.5% · 5.4% | 57.4% · 12.4% | 18.2% · **36.2%** |
+| LOCF | 0.9% · 4.7% | 19.5% · 4.5% | 54.4% · 10.9% | 25.2% · **32.6%** |
+
+- 조합으로 좁혀도 **입원의 62~80%가 qSOFA 양성**이다. ICU 패혈증 코호트이고 관찰 창 전체에서 "한 번이라도"를 보기 때문이다. 양성/음성의 사망률 차이는 크다(1h 유효: 18.1 vs 6.0).
+- **3개 모두 동시 충족**이 가장 뚜렷한 위험군이다 (같은 시각 45.6% 사망).
+- **'동시'를 어떻게 정하느냐에 따라 결과가 크게 달라진다:** 같은 시각이면 GCS 측정이 드물어 37.7%가 '모름'이고, LOCF 면 모름은 12.7%로 줄지만 오래된 값이 섞여 3개 충족군 사망률이 45.6 → 32.6%로 희석된다.
+  → 이 폭도 원문에 없는 칸이다. 명세에 `simultaneous_tolerance` 같은 칸을 두고 provenance 를 남겨야 한다.
+- 비교: 원저자 코드의 호흡수·수축기혈압 조건은 조합이 아니라 "호흡수(모든 시점) **그리고** 수축기혈압(한 번이라도)"이고 기준도 29/9 · 100 이라 qSOFA 와 다르다.
 
 ## 5. 해석
 
@@ -88,7 +113,7 @@
 ## 한계
 - 조각 4개 · 필수 정답 20개 · 조각당 2회 — 쉬운 문장 위주라 만점이 일반화되지 않는다.
 - 정답은 이 세션이 원문에서 직접 작성 (판정자 1명). 수치가 원문에 글자로 있어 판단 여지는 적다.
-- `combine`(동시 n 개) · `time_window` 실행 · 단위 변환은 컴파일러에 아직 없다.
+- `time_window` 실행 · 단위 변환은 컴파일러에 아직 없다. `combine` 은 구현했지만 '동시' 허용 폭은 명세 칸이 아니라 실행 옵션으로만 비교했다.
 - PADIS 는 로컬 원문 텍스트의 기호(≥, ≤ 등)가 깨져 있어 이번 시험에서 뺐다.
 
-산출물: `NeSy-SMP/configs/grounding_spec_schema.json` · `tools/build_grounding_prompts.py` · `tools/grounding_prompt_{Q,L,M,K}.txt` · `tools/grounding_gold.json` · `tools/llm_runs/grounding_run{1,2}/` · `tools/grounding_score.py` · `tools/grounding_compile.py` · `tools/llm_runs/grounding_score_*.csv` · `grounding_compile_6h.csv`
+산출물: `NeSy-SMP/configs/grounding_spec_schema.json` · `tools/build_grounding_prompts.py` · `tools/grounding_prompt_{Q,L,M,K}.txt` · `tools/grounding_gold.json` · `tools/llm_runs/grounding_run{1,2}/` · `tools/grounding_score.py` · `tools/grounding_compile.py` · `tools/llm_runs/grounding_score_*.csv` · `grounding_compile_6h.csv` · `grounding_compile_6h_combine.csv`
