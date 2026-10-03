@@ -61,7 +61,7 @@ def fetch(con, stays):
     ch = ch[ch.stay_id.isin(stays)].copy()
     i2g = {i: g for g, v in ITEMS.items() for i in v}
     ch["var"] = ch.itemid.map(i2g)
-    log(f"  보존 {len(ch):,}행 · 변수별 {ch.var.value_counts().to_dict()}")
+    log(f"  보존 {len(ch):,}행 · 변수별 {ch["var"].value_counts().to_dict()}")
     log("inputevents 스캔 (진정제)")
     sed = pd.read_sql(
         f"select stay_id, starttime, endtime, itemid from inputevents "
