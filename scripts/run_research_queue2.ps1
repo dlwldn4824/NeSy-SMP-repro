@@ -7,6 +7,7 @@ $run  = 'C:\dev\NeSy-SMP-repro\NeSy-SMP'
 $out  = 'C:\data\mimic-iv-derived'
 $log  = Join-Path $out 'research_queue.log'
 $env:PYTHONIOENCODING = 'utf-8'
+$env:FOR_DISABLE_CONSOLE_CTRL_HANDLER = '1'   # forrtl error(200) 방지 - 콘솔 CLOSE 로 죽는 것
 function L($m){ $t = Get-Date -Format 'MM-dd HH:mm:ss'; Add-Content $log "$t $m"; Write-Host "$t $m" }
 
 $padisCsv = Join-Path $out 'paper_leads\events_6h_wide_paper_como_padis.csv'

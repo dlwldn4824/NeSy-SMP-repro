@@ -11,6 +11,7 @@ $repo  = 'C:\dev\NeSy-SMP-repro\NeSy-SMP'
 $leads = Join-Path $out 'paper_leads'
 $log   = Join-Path $out 'paper_repro.log'
 $env:PYTHONIOENCODING = 'utf-8'
+$env:FOR_DISABLE_CONSOLE_CTRL_HANDLER = '1'   # forrtl error(200) 방지 - 콘솔 CLOSE 로 죽는 것
 function L($m){ $t = Get-Date -Format 'HH:mm:ss'; Add-Content $log "$t $m"; Write-Host "$t $m" }
 
 function Stop-Tree($procId) {
