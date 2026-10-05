@@ -500,7 +500,7 @@ for i, (train_index, test_index) in enumerate(skf.split(X_all, y_all)):
     model_age = SimpleMLPAge(24, 64)
     AgeRisk = ltn.Predicate(model_age).to(device)
 
-    params = list(MeanArterialPressureRisk.parameters()) + list(P.parameters()) + list(LactateRisk.parameters())   # [PATCH S4] MAP 술어도 학습 대상에 + list(HighBilirubin.parameters()) + list(RespiratoryRateRisk.parameters()) + list(ArterialBloodPressureSystolicRisk.parameters()) + list(GCSRisk.parameters()) + list(PlateletLow.parameters()) + list(LactateNotClearing.parameters()) + list(CreatinineRisk.parameters()) + list(CRPRisk.parameters()) + list(CronicConditionsRisk.parameters()) + list(GlucoseRisk.parameters()) + list(WBCRisk.parameters()) + list(AgeRisk.parameters())
+    params = list(P.parameters()) + list(LactateRisk.parameters()) + list(HighBilirubin.parameters()) + list(RespiratoryRateRisk.parameters()) + list(ArterialBloodPressureSystolicRisk.parameters()) + list(GCSRisk.parameters()) + list(PlateletLow.parameters()) + list(LactateNotClearing.parameters()) + list(CreatinineRisk.parameters()) + list(CRPRisk.parameters()) + list(CronicConditionsRisk.parameters()) + list(GlucoseRisk.parameters()) + list(WBCRisk.parameters()) + list(AgeRisk.parameters())
 
     optimizer = torch.optim.Adam(params, lr=config.learning_rate)
 
@@ -556,7 +556,7 @@ for i, (train_index, test_index) in enumerate(skf.split(X_all, y_all)):
             x_All = ltn.Variable("x_All", x)
             lactate_above_th = lactate_above_threshold(x)
             x_above_lactate = ltn.Variable("x_above_lactate", x[lactate_above_th==1])
-            x_above_glucose = ltn.Variable("x_above_glucose", x[glucose_above_threshold==1])
+            x_above_glucose = ltn.Variable("x_above_glucose", x[glucose_above_threshold(x)==1])   # [PATCH S4] 함수 객체를 1 과 비교해 항상 빈 집합이었다
             x_above_bilirubin = ltn.Variable("x_above_bilirubin", x[bilirubin_above_threshold(x)==1])
             x_below_bilirubin = ltn.Variable("x_below_bilirubin", x[bilirubin_above_threshold(x)==0])
             x_above_creatinine = ltn.Variable("x_above_creatinine", x[creatinine_above_threshold(x)==1])
@@ -644,12 +644,11 @@ for i, (train_index, test_index) in enumerate(skf.split(X_all, y_all)):
                 Forall(x_All, Implies(CronicConditionsRisk(comorbidities(x_All)), P(x_All))).value,
                 Forall(x_All, Implies(WBCRisk(wbc(x_All), comorbidities(x_All), age(x_All)), P(x_All))).value,
                 Forall(x_All, Implies(AgeRisk(age(x_All), comorbidities(x_All)), P(x_All))).value,
-                # [PATCH S4] 원본에 없던 함축 5개 — 앵커만 있던 술어를 사망까지 연결
-                Forall(x_All, Implies(GCSRisk(gcs(x_All), comorbidities(x_All), age(x_All)), P(x_All))).value,
-                Forall(x_All, Implies(RespiratoryRateRisk(respiratory_rate(x_All), comorbidities(x_All), age(x_All)), P(x_All))).value,
-                Forall(x_All, Implies(ArterialBloodPressureSystolicRisk(abps(x_All), comorbidities(x_All), age(x_All)), P(x_All))).value,
-                Forall(x_All, Implies(CreatinineRisk(creatinine(x_All), comorbidities(x_All), age(x_All)), P(x_All))).value,
-                Forall(x_All, Implies(MeanArterialPressureRisk(mabp(x_All), comorbidities(x_All), age(x_All)), P(x_All))).value,
+                Forall(x_All, Implies(GCSRisk(gcs(x_All), comorbidities(x_All), age(x_All)), P(x_All))).value,   # [PATCH S3]
+                Forall(x_All, Implies(ArterialBloodPressureSystolicRisk(abps(x_All), comorbidities(x_All), age(x_All)), P(x_All))).value,   # [PATCH S3]
+                Forall(x_All, Implies(RespiratoryRateRisk(respiratory_rate(x_All), comorbidities(x_All), age(x_All)), P(x_All))).value,   # [PATCH S3]
+                Forall(x_All, Implies(CreatinineRisk(creatinine(x_All), comorbidities(x_All), age(x_All)), P(x_All))).value,   # [PATCH S3]
+                Forall(x_All, Implies(GlucoseRisk(glucose(x_All), comorbidities(x_All), age(x_All)), P(x_All))).value,   # [PATCH S3]
             ])
             # [PATCH P6] 기록 전용 — formula 순서대로 이름을 붙이고 값을 읽기만 한다
             _names = []
@@ -663,7 +662,7 @@ for i, (train_index, test_index) in enumerate(skf.split(X_all, y_all)):
                            ("Glucose>100", x_above_glucose), ("WBC>30", x_above_wbc), ("Age>65", x_above_age)):
                 if _v.value.numel() > 0: _names.append("anchor:" + _n)
             _names += ["impl:" + _n for _n in ("Lactate", "Bilirubin", "Platelet", "LactateNotClearing", "CRP", "Chronic", "WBC", "Age",
-                                              "GCS", "RR", "SBP", "Creatinine", "MAP")]   # [PATCH S4]
+                                              "GCS", "SBP", "RR", "Creatinine", "Glucose")]   # [PATCH S3]
             assert len(_names) == len(formulas_knowledge), (len(_names), len(formulas_knowledge))
             for _n, _v in (("GCS<8", x_below_gcs), ("Lactate>4", x_above_lactate), ("Platelet<50", x_below_platelet),
                            ("LactateNotClearing", x_lactate_not_clear), ("Bilirubin>=2", x_above_bilirubin), ("RR", x_risk_respiratory_rate),

@@ -33,3 +33,15 @@
 
 적용: `tools/apply_patch_p6.py <stratified_main.py>`. `upstream_faithful_log/` = `upstream_faithful/` + P6, `upstream_sensitivity_axiom/` 에도 P6 적용.
 원본은 knowledge satisfaction 을 출력하지 않아(`compute_satisfaction_level` 호출이 주석 처리) missing-aware 비교를 위해 추가. 원본은 torch 시드를 고정하지 않으므로 같은 코드 재실행도 AUC 가 조금 달라질 수 있다.
+
+---
+
+## 민감도 실험 C — 빠진 사망 연결 추가 (논문 조건 아님)
+
+| # | 파일 | 원래 | 바꾼 것 | 이유 |
+|---|---|---|---|---|
+| S4 | stratified_main.py:559 | `x[glucose_above_threshold==1]` — **함수 객체와 1 을 비교**해 변수가 항상 빈 집합 | `x[glucose_above_threshold(x)==1]` | 혈당 공리가 아예 적용되지 않던 버그. 고치면 앵커가 처음으로 켜진다(해당 입원 약 80%) |
+| S3 | stratified_main.py:647-651 | 함축(`Implies(XxxRisk, P)`) 공리가 8개 — Lactate·Bilirubin·Platelet·LactateNotClearing·CRP·Chronic·WBC·Age | GCS · 수축기혈압 · 호흡수 · 크레아티닌 · 혈당 함축 **5개 추가** (P6 기록 이름 목록도 5개 확장) | 이 5개는 앵커만 있어 **사망 예측 P 에 기울기가 0** 이었다(`eda/38_grad_path_check.py` 동일 구조에서 ∂sat/∂사망로짓 = 0). 결측 0 채우기로 잘못 켜지던 규칙이 모두 여기 속해, 민감도 A(S1)의 효과가 0 이었던 원인으로 본다 |
+
+목적: **"연결을 제대로 하면 지식 효과(NeSy-SMP − LTN)가 생기는가"** 를 6h 한 시점에서 확인한다.
+주의: 새 함축 중 '수축기혈압 ≤ 100 → 사망'(해당 71%) · '혈당 > 100 → 사망'(해당 80%)은 데이터와 충돌해 성능을 끌어내릴 수 있다. 떨어지면 그대로 보고한다.
