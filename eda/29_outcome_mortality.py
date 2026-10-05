@@ -226,11 +226,12 @@ def run(name, *, bottleneck, w_concept, w_mediator, w_axiom, use_med_axiom=False
         parts = [m(Xt[j].to(DEV), St[j].to(DEV)) for j in np.array_split(idx_te, max(1, len(idx_te) // 8192))]
         pt = np.concatenate([torch.sigmoid(p[0]).cpu().numpy() for p in parts])
         pd_del = np.concatenate([torch.sigmoid(p[2]).cpu().numpy() for p in parts])
+        cc = np.concatenate([p[1].cpu().numpy() for p in parts])
         sat = None
         if w_axiom > 0:
             sat = np.mean([axiom_sat(ax, axw, p[1], torch.sigmoid(p[2]), torch.sigmoid(p[0]),
                                      per_axiom=True).cpu().numpy() for p in parts], 0)
-    return dict(idx=idx_te, p=pt, p_del=pd_del, sat=sat, ax=[a[0] for a in ax])
+    return dict(idx=idx_te, p=pt, p_del=pd_del, c=cc, sat=sat, ax=[a[0] for a in ax], model=m)
 
 
 # ================================================================ 실행
