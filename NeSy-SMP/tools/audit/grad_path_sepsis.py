@@ -92,6 +92,9 @@ def main():
     print(f"[2] fold {a.fold} 학습 배치 {len(train_loader):,}", flush=True)
 
     # ---- 3) 학습된 사망 모델 올리기
+    # cuDNN LSTM 은 eval 모드에서 backward 가 막혀 있다(RuntimeError). 감사는 같은 입력에
+    # 같은 값이 나와야 하므로 드롭아웃을 끈 eval 모드를 유지하고 cuDNN 을 끈다 (20 배치라 비용 무관).
+    torch.backends.cudnn.enabled = False
     lstm = LSTMModel(g["vocab_sizes"], config, 1, g["feature_names"]).to(device)
     lstm.load_state_dict(torch.load(a.ckpt, map_location=device))
     lstm.eval()
