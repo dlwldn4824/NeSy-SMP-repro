@@ -38,6 +38,17 @@ function Run-Sepsis($name, $variant, $csv, $resdir) {
     if (Test-Path (Join-Path $res 'stratified_results.txt')) { L "OK $name" } else { L "FAIL $name" }
 }
 
+# ---- 0) 큐 7(connect4 -> PADIS 48h) 이 끝나길 먼저 기다린다.
+#        프로세스만 보고 판단하면 큐 7 이 다음 작업을 띄우는 틈에 끼어들어 두 학습이 겹친다(메모리 초과).
+L 'WAIT for queue 7'
+$q7 = Join-Path $out 'research_queue7.log'
+$deadline = (Get-Date).AddHours(48)
+while ((Get-Date) -lt $deadline) {
+    if ((Test-Path $q7) -and (Select-String -Path $q7 -Pattern 'QUEUE7 ALL DONE' -Quiet)) { break }
+    Start-Sleep -Seconds 120
+}
+L 'queue 7 완료 확인'
+
 # ---- D4) 논문 §4.5 목록대로 LowMAP 을 Anchor+함축으로 추가, 6h
 Run-Sepsis 'D4 MAP 6h' 'upstream_sens_map' (Join-Path $out 'paper_leads\events_6h_wide_paper_como.csv') 'results_sens_map_6h'
 
