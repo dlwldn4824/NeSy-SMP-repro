@@ -23,17 +23,21 @@ while ((Get-Date) -lt $deadline) {
 }
 Start-Sleep -Seconds 20
 
-foreach ($mode in 'pred','data') {
-    $env:ANTECEDENT = $mode
-    L "START 40_ltn_paper_loss_delirium ($mode)"
-    & $py -u (Join-Path $repo 'eda\40_ltn_paper_loss_delirium.py') --seeds 42,7,2024 --epochs 10 2>&1 |
-        Out-File -Encoding utf8 (Join-Path $env:EDA_OUT "q11_40_$mode.log")
-    if ($LASTEXITCODE -eq 0) { L "OK 40 $mode" } else { L ("FAIL 40 $mode exit=" + $LASTEXITCODE) }
+# 순서: 40(pred) -> 41 -> 40(data). 41 이 "clinical outcome 에서의 NeSy 효과"를 직접 재는 핵심이라 앞으로 당겼다.
+function Run-Eda($label, $script, $logname) {
+    L "START $label"
+    & $py -u (Join-Path $repo ('eda\' + $script)) --seeds 42,7,2024 --epochs 10 2>&1 |
+        Out-File -Encoding utf8 (Join-Path $env:EDA_OUT $logname)
+    if ($LASTEXITCODE -eq 0) { L "OK $label" } else { L ("FAIL $label exit=" + $LASTEXITCODE) }
 }
 
+$env:ANTECEDENT = 'pred'
+Run-Eda '40 섬망 예측 (pred)' '40_ltn_paper_loss_delirium.py' 'q11_40_pred.log'
+
 Remove-Item Env:\ANTECEDENT -ErrorAction SilentlyContinue
-L 'START 41_retarget_axioms'
-& $py -u (Join-Path $repo 'eda\41_retarget_axioms.py') --seeds 42,7,2024 --epochs 10 2>&1 |
-    Out-File -Encoding utf8 (Join-Path $env:EDA_OUT 'q11_41.log')
-if ($LASTEXITCODE -eq 0) { L 'OK 41' } else { L ("FAIL 41 exit=" + $LASTEXITCODE) }
+Run-Eda '41 공리 재타깃' '41_retarget_axioms.py' 'q11_41.log'
+
+$env:ANTECEDENT = 'data'
+Run-Eda '40 섬망 예측 (data)' '40_ltn_paper_loss_delirium.py' 'q11_40_data.log'
+Remove-Item Env:\ANTECEDENT -ErrorAction SilentlyContinue
 L 'QUEUE11 ALL DONE'
