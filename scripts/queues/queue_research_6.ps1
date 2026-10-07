@@ -29,8 +29,11 @@ if (Test-Path (Join-Path $res 'stratified_results.txt')) {
     New-Item -ItemType Directory -Force $res | Out-Null
     Set-Location $res
     $env:NESY_DATA = Join-Path $out 'paper_leads\events_6h_wide_paper_como.csv'
-    L 'START S4 fullchain 6h (upstream_sens_fullchain)'
-    & $py -u (Join-Path $run 'upstream_sens_fullchain\stratified_main.py') 2>&1 |
+    # 변형 폴더는 실행 클론(평평한 upstream_*)과 저장소(variants 하위) 양쪽에 있을 수 있다
+    $v = Join-Path $run 'upstream_sens_fullchain\stratified_main.py'
+    if (-not (Test-Path $v)) { $v = Join-Path $run 'variants\upstream_sens_fullchain\stratified_main.py' }
+    L 'START S4 fullchain 6h (폐기된 MAP 설계 — 기록용. 실제 실험은 upstream_sensitivity_connect)'
+    & $py -u $v 2>&1 |
         Out-File -Encoding utf8 (Join-Path $res 'train.log')
     if (Test-Path (Join-Path $res 'stratified_results.txt')) { L 'OK S4 fullchain 6h' } else { L 'FAIL S4 fullchain 6h' }
 }

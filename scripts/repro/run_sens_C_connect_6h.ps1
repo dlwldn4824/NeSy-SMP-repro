@@ -1,4 +1,5 @@
-﻿# 민감도 실험 C — 빠진 사망 연결 5개 추가 + 혈당 버그 수정 (S3·S4), 6h
+﻿# 민감도 실험 C — 판정기 5개를 사망과 추가 연결 + 혈당 버그 수정 (S3·S4), 6h
+#   (이 5개는 논문 공리 목록에도 없다 — '누락 복구'가 아니라 '추가' 실험이다)
 #   코드: NeSy-SMP/variants/upstream_sensitivity_connect  (= S1 missing-aware + P6 기록 + S3 + S4)
 #   입력: 논문 조건 재현 6h (events_6h_wide_paper_como.csv)
 #   같은 설정 2회 (r1·r2) — 원본이 torch 시드를 고정하지 않아 실행 간 ±0.1~0.3 편차가 있다.

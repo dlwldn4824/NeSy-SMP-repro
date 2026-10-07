@@ -1,4 +1,7 @@
-"""[PATCH S3 · S4] 빠진 사망 연결 5개 추가 + 혈당 버그 수정.
+"""[PATCH S3 · S4] 판정기 5개를 사망과 추가 연결 + 혈당 버그 수정.
+
+이 5개 함축은 **논문 공리 목록에도 없다.** 공개 코드가 빠뜨린 것을 되살리는 것이 아니라,
+Anchor 만 있고 사망과 이어지지 않은 판정기를 민감도 실험으로 연결해 보는 것이다.
 
 대상: variants/upstream_sensitivity_connect/stratified_main.py (= upstream_sensitivity_axiom 사본,
       P1–P5 실행 패치 + S1 missing-aware + P6 기록 포함)
