@@ -2,7 +2,7 @@
 # ============================================================================
 # PADIS 섬망 — 계획(MODELING_ONEPAGER §2·§3)의 남은 항목
 #
-#   A  5r  LTN 검수본      docs/KG_RULE_REVIEW.md 권고대로 고친 공리로 5단계 재실행 (최종 승인 전 · 잠정)
+#   A  5r  LTN 검수본      docs/kg/KG_RULE_REVIEW_PADIS.md 권고대로 고친 공리로 5단계 재실행 (최종 승인 전 · 잠정)
 #   B  6   LNN            가중 Łukasiewicz 함축 뉴런의 경계 추론. '전부 UTA' 앵커를 구간 진리값 [0,1] 로 학습에 넣는다
 #   C  4b' Assessable 재실험  미관찰 앵커를 넣되 라벨 배치를 줄이지 않고(균형 배치) Assessable 손실만 따로 가중
 #   D  평가 프로토콜 미완    연도 외부검증(2011-16 학습 → 2017-19 · 2020-22 평가) · calibration ·
@@ -58,7 +58,7 @@ print(f"전부 UTA 앵커 {int(ALLUTA.sum()):,} (전체 {len(cam):,} 의 {100*AL
       f"그중 72h 안 확정 기록 있음 {100*(_dconf[ALLUTA] > 0).mean():.1f}%", flush=True)
 
 # ================================================================ A. 검수본 공리
-# docs/KG_RULE_REVIEW.md 권고 반영:
+# docs/kg/KG_RULE_REVIEW_PADIS.md 권고 반영:
 #   R-15 SeverePain 보류 → 제외 · X-01 SedationIntensity → R-12 와 통합(제외)
 #   R-07 Trauma strong → moderate · R-12 DeepSedation 등급 표기 low → cohort(가중 동일)
 #   R-17 EarlyMobility 발생 예측에서는 가중 축소(low 의 절반)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ============================================================================
-# split 설계 확정용 계산 — SPLIT_DESIGN.md 후속
+# split 설계 확정용 계산 — DELIRIUM_SPLIT_DESIGN.md 후속
 #   [1] 실제 환자 한 명의 CAM 시계열을 X -> y 로 쪼갠 예시
 #   [2] split 후 표본 수: transition 4종 + 고정 24h 타깃, 각각 건수/stay/환자
 #   [3] 입력 lookback 커버리지 (RASS / 진정제 / CAM 이력) + 미확보 항목

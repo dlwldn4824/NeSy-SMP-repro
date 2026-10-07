@@ -2,16 +2,16 @@
 
 | 문서 | 내용 | 대응 |
 |---|---|---|
-| **[03_STEP1_DATA_CHECK.md](03_STEP1_DATA_CHECK.md)** | **1단계 데이터 확인 7개 항목 전부** + 분기 규칙 판정 | 페이지 「1단계」 |
-| [02_DELIRIUM_COHORT_EDA.md](02_DELIRIUM_COHORT_EDA.md) | Delirium cohort ①~⑦ 구현 + 확인항목 6개 | 랩미팅 §3 |
-| [01_COHORT_DEFINITION.md](01_COHORT_DEFINITION.md) | (superseded) 초기 코호트 탐색 · 차팅 커버리지 | — |
+| **[DELIRIUM_03_STEP1_DATA_CHECK.md](DELIRIUM_03_STEP1_DATA_CHECK.md)** | **1단계 데이터 확인 7개 항목 전부** + 분기 규칙 판정 | 페이지 「1단계」 |
+| [DELIRIUM_02_COHORT_EDA.md](DELIRIUM_02_COHORT_EDA.md) | Delirium cohort ①~⑦ 구현 + 확인항목 6개 | 랩미팅 §3 |
+| [DELIRIUM_01_COHORT_DEFINITION.md](DELIRIUM_01_COHORT_DEFINITION.md) | (superseded) 초기 코호트 탐색 · 차팅 커버리지 | — |
 
 ## 수행 상태
 
 1단계 **7개 항목 전부 완료** + 「전체 MIMIC 데이터 확인」(31개 테이블 전수 인벤토리) 완료.
 분기 규칙은 **UTA 완료(21.9%)**, **eICU는 조건 미판정**(로컬에 eICU 데이터 없음) — 대신 **대체 경로를 미리 계산**했다.
 남은 미수행: eICU 데이터 확보, Google Drive 폴더 확인(로그인 필요).
-상세는 [03_STEP1_DATA_CHECK.md](03_STEP1_DATA_CHECK.md) 「수행 상태」 표.
+상세는 [DELIRIUM_03_STEP1_DATA_CHECK.md](DELIRIUM_03_STEP1_DATA_CHECK.md) 「수행 상태」 표.
 
 ## ⚠️ 숫자 혼동 주의 — 유병률이 문서마다 다르다
 
@@ -19,9 +19,9 @@
 
 | 값 | 정의 | 분모 | 어디 |
 |---|---|---|---|
-| **48.4%** | 재원 **전 기간** 중 Positive ≥1 | C2 (MICU+MICU/SICU, 2014–2019) 판정가능 7,347 | `01_COHORT_DEFINITION.md` (superseded) |
-| **22.5%** | **24h 이후 퇴실까지** Positive ≥1 | 스펙 ①~⑦ 코호트 23,939 | `02_DELIRIUM_COHORT_EDA.md` |
-| **15.6%** | **24–72h 고정 창**에서 Positive ≥1 | ⑤통과 중 창 내 판정≥1인 22,867 | `results_14_16/` (14·16) |
+| **48.4%** | 재원 **전 기간** 중 Positive ≥1 | C2 (MICU+MICU/SICU, 2014–2019) 판정가능 7,347 | `DELIRIUM_01_COHORT_DEFINITION.md` (superseded) |
+| **22.5%** | **24h 이후 퇴실까지** Positive ≥1 | 스펙 ①~⑦ 코호트 23,939 | `DELIRIUM_02_COHORT_EDA.md` |
+| **15.6%** | **24–72h 고정 창**에서 Positive ≥1 | ⑤통과 중 창 내 판정≥1인 22,867 | `results/14_16/` (14·16) |
 | *25.6%* | 24–72h 창, **⑤ 미적용**(첫 24h P 포함) | base3 중 창 내 판정≥1인 29,500 | `chk16_ab_compare.csv` |
 
 **왜 다른가:** 관찰 기간이 길수록 Positive를 만날 기회가 많다. 48.4%가 제일 큰 건 섬망이 많아서가 아니라 **재원 전체를 봤기 때문**이다. 15.6%가 제일 정직한 숫자다 — 모든 환자에게 동일한 48시간 창을 준다.
@@ -30,7 +30,7 @@
 
 ## ⚠️ 커버리지 숫자를 인용할 때
 
-`03_STEP1_DATA_CHECK.md`의 커버리지는 전부 **전체 재원 중 1회라도** 기준이라 **상한값**이다.
+`DELIRIUM_03_STEP1_DATA_CHECK.md`의 커버리지는 전부 **전체 재원 중 1회라도** 기준이라 **상한값**이다.
 예측 입력 가용성은 **첫 24h** 기준이 맞고, 두 값은 같은 문서의 「항목별 첫 24h 대조」 표에 나란히 있다.
 예: RASS 89.9%(전체 재원) / 83.7%(첫 24h).
 
@@ -45,9 +45,9 @@
 ## 재현
 
 ```bash
-python notes/eda/cohort_define.py        # 코호트 후보 + 기본 통계
-python notes/eda/scan_padis_labels.py    # chartevents 스캔 (PADIS 항목 커버리지)
-python notes/eda/scan_label_values.py    # chartevents 스캔 (섬망/RASS 값)
+python notes/eda/01a_cohort_define.py        # 코호트 후보 + 기본 통계
+python notes/eda/01b_scan_padis_labels.py    # chartevents 스캔 (PADIS 항목 커버리지)
+python notes/eda/01c_scan_label_values.py    # chartevents 스캔 (섬망/RASS 값)
 python notes/eda/02_delirium_cohort.py   # ①~⑦ 코호트
 python notes/eda/03_cohort_checks.py     # 확인항목 EDA
 python notes/eda/04_label_timing.py      # 라벨 교란 · 발생시점
@@ -66,11 +66,11 @@ DB 경로는 각 스크립트 상단 `DB` 상수. 인덱스가 없어 `charteven
 
 ```bash
 python eda/00_extract.py          # 원본 -> 중간 파일 4종 (이 스크립트만 원본 DB를 읽는다)
-python eda/09_remaining_eda.py    # 항목 2·4·5·9 + 1·7·8 보강
+python eda/09b_remaining_eda.py    # 항목 2·4·5·9 + 1·7·8 보강
 ```
 
 두 명령은 경로 기준이 어긋나지 않도록 **저장소 루트(`NeSy-SMP-repro`)에서 순서대로** 실행한다.
-`00_extract.py`와 `09_remaining_eda.py`는 기본적으로 중간 파일과 결과를 `notes/eda/`에 저장하고 읽는다.
+`00_extract.py`와 `09b_remaining_eda.py`는 기본적으로 중간 파일과 결과를 `notes/eda/`에 저장하고 읽는다.
 
 필수 패키지:
 

@@ -222,7 +222,7 @@
       "relation": "precludes",
       "object": "DeliriumAssessment",
       "grade": "data-derived (가이드라인 문장 아님)",
-      "source": "eda/LNN_DESIGN.md §3 — UTA 의 78.1% 가 RASS <= -4 · eda/SPLIT_SPEC.md §6",
+      "source": "docs/delirium/DELIRIUM_LNN_DESIGN.md §3 — UTA 의 78.1% 가 RASS <= -4 · docs/delirium/DELIRIUM_SPLIT_SPEC.md §6",
       "source_text": "깊은 진정 중에는 CAM-ICU 평가가 불가능하다. 우리 데이터 관측이며 PADIS 문장이 아니다.",
       "mimic_ready": true,
       "mimic": {"itemids": [228096, 228332]},

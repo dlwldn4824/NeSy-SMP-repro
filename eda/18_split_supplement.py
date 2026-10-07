@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 17_cam_split_eda.py 보충: (1) UTA 앵커 포함 규모  (2) 고정 24h 타깃 계층별  (3) 240h 캡  (4) 환자단위 분할 규모
+# 17a_cam_split_eda.py 보충: (1) UTA 앵커 포함 규모  (2) 고정 24h 타깃 계층별  (3) 240h 캡  (4) 환자단위 분할 규모
 import os, sys, numpy as np, pandas as pd
 sys.stdout.reconfigure(encoding="utf-8")
 DATA = os.environ["EDA_DATA"]

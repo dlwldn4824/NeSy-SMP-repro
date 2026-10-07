@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""09_remaining_eda.py 가 읽는 중간 파일 4개를 원본에서 만든다.
+"""09b_remaining_eda.py 가 읽는 중간 파일 4개를 원본에서 만든다.
 
   _icu_base.pkl / .parquet             ICU stay 기본 테이블
   _label_values.parquet                섬망평가(228332) + RASS(228096) 원본 기록
@@ -36,7 +36,7 @@ SQLITE_IMMUTABLE = False
 CSV_HOSP = "/content/mimiciv/hosp"
 CSV_ICU = "/content/mimiciv/icu"
 
-# 중간 파일을 저장할 곳. 09_remaining_eda.py 의 DATA 와 같아야 한다.
+# 중간 파일을 저장할 곳. 09b_remaining_eda.py 의 DATA 와 같아야 한다.
 OUT = "notes/eda"
 # ============================================================================
 # ===== 여기까지 =============================================================
@@ -56,7 +56,7 @@ except Exception:
     pass
 os.makedirs(OUT, exist_ok=True)
 
-# ---- itemid 목록 (scan_padis_labels.py / 05_scan_step1.py 와 동일) ----
+# ---- itemid 목록 (01b_scan_padis_labels.py / 05_scan_step1.py 와 동일) ----
 GROUPS = {
     "RASS":            [228096],
     "RASS_goal":       [228299],
@@ -75,7 +75,7 @@ ALL_IDS = sorted(ITEM2G)
 # 값까지 원본 그대로 보관할 항목 (섬망평가 · RASS · CAM-ICU feature)
 VALUE_IDS = [228332, 228096, 228300, 228301, 228302, 228303, 228334, 228335, 228336,
              228337, 229324, 229325, 229326]
-# 3·4단계 시계열 입력으로 mobility / pain / GCS 값도 필요하다 (eda/SPLIT_SPEC.md §3 블로커).
+# 3·4단계 시계열 입력으로 mobility / pain / GCS 값도 필요하다 (docs/delirium/DELIRIUM_SPLIT_SPEC.md §3 블로커).
 # 이걸 빼면 _label_values 에 CAM·RASS 만 남아 BiLSTM 입력이 반쪽이 된다.
 VALUE_IDS = sorted(set(VALUE_IDS)
                    | set(GROUPS["PAIN_NRS"])
@@ -231,4 +231,4 @@ log(f"_label_values  {len(val):,} rows")
 ie["drug"] = ie["itemid"].map(SED)
 ie.to_parquet(f"{OUT}/_step1_sed.parquet")
 log(f"_step1_sed  {len(ie):,} rows")
-log(f"완료. 출력 -> {OUT}/  이제 09_remaining_eda.py 를 돌리면 된다.")
+log(f"완료. 출력 -> {OUT}/  이제 09b_remaining_eda.py 를 돌리면 된다.")

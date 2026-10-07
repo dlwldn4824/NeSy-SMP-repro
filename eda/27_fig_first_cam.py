@@ -19,7 +19,7 @@ from matplotlib import font_manager
 
 sys.stdout.reconfigure(encoding="utf-8")
 DATA = os.environ.get("EDA_DATA", "notes/eda")
-OUTF = os.environ.get("FIG_OUT", "docs/fig_first_cam.png")
+OUTF = os.environ.get("FIG_OUT", "docs/delirium/fig_first_cam.png")
 
 for fp in [r"C:\Windows\Fonts\malgun.ttf", r"C:\Windows\Fonts\malgunbd.ttf"]:
     if os.path.exists(fp):

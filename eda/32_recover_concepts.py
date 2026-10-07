@@ -5,7 +5,7 @@
 #   억제대 PhysicalRestraint · 기계환기 MechanicalVentilation ·
 #   오피오이드 OpioidUse · 멜라토닌 Melatonin
 #
-#   추출 트리플의 절반 이상이 "주어 미매핑"으로 공리가 못 됐다 (docs/OUTCOME_SWITCH_2026-10-03.md §3).
+#   추출 트리플의 절반 이상이 "주어 미매핑"으로 공리가 못 됐다 (docs/delirium/DELIRIUM_OUTCOME_SWITCH_2026-10-03.md §3).
 #   이 네 개를 붙이면 KG 범위 비교가 공리 수 차이에 끌려가지 않는다.
 #
 # 출력: notes/eda/_axiom_padis2_events.parquet  (stay_id, hr, var)  — 앵커 창 판정은 33_ 에서

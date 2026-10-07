@@ -13,7 +13,7 @@
 필요 파일: _icu_base(.pkl/.parquet), _label_values.parquet, _padis_stay_group_counts.parquet
 출력: chk14_*.csv (집계표만, 환자 식별자 없음)
 
-집단 정의는 기존 코드와 동일하게 재현한다 (02_delirium_cohort.py / 09_remaining_eda.py):
+집단 정의는 기존 코드와 동일하게 재현한다 (02_delirium_cohort.py / 09b_remaining_eda.py):
   DEN   = age>=18 & los>=1.0                                  (74,829)
   base3 = age>=18 & icu_seq_in_subject==1 & los>=1.0          (51,838; ①②③)
   ⑤ 통과 = base3 & 첫 24h P 0회                               (43,853)

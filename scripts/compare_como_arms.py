@@ -18,7 +18,7 @@ import pandas as pd
 
 sys.stdout.reconfigure(encoding="utf-8")
 RES = Path(r"C:\dev\NeSy-SMP-repro\NeSy-SMP")
-OUT = Path(__file__).resolve().parents[1] / "docs" / "REPRO_COMO_COMPARE.md"
+OUT = Path(__file__).resolve().parents[1] / "docs" / "repro" / "REPRO_COMO_COMPARE.md"
 
 ARMS = [
     ("동반질환 없음", RES / "results_s3_6h"),

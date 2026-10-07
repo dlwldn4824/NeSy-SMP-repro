@@ -3,7 +3,24 @@
 - 원 논문 코드: [FabrizioDeSantis/NeSy-SMP](https://github.com/FabrizioDeSantis/NeSy-SMP)
 - 결과 요약 (30/15): [`NeSy-SMP/results/RESULTS_SEPSIS3_ALL_LEADS.md`](NeSy-SMP/results/RESULTS_SEPSIS3_ALL_LEADS.md)
 - **Epoch 50/20 재실행 (완료):** [`NeSy-SMP/results/ep50_20/RESULTS_EP50_20.md`](NeSy-SMP/results/ep50_20/RESULTS_EP50_20.md)
-- 재현 보고서: [`docs/NeSy-SMP_REPRO_REPORT.md`](docs/NeSy-SMP_REPRO_REPORT.md)
+- 재현 보고서: [`docs/repro/REPRO_REPORT_2026-08-12.md`](docs/repro/REPRO_REPORT_2026-08-12.md)
+- **최신 종합 보고:** [`docs/repro/REPRO_LAB_REPORT_2026-09-21.md`](docs/repro/REPRO_LAB_REPORT_2026-09-21.md)
+
+## 폴더 구조
+
+| 위치 | 내용 |
+|---|---|
+| `NeSy-SMP/` | 원 논문 코드(최상위 `.py`·`data/`·`model/`·`lib/`) + 재현용 추가분 |
+| `NeSy-SMP/variants/upstream_*` | 원본 코드에 패치만 다르게 건 실행본 (패치 내역은 각 폴더 `PATCHES.md`) |
+| `NeSy-SMP/tools/{audit,grounding,patches,rule_extraction}` | 점검 · 연결 명세 · 패치 스크립트 · LLM 규칙 추출(프롬프트·분할·결과) |
+| `padis/` | PADIS 가이드라인 추출 → 사람 검수 → 섬망 KG (Phase 1) |
+| `eda/` | 섬망 실험 스크립트 `NN_이름.py` (번호 = 실행 순서), 집계표 `eda/results/` |
+| `docs/repro/` | 논문 재현 보고 (`REPRO_*`) |
+| `docs/kg/` | 규칙 추출 · KG 점검 (`KG_*`) |
+| `docs/delirium/` | 섬망 설계·결과 (`DELIRIUM_*`) |
+| `docs/meetings/` | 주간 보고 · 회의 준비 (`YYYY-MM-DD_*`) |
+| `scripts/repro/` · `scripts/queues/` | 재현 실행 ps1 · 일괄 실행 큐 |
+| `colab/` | Colab 노트북 · 동반질환 추출 |
 
 ---
 

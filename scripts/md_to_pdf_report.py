@@ -230,8 +230,8 @@ def md_to_pdf(md_path: Path, pdf_path: Path, asset_dir: Path) -> None:
 if __name__ == "__main__":
     jobs = [
         (
-            ROOT / "docs" / "NeSy-SMP_REPRO_REPORT.md",
-            ROOT / "docs" / "NeSy-SMP_REPRO_REPORT.pdf",
+            ROOT / "docs" / "repro" / "REPRO_REPORT_2026-08-12.md",
+            ROOT / "docs" / "repro" / "REPRO_REPORT_2026-08-12.pdf",
             ROOT / "docs" / "_assets",
         ),
         (
