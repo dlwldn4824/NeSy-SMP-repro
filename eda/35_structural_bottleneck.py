@@ -43,9 +43,13 @@ REAL, REAL_W = make_axioms(True)
 
 
 def fake_axioms(seed):
+    # A4: 머리/부정을 새로 뽑으면 가짜 쪽 "사망" 머리가 진짜(13개 중 1개)보다 훨씬 많아져
+    #     비교가 공리 내용이 아니라 머리 분포 차이가 된다. 그래서 **같은 집합을 섞기만** 한다.
     rng = random.Random(seed)
-    return [(nm, cn, sgn, thr, rng.choice(["Delirium", "Death"]), rng.random() < 0.5, g)
-            for nm, cn, sgn, thr, hd, neg, g in REAL], REAL_W
+    heads = [a[4] for a in REAL]; negs = [a[5] for a in REAL]
+    rng.shuffle(heads); rng.shuffle(negs)
+    return [(nm, cn, sgn, thr, heads[i], negs[i], g)
+            for i, (nm, cn, sgn, thr, hd, neg, g) in enumerate(REAL)], REAL_W
 
 
 class Net3(nn.Module):
@@ -61,7 +65,7 @@ class Net3(nn.Module):
         self.concept = nn.Linear(hid, nconcept)
         self.delirium = nn.Linear(hid, 1)
         nin = 1 if mode == "mediated" else nconcept + 1
-        self.w = nn.Parameter(torch.zeros(nin))         # softplus 로 비음수
+        self.w = nn.Parameter(torch.zeros(nin))         # A3: 섬망 가중치만 softplus(비음수)
         self.bias = nn.Parameter(torch.zeros(1))
         self.out = nn.Linear(nin, 1)                    # base 전용
 
@@ -79,8 +83,12 @@ class Net3(nn.Module):
             feats = torch.cat([cz, pd_.unsqueeze(1)], 1)
         if self.mode == "base":
             logit = self.out(feats).squeeze(1)
-        else:                                            # mono · mediated · mediated_plus
-            logit = (feats * F.softplus(self.w)).sum(1) + self.bias
+        else:                                            # mono · mediated
+            # A3: "섬망이 사망 위험을 높인다"만 부호를 고정한다. 다른 개념의 방향은
+            #     공리가 정하지 않으므로 자유 가중치로 둔다(섬망 가중치는 feats 의 마지막).
+            w_eff = (F.softplus(self.w) if self.mode == "mediated"
+                     else torch.cat([self.w[:-1], F.softplus(self.w[-1:])]))
+            logit = (feats * w_eff).sum(1) + self.bias
         return logit, c, d
 
 
@@ -98,8 +106,9 @@ def train(mode, w_axiom, ax, axw, seed, target="hosp", epochs=None, twostage=Fal
         best, best_state, bad = -1, None, 0
         for ep in range(epochs):
             m.train()
+            perm = np.random.permutation(idx_tr)      # A1: 에폭마다 전체를 한 번 섞는다
             for i in range(0, len(idx_tr), bs):
-                j = np.random.permutation(idx_tr)[i:i + bs] if i == 0 else idx_tr[i:i + bs]
+                j = perm[i:i + bs]
                 xb, sb = Xt[j].to(DEV), St[j].to(DEV)
                 logit, c, dlog = m(xb, sb)
                 loss = torch.zeros((), device=DEV)

@@ -73,7 +73,8 @@ cam["prev_conf"] = cam["v"].where(cam.v != "U").groupby(cam.stay_id).ffill().shi
 cam.loc[cam.groupby("stay_id").head(1).index, "prev_conf"] = np.nan
 cam["prev_conf"] = cam["prev_conf"].fillna("없음")
 # 직전 확정 평가로부터 경과시간
-last_conf_hr = cam["hr"].where(cam.v != "U").groupby(cam.stay_id).ffill().shift()
+last_conf_hr = (cam["hr"].where(cam.v != "U").groupby(cam.stay_id).ffill()
+                .groupby(cam.stay_id).shift())   # A2: stay 안에서만 shift (첫 앵커 누출 방지)
 cam["since_conf"] = cam["hr"] - last_conf_hr
 cam["since_prev"] = cam.groupby("stay_id")["hr"].diff()
 

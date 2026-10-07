@@ -29,6 +29,7 @@ import random
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+ANTE = os.environ.get("ANTECEDENT", "pred")   # pred: 모델이 예측한 개념값 · data: 관측된 개념값
 SRC = (HERE / "29_outcome_mortality.py").read_text(encoding="utf-8")
 exec(compile(SRC[: SRC.index("# ================================================================ 실행")],
              "29_prefix", "exec"), globals())   # noqa: S102
@@ -40,7 +41,7 @@ import torch                                                         # noqa: E40
 import torch.nn as nn                                                # noqa: E402
 from sklearn.metrics import average_precision_score, roc_auc_score   # noqa: E402
 
-OUTD = os.path.join(OUT, "stage39")
+OUTD = os.path.join(OUT, "stage39" + ("_data" if ANTE == "data" else ""))
 os.makedirs(OUTD, exist_ok=True)
 SEEDS = [int(s) for s in args.seeds.split(",")]
 IMP = ltn.fuzzy_ops.ImpliesReichenbach()
@@ -52,17 +53,30 @@ REAL, _ = make_axioms(True)
 
 
 def fake_axioms(seed):
+    # A4: 머리/부정을 새로 뽑으면 가짜 쪽 "사망" 머리가 진짜(13개 중 1개)보다 훨씬 많아져
+    #     비교가 공리 내용이 아니라 머리 분포 차이가 된다. 그래서 **같은 집합을 섞기만** 한다.
     rng = random.Random(seed)
-    return [(nm, cn, sgn, thr, rng.choice(["Delirium", "Death"]), rng.random() < 0.5, g)
-            for nm, cn, sgn, thr, hd, neg, g in REAL]
+    heads = [a[4] for a in REAL]; negs = [a[5] for a in REAL]
+    rng.shuffle(heads); rng.shuffle(negs)
+    return [(nm, cn, sgn, thr, heads[i], negs[i], g)
+            for i, (nm, cn, sgn, thr, hd, neg, g) in enumerate(REAL)]
 
 
-def membership(row, c, p_del):
+def membership(row, c, p_del, obs=None, obs_mask=None):
+    """공리 앞부분(antecedent)의 진리값.
+    ANTE='pred' : 모델이 예측한 개념값으로 계산 (지금까지의 방식 · 원저자 코드도 학습된 술어를 씀)
+    ANTE='data' : **관측된 개념값**으로 계산 — 공리를 데이터에 직접 묶는다 (랩 피드백 반영)
+    """
     nm, cn, sgn, thr, hd, neg, g = row
     if cn is None:
         return p_del
-    z = c[:, CI[cn]]
-    return (torch.sigmoid(z) if CTYPE_C[CI[cn]] == "bin"
+    i = CI[cn]
+    if ANTE == "data" and obs is not None:
+        v = obs[:, i]
+        a = v.clamp(0, 1) if CTYPE_C[i] == "bin" else torch.sigmoid(sgn * (v - thr) / TAU)
+        return a * obs_mask[:, i]          # 미관측이면 앵커를 끄고(거짓) 둔다
+    z = c[:, i]
+    return (torch.sigmoid(z) if CTYPE_C[i] == "bin"
             else torch.sigmoid(sgn * (z - thr) / TAU))
 
 
@@ -77,10 +91,10 @@ def sat_data(p_death, y):
     return SAT(*f)
 
 
-def sat_knowledge(ax, c, p_del, p_death):
+def sat_knowledge(ax, c, p_del, p_death, obs=None, obs_mask=None):
     f = []
     for row in ax:
-        a = membership(row, c, p_del)
+        a = membership(row, c, p_del, obs, obs_mask)
         b = p_del if row[4] == "Delirium" else (p_death if row[4] == "Death"
                                                 else torch.sigmoid(c[:, CI[row[4]]]))
         if row[5]:
@@ -102,14 +116,15 @@ def train(w_k, ax, seed, epochs=None, bs=2048, w_concept=1.0, w_mediator=1.0):
     best, best_state, bad = -1, None, 0
     for ep in range(epochs):
         m.train()
+        perm = np.random.permutation(idx_tr)          # A1: 에폭마다 전체를 한 번 섞는다
         for i in range(0, len(idx_tr), bs):
-            j = np.random.permutation(idx_tr)[i:i + bs] if i == 0 else idx_tr[i:i + bs]
+            j = perm[i:i + bs]
             xb, sb, yb = Xt[j].to(DEV), St[j].to(DEV), Yt_death[j].to(DEV)
             logit, c, dlog = m(xb, sb)
             p_death, p_del = torch.sigmoid(logit), torch.sigmoid(dlog)
-            loss = 1.0 - (w_d * sat_data(p_death, yb)
-                          + w_k * sat_knowledge(ax, c, p_del, p_death))
             cb, mb = CtC[j].to(DEV), MtC[j].to(DEV)
+            loss = 1.0 - (w_d * sat_data(p_death, yb)
+                          + w_k * sat_knowledge(ax, c, p_del, p_death, cb, mb))
             lb = torch.where(TYPE_C.to(DEV).unsqueeze(0), bce(c, cb), (c - cb) ** 2)
             loss = loss + w_concept * (lb * mb).sum() / mb.sum().clamp(min=1)
             lm = Lt_del[j].to(DEV)
@@ -134,7 +149,7 @@ def train(w_k, ax, seed, epochs=None, bs=2048, w_concept=1.0, w_mediator=1.0):
 
 
 head(f"[랩 피드백] LTN 라이브러리 연산 + 논문식 loss (w_D + w_K = 1) · 시드 {len(SEEDS)}개")
-print("라이브러리:", ltn.__file__)
+print("라이브러리:", ltn.__file__, "· 공리 앞부분:", "관측값(data)" if ANTE == "data" else "모델 예측값(pred)")
 idx_te = np.where(in_te)[0]
 y = Y_DEATH[idx_te]
 rows = []

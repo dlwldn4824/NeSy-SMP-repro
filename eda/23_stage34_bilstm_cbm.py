@@ -77,7 +77,8 @@ cam["uta_frac"] = np.where(cam.n_prev > 0, cam.n_prev_uta / cam.n_prev.clip(lowe
 cam["prev_conf"] = cam["v"].where(cam.v != "U").groupby(cam.stay_id).ffill().shift()
 cam.loc[cam.groupby("stay_id").head(1).index, "prev_conf"] = np.nan
 cam["prev_conf"] = cam["prev_conf"].fillna("없음")
-lc = cam["hr"].where(cam.v != "U").groupby(cam.stay_id).ffill().shift()
+lc = (cam["hr"].where(cam.v != "U").groupby(cam.stay_id).ffill()
+      .groupby(cam.stay_id).shift())         # A2: stay 안에서만 shift (첫 앵커 누출 방지)
 cam["since_conf"] = (cam["hr"] - lc).fillna(-1)
 cam["since_prev"] = cam.groupby("stay_id")["hr"].diff().fillna(-1)
 

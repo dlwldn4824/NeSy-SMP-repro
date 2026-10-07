@@ -1,11 +1,11 @@
-"""Build MIMIC-IV Sepsis-3??style cohort from local SQLite (no BigQuery).
+"""Build MIMIC-IV Sepsis-3-style cohort from local SQLite (no BigQuery).
 
-Paper ง5.1 / review protocol (approx. PhysioNet mimiciv_derived.sepsis3):
+Paper ยง5.1 / review protocol (approx. PhysioNet mimiciv_derived.sepsis3):
   - age >= 18
   - single ICU stay per admission, ICU LOS >= 24h
   - suspected infection: culture + antibiotic in the classic time windows
   - SOFA >= 2 around the suspected-infection time (simplified 6-component score)
-  - sanity target: n ??19,328, mortality ??18%
+  - sanity target: n ~19,328, mortality ~18%
 
 Outputs:
   --out-dir/cohort_sepsis3.csv
@@ -202,7 +202,7 @@ def sofa_renal(crea: float | None) -> int:
 
 def sofa_cv(map_v: float | None, sbp: float | None, on_vaso: bool) -> int:
     if on_vaso:
-        return 3  # simplified: any vaso ??at least 3
+        return 3  # simplified: any vaso -> at least 3
     m = map_v
     if (m is None or np.isnan(m)) and sbp is not None and not np.isnan(sbp):
         m = sbp * 0.7  # crude MAP proxy if only SBP
@@ -352,7 +352,7 @@ def fetch_charts_for_stays(
         return df
     itemids = sorted({i for ids in CHART_ITEMIDS.values() for i in ids})
     id_list = ",".join(str(i) for i in itemids)
-    # chartevents is huge ??filter by stay_id list in batches
+    # chartevents is huge - filter by stay_id list in batches
     stay_ids = stays["stay_id"].astype(int).unique().tolist()
     parts = []
     batch = 800
@@ -504,7 +504,7 @@ def main() -> None:
     if cohort_path.exists() and cohort_path.stat().st_size > 0:
         c = pd.read_csv(cohort_path)
         mort = float(c["hospital_expire_flag"].mean())
-        print(f"[SKIP] existing cohort n={len(c):,} mort={mort:.1%} ??{cohort_path}")
+        print(f"[SKIP] existing cohort n={len(c):,} mort={mort:.1%} -> {cohort_path}")
         return
 
     base = build_base_icu(factory, cache)
@@ -516,7 +516,7 @@ def main() -> None:
     print(f"suspected infection (culture+abx windows): {len(soi):,}")
 
     stays = base.merge(soi, on=["hadm_id", "subject_id"], how="inner")
-    print(f"ICU ??suspected infection: {len(stays):,}")
+    print(f"ICU & suspected infection: {len(stays):,}")
 
     labs = fetch_labs_for_stays(factory, cache, stays)
     charts = fetch_charts_for_stays(factory, cache, stays)
