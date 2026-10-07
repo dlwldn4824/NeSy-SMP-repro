@@ -22,7 +22,7 @@ COMORBIDITIES = [
     'pneumonia', 'trauma',
 ]
 
-# 방식 A 결과 (eda/COMORBIDITY_EXTRACTION.md 2절) — 분모는 '엔티티 1개 이상인 hadm' 28,744
+# 방식 A 결과 (docs/repro/REPRO_COMORBIDITY_EXTRACTION.md 2절) — 분모는 '엔티티 1개 이상인 hadm' 28,744
 A_PREV = {
     'pneumonia': 25.6, 'cad': 24.9, 'hypertension': 24.6, 'cancer': 20.0,
     'copd': 12.7, 'diabetes': 10.7, 'atrial fibrillation': 9.8, 'cirrhosis': 8.6,

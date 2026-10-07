@@ -185,8 +185,8 @@ F1 (5-fold 평균)
 ## 7. 남은 일
 
 1. ~~극단값 제거 조건에서 12·24·48h 확인~~ → **완료 (09-25)**. 효과는 전 시점에서 유지, 48h 에서 순위 역전 (§3 ③-확장)
-2. ~~논문 저자 문의 항목 정리~~ → **완료**. `docs/AUTHOR_QUESTIONS.md` (6개 항목·요청 자료 목록). 발송 전 검토 필요
-3. ~~PADIS 후속 검토~~ → **완료**. `docs/PADIS_FOLLOWUP_2026-09-23.md` · `docs/PADIS_RULE_EXEC_SPEC.csv` ("섬망 → 사망"은 원문 미지지 → 제외 권고, 공리 강도 두 축 분리안)
+2. ~~논문 저자 문의 항목 정리~~ → **완료**. `docs/repro/REPRO_AUTHOR_QUESTIONS.md` (6개 항목·요청 자료 목록). 발송 전 검토 필요
+3. ~~PADIS 후속 검토~~ → **완료**. `docs/kg/KG_PADIS_FOLLOWUP_2026-09-23.md` · `docs/kg/KG_PADIS_RULE_EXEC_SPEC.csv` ("섬망 → 사망"은 원문 미지지 → 제외 권고, 공리 강도 두 축 분리안)
 4. 남은 것: PADIS 2018 원문 PDF 확보 (p.18 Ungraded 미검증 5건) · KG 승인 게이트(`padis_rules_approved.json` 비어 있음) · 극단값 제거 조건 반복 실행(현재 시점별 1회)
 
 ## 한계

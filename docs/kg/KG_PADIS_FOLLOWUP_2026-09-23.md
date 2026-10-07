@@ -1,6 +1,6 @@
 # PADIS 후속 검토 — 근거 유형·공리 강도·실행 조건
 
-작성 2026-09-23 · 선행 문서: `docs/KG_RULE_REVIEW.md`(검수표) · `docs/KG_RULE_REVIEW.csv` · `padis/docs/PADIS_섬망_지식그래프_정리.md`
+작성 2026-09-23 · 선행 문서: `docs/kg/KG_RULE_REVIEW_PADIS.md`(검수표) · `docs/kg/KG_RULE_REVIEW_PADIS.csv` · `padis/docs/PADIS_섬망_지식그래프_정리.md`
 대상 코드: `eda/23_stage34_bilstm_cbm.py`(AXIOMS 13개 · GRADE_W) · `eda/28_padis_planned.py`
 원문 자료: `padis/outputs/padis_rules_raw.json`(2018 PADIS 에서 '섬망' 포함 문장 86개, p.9~31) · `padis/outputs/_gold_sentences.txt`
 
@@ -134,7 +134,7 @@ w = CLAIM_W[claim] * CERT_W[cert]          # 0 이면 공리에서 제외
 
 ## 5. 규칙별 원문 근거 + 실행 조건 기록
 
-`docs/PADIS_RULE_EXEC_SPEC.csv` 에 규칙 단위로 다음을 기록했다 — 검수표(`KG_RULE_REVIEW.csv`)가 **근거·판정**을 담는다면, 이 표는 **실행 조건**을 담는다.
+`docs/kg/KG_PADIS_RULE_EXEC_SPEC.csv` 에 규칙 단위로 다음을 기록했다 — 검수표(`KG_RULE_REVIEW_PADIS.csv`)가 **근거·판정**을 담는다면, 이 표는 **실행 조건**을 담는다.
 
 열: `규칙ID · 주어 · 관계 · 목적어 · claimType · 원문문장ID · 페이지 · 원문요약 · 원문등급 · 현재가중치 · 제안가중치 · MIMIC변수 · 시간창 · 집계 · 임계값 · 결측처리 · 모델사용 · 비고`
 

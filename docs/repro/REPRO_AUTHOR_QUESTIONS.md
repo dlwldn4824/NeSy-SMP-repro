@@ -10,7 +10,7 @@
 
 **배경.** 논문 §5.1 은 코호트를 19,328 ICU 입원 · 사망률 약 18% 로 적고, 제외 기준 중 하나로 "분석에 필요한 데이터가 없는 환자"를 든다. 어떤 변수가 몇 개 이상 있어야 하는지는 적혀 있지 않다.
 
-**우리가 확인한 것** (`docs/LAB_REPORT_2026-09-21.md` §5, `docs/REPRO_AUDIT_TABLES.md`)
+**우리가 확인한 것** (`docs/repro/REPRO_LAB_REPORT_2026-09-21.md` §5, `docs/repro/REPRO_AUDIT_TABLES.md`)
 
 | 단계 | 남은 ICU 입원 | 사망률 |
 |---|---:|---:|
@@ -42,7 +42,7 @@
 
 **배경.** 공개 저장소 코드를 그대로 실행하면 논문 결과를 만들 수 없다.
 
-**우리가 확인한 것** (`NeSy-SMP/upstream_faithful/PATCHES.md`)
+**우리가 확인한 것** (`NeSy-SMP/variants/upstream_faithful/PATCHES.md`)
 
 | # | 위치 | 증상 · 내용 |
 |---|---|---|
@@ -51,7 +51,7 @@
 | P4 | `model/models.py` | `MLP.fc1 = Linear(254)` 하드코딩(주석에 lead 별 289/261/275) → 예측 시점마다 사람이 숫자를 고쳐야 함. 우리는 `input_size + 23 + 1` 로 계산 |
 | P1·P2 | `stratified_main.py` | 입력 경로 하드코딩 · fold 별 지표 미저장 (계산 무관, 실행 편의) |
 
-또한 학습 공리 중 **혈당 > 100 조건은 활성률 0%** 로, 코드 경로상 한 번도 적용되지 않는다(`docs/SENSITIVITY_MISSING_AWARE.md`).
+또한 학습 공리 중 **혈당 > 100 조건은 활성률 0%** 로, 코드 경로상 한 번도 적용되지 않는다(`docs/repro/REPRO_SENS_A_MISSING_AWARE.md`).
 
 **질문**
 
@@ -68,7 +68,7 @@
 
 **배경.** 논문 §4.3 은 임계값을 "지식그래프에 질의해 체계적으로 얻을 수 있다"고 적는다. 그러나 본문에 숫자로 적힌 임계값은 **젖산 > 4.0 하나**뿐이다.
 
-**우리가 확인한 것** (`docs/AXIOM_THRESHOLD_SOURCES.md`)
+**우리가 확인한 것** (`docs/repro/REPRO_AXIOM_THRESHOLD_SOURCES.md`)
 
 - 코드에만 있고 KG·SSC 2021 어디에도 없는 임계값: **GCS < 8 · 수축기혈압 ≤ 100 · 호흡수 ≥ 29 또는 < 9 · 크레아티닌 ≥ 1.5 · 혈당 > 100**.
 - 값 대조 결과: 수축기혈압 ≤ 100 은 **qSOFA** 와 일치(공개 `main.py` 도 변수명을 `qSOFA_clinical_concept_values` 로 씀), 호흡수 < 9 는 **MEWS**(코드 주석 `# mews score risk`), 혈소판 < 50 · 빌리루빈 2 는 **SOFA/SSC 2012**, 젖산 4 는 **SSC 2012**, 크레아티닌 1.5 는 **APACHE II** 구간 하한과만 같다.
@@ -90,7 +90,7 @@
 
 **배경.** 논문은 가이드라인 → 지식그래프 → (AnyBURL) 규칙 채굴 → FOL 공리 순서의 파이프라인을 제시한다.
 
-**우리가 확인한 것** (`docs/KG_RULE_MINING_CHECK.md`)
+**우리가 확인한 것** (`docs/kg/KG_RULE_MINING_ANYBURL.md`)
 
 - `create_ckg.py` 의 KG 는 사람이 손으로 적은 90개 트리플이고, 채굴 입력 `rules/pkg.txt` 는 82개 트리플(임계값 없음)이다.
 - 저자 설정 그대로 채굴·필터(`filter_rules.py`, 신뢰도 ≥ 0.8, 머리 = Death/Outcome)하면 통과 규칙은 27개(pkg) / 14개(ckg)인데 **전부 변수만 쓰는 일반형**이다: 예) `increaseRiskOf(X,Death) <= subClassOf(X,RiskFactor)` conf 0.94.
@@ -112,11 +112,11 @@
 
 **배경.** 학습 손실은 `1 − (0.8 · data + 0.2 · knowledge)` 형태이고, knowledge 쪽에는 **앵커 공리**(값이 기준을 넘으면 "위험" 술어가 참)와 **함축 공리**(위험하면 사망)가 함께 들어간다.
 
-**우리가 확인한 것** (`upstream_faithful/stratified_main.py` L585~645)
+**우리가 확인한 것** (`variants/upstream_faithful/stratified_main.py` L585~645)
 
 - 함축 공리 `… → P(사망)` 가 있는 개념은 **8개**: 젖산 · 빌리루빈 · 혈소판 · 젖산 미개선 · CRP · 만성질환 · 백혈구 · 나이.
 - 앵커만 있고 함축이 없는 개념은 **GCS · 수축기혈압 · 호흡수 · 크레아티닌 · 혈당**. 이들은 작은 판정기만 학습시키고 최종 사망 예측으로 가는 경로가 없다.
-- 그래서 측정 결측을 0 으로 채워 GCS·혈압 규칙이 전원에게 켜지고 크레아티닌이 전혀 켜지지 않던 문제를 고쳐도(`docs/SENSITIVITY_MISSING_AWARE.md`) AUC 변화는 +0.03 으로 사실상 0 이었다.
+- 그래서 측정 결측을 0 으로 채워 GCS·혈압 규칙이 전원에게 켜지고 크레아티닌이 전혀 켜지지 않던 문제를 고쳐도(`docs/repro/REPRO_SENS_A_MISSING_AWARE.md`) AUC 변화는 +0.03 으로 사실상 0 이었다.
 - 논문 §4.5 의 공리 목록 9개와도 구성이 다르다(LowMAP 포함, GCS·호흡수·혈압·크레아티닌·혈당 미포함).
 
 **질문**
@@ -135,7 +135,7 @@
 
 **우리가 확인한 것**
 
-- 같은 코드를 두 번 돌리면 딥러닝 계열 AUC 가 **±0.1~0.3** 흔들린다(`docs/LAB_REPORT_2026-09-21.md` §3). 논문이 보고한 NeSy-SMP − LTN 차이(+0.23 ~ +1.14)와 겹치는 크기다.
+- 같은 코드를 두 번 돌리면 딥러닝 계열 AUC 가 **±0.1~0.3** 흔들린다(`docs/repro/REPRO_LAB_REPORT_2026-09-21.md` §3). 논문이 보고한 NeSy-SMP − LTN 차이(+0.23 ~ +1.14)와 겹치는 크기다.
 - 우리는 재현성을 위해 생존자 관찰 구간을 고정했고(`make_leadtime_csvs.py --seed 32`), 그 외 학습 시드는 원본 그대로 두었다.
 - 저장소에는 코호트 생성 코드(감염 의심·Sepsis-3·제외 기준 적용)가 없다.
 
@@ -162,4 +162,4 @@
 
 ## 참고 문서
 
-`docs/LAB_REPORT_2026-09-21.md` · `docs/NESY_SMP_REPRO_REPORT.md` · `docs/PAPER_REPRO_METHOD.md` · `docs/REPRO_AUDIT_TABLES.md` · `docs/SENSITIVITY_MISSING_AWARE.md` · `docs/SENSITIVITY_VALIDRANGE.md` · `docs/KG_RULE_MINING_CHECK.md` · `docs/AXIOM_THRESHOLD_SOURCES.md` · `docs/GROUNDING_SPEC_CHECK.md` · `NeSy-SMP/upstream_faithful/PATCHES.md`
+`docs/repro/REPRO_LAB_REPORT_2026-09-21.md` · `docs/repro/REPRO_REPORT_2026-09-16.md` · `docs/repro/REPRO_METHOD.md` · `docs/repro/REPRO_AUDIT_TABLES.md` · `docs/repro/REPRO_SENS_A_MISSING_AWARE.md` · `docs/repro/REPRO_SENS_B_VALIDRANGE.md` · `docs/kg/KG_RULE_MINING_ANYBURL.md` · `docs/repro/REPRO_AXIOM_THRESHOLD_SOURCES.md` · `docs/kg/KG_GROUNDING_SPEC.md` · `NeSy-SMP/variants/upstream_faithful/PATCHES.md`

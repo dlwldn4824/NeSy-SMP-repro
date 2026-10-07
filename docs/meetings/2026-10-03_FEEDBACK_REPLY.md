@@ -1,7 +1,7 @@
 # 교수님 피드백 대응 (2026-10-03)
 
 받은 피드백 3가지
-1. (재현) 저자와 직접 확인해 주시기로 함 → 우리 쪽은 **문의 항목만 전달** (`docs/AUTHOR_QUESTIONS.md`)
+1. (재현) 저자와 직접 확인해 주시기로 함 → 우리 쪽은 **문의 항목만 전달** (`docs/repro/REPRO_AUTHOR_QUESTIONS.md`)
 2. **one-shot / few-shot 결과가 양쪽에 겹치는 양은?** 각각 또는 중복 항목으로 **KG 구축 → 공리 추출**
 3. **예측 대상을 섬망 대신 clinical results(기존 연구처럼)로** 접근 · 섬망에서 NeSy 기여 가능성도 확인
 
@@ -49,7 +49,7 @@
 | 기존 gold 규칙과 일치 | 10 |
 | gold 밖인데 근거 Y | 5 (나이–통증 · 성별–통증 · 외상–통증 · 통증–고혈압 · 조기거동–억제대) |
 
-→ **중복 항목은 "조건에 상관없이 원문이 지지하는 핵심 규칙 집합"에 가깝다.** 다만 `부분` 판정 12개는 대부분 ① 원문이 "연관"인데 `increasesRiskOf` 로 적음 ② 번들·비교약 효과를 단일 개념 효과로 적음 — **KG 에 넣기 전에 관계명을 고쳐야 한다**(`PADIS_FOLLOWUP_2026-09-23.md` §2 의 `claimType` 안과 같은 처리).
+→ **중복 항목은 "조건에 상관없이 원문이 지지하는 핵심 규칙 집합"에 가깝다.** 다만 `부분` 판정 12개는 대부분 ① 원문이 "연관"인데 `increasesRiskOf` 로 적음 ② 번들·비교약 효과를 단일 개념 효과로 적음 — **KG 에 넣기 전에 관계명을 고쳐야 한다**(`KG_PADIS_FOLLOWUP_2026-09-23.md` §2 의 `claimType` 안과 같은 처리).
 
 ---
 
@@ -64,7 +64,7 @@
 | **C 합집합** | 세 조건 합 | 44 | 재현율 최대, 잡음 포함 |
 | (대조) 사람이 만든 KG | 현재 `padis_concepts.json` | 20 | 기존 기준선 |
 
-실행 방법은 이미 있다: 관계 트리플 → `pipeline/horn_to_ltn.py` 공리 컴파일 → `eda/23_stage34_bilstm_cbm.py` 의 LTN 경로. 개념 → MIMIC 실행 조건 매핑은 `docs/PADIS_RULE_EXEC_SPEC.csv` 를 쓴다.
+실행 방법은 이미 있다: 관계 트리플 → `pipeline/horn_to_ltn.py` 공리 컴파일 → `eda/23_stage34_bilstm_cbm.py` 의 LTN 경로. 개념 → MIMIC 실행 조건 매핑은 `docs/kg/KG_PADIS_RULE_EXEC_SPEC.csv` 를 쓴다.
 각 KG 에서 **실행 가능한 공리 수**가 달라진다(개념이 MIMIC 에 매핑돼야 공리가 된다) → 이 숫자 자체가 결과다.
 
 ---

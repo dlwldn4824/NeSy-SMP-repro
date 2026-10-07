@@ -106,7 +106,7 @@ if HAS_GAP:
         ("Trauma→Delirium", "Trauma", +1, 0.5, "Delirium", False, "strong"),
         ("Hypertension→Delirium", "Hypertension", +1, 0.5, "Delirium", False, "moderate"),
     ]
-# 중간 개념 → 결과. PADIS 2018 원문은 이 규칙을 뒷받침하지 않는다 (docs/PADIS_FOLLOWUP_2026-09-23.md §1)
+# 중간 개념 → 결과. PADIS 2018 원문은 이 규칙을 뒷받침하지 않는다 (docs/kg/KG_PADIS_FOLLOWUP_2026-09-23.md §1)
 # → 출처 등급을 external 로 따로 둔다.
 AX_MED = [("Delirium→Death", None, 0, 0.0, "Death", False, "external")]
 GRADE_W["external"] = 0.5

@@ -21,7 +21,7 @@
 
 | 피드백 | 수행 내용 | 결과 | 실험 규모 |
 | --- | --- | --- | --- |
-| 재현 관련 저자 직접 확인 | 제외 기준·임계값 출처·공개/실제 코드 차이 문의 정리 | `AUTHOR_QUESTIONS.md` 완료, 발송만 남음 | — |
+| 재현 관련 저자 직접 확인 | 제외 기준·임계값 출처·공개/실제 코드 차이 문의 정리 | `REPRO_AUTHOR_QUESTIONS.md` 완료, 발송만 남음 | — |
 | **one/few-shot 겹침 확인** | PADIS·sepsis 양쪽 계산 | PADIS **31개 겹침**, Jaccard **0.84** | 저장된 추출 48회분 재집계 |
 | **각각·중복 KG 생성 후 공리 추출** | KG 6종 생성 → 공리 컴파일 → 동일 분할 학습 | 모두 기준선 **±0.4 이내** | 7조건 × 시드 3 = **21회 학습** |
 | **예측 대상을 임상 결과로 변경** | 섬망 → 원내 사망 / 7일 사망, 섬망은 중간 개념 | 공리 효과 **+0.1 / −0.1** | 7변형 × 시드 3 × 결과 2 = **42회 학습** |
@@ -328,7 +328,7 @@ Train 2008–2016(앵커 189,216) → Test 2020–2022(앵커 63,780)
 # 11. 교수님께 확인받을 사항
 
 ## 1) 저자 문의 메일 발송
-`docs/AUTHOR_QUESTIONS.md` 작성 완료. 핵심 3개 — ① "분석에 필요한 데이터 없음" 제외 기준의 정확한 정의 ② 공리 임계값 출처(CRP 100 · 백혈구 30 · 혈당 100) ③ 공개 코드와 실제 코드 차이(공개 코드는 RF·XGBoost 입력 계산에서 첫 fold부터 중단).
+`docs/repro/REPRO_AUTHOR_QUESTIONS.md` 작성 완료. 핵심 3개 — ① "분석에 필요한 데이터 없음" 제외 기준의 정확한 정의 ② 공리 임계값 출처(CRP 100 · 백혈구 30 · 혈당 100) ③ 공개 코드와 실제 코드 차이(공개 코드는 RF·XGBoost 입력 계산에서 첫 fold부터 중단).
 
 ## 2) 논문 방향 결정
 **방향 A — 기존 NeSy 구조의 한계 검증**: "공리가 있다는 것과 공리가 실제 학습에 영향을 준다는 것은 다르다" (음성 대조군 · gradient 분석 · 가중치 실험 · KG 범위 · 도메인 이동 · 누락 연결 복구)
@@ -346,7 +346,7 @@ Connect 실험에서도 효과가 확인되지 않을 경우, 공리 개수를 �
 
 # 12. 산출물
 
-**문서 (`docs/`)** — `2026-10-03_FEEDBACK_REPLY.md`(겹침·계획) · `DELIRIUM_OUTCOME_SWITCH_2026-10-03.md`(결과 교체·KG 범위) · `DELIRIUM_AXIOM_CONTROL_2026-10-04.md`(음성 대조군·개념 회수·도메인 이동) · `2026-10-06_WEEKLY.md` · `AUTHOR_QUESTIONS.md` · `REPRO_LAB_REPORT_2026-09-21.md`(전체 재현)
+**문서 (`docs/`)** — `2026-10-03_FEEDBACK_REPLY.md`(겹침·계획) · `DELIRIUM_OUTCOME_SWITCH_2026-10-03.md`(결과 교체·KG 범위) · `DELIRIUM_AXIOM_CONTROL_2026-10-04.md`(음성 대조군·개념 회수·도메인 이동) · `2026-10-06_WEEKLY.md` · `REPRO_AUTHOR_QUESTIONS.md` · `REPRO_LAB_REPORT_2026-09-21.md`(전체 재현)
 
 **코드** — `eda/29`~`38`(결과 교체 · KG 범위 · 음성 대조군 · 개념 회수 · 도메인 이동 · 구조 가설 3종 · gradient 분석) · `NeSy-SMP/variants/upstream_sensitivity_connect{,4}`(S3·S4·S5 패치) · `NeSy-SMP/data/add_padis_vars.py` · `scripts/run_research_queue*.ps1`
 
