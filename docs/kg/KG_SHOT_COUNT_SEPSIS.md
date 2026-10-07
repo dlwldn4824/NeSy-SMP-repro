@@ -40,4 +40,4 @@
    예시 1개만 있어도 근거 지지 88~89%, 일치도 0.83 으로 올라간다. 11개면 일치도 1.00.
 3. 한계: 판정자도 LLM · 확인용 19개(1개 = 5.3%p) · 조건당 2회.
 
-산출물: `NeSy-SMP/tools/llm_runs/{zeroshot,oneshot}_run{1,2}/` · `tools/llm_runs/blind_review_k01_j{1,2}_unblinded.csv` · 프롬프트 `tools/{zeroshot,oneshot}_sepsis_holdout_*.txt`
+산출물: `NeSy-SMP/tools/rule_extraction/llm_runs/{zeroshot,oneshot}_run{1,2}/` · `tools/rule_extraction/llm_runs/blind_review_k01_j{1,2}_unblinded.csv` · 프롬프트 `tools/rule_extraction/prompts/{zeroshot,oneshot}_sepsis_holdout_*.txt`

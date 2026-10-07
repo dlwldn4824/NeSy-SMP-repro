@@ -116,4 +116,4 @@
 - `time_window` 실행 · 단위 변환은 컴파일러에 아직 없다. `combine` 은 구현했지만 '동시' 허용 폭은 명세 칸이 아니라 실행 옵션으로만 비교했다.
 - PADIS 는 로컬 원문 텍스트의 기호(≥, ≤ 등)가 깨져 있어 이번 시험에서 뺐다.
 
-산출물: `NeSy-SMP/configs/grounding_spec_schema.json` · `tools/grounding/build_grounding_prompts.py` · `tools/grounding_prompt_{Q,L,M,K}.txt` · `tools/grounding/grounding_gold.json` · `tools/llm_runs/grounding_run{1,2}/` · `tools/grounding/grounding_score.py` · `tools/grounding/grounding_compile.py` · `tools/llm_runs/grounding_score_*.csv` · `grounding_compile_6h.csv` · `grounding_compile_6h_combine.csv`
+산출물: `NeSy-SMP/configs/grounding_spec_schema.json` · `tools/grounding/build_grounding_prompts.py` · `tools/grounding/grounding_prompt_{Q,L,M,K}.txt` · `tools/grounding/grounding_gold.json` · `tools/grounding/llm_runs/grounding_run{1,2}/` · `tools/grounding/grounding_score.py` · `tools/grounding/grounding_compile.py` · `tools/grounding/llm_runs/grounding_score_*.csv` · `grounding_compile_6h.csv` · `grounding_compile_6h_combine.csv`

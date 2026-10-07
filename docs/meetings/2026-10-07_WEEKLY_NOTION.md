@@ -348,7 +348,7 @@ Connect 실험에서도 효과가 확인되지 않을 경우, 공리 개수를 �
 
 **문서 (`docs/`)** — `2026-10-03_FEEDBACK_REPLY.md`(겹침·계획) · `DELIRIUM_OUTCOME_SWITCH_2026-10-03.md`(결과 교체·KG 범위) · `DELIRIUM_AXIOM_CONTROL_2026-10-04.md`(음성 대조군·개념 회수·도메인 이동) · `2026-10-06_WEEKLY.md` · `REPRO_AUTHOR_QUESTIONS.md` · `REPRO_LAB_REPORT_2026-09-21.md`(전체 재현)
 
-**코드** — `eda/29`~`38`(결과 교체 · KG 범위 · 음성 대조군 · 개념 회수 · 도메인 이동 · 구조 가설 3종 · gradient 분석) · `NeSy-SMP/variants/upstream_sensitivity_connect{,4}`(S3·S4·S5 패치) · `NeSy-SMP/data/add_padis_vars.py` · `scripts/run_research_queue*.ps1`
+**코드** — `eda/29`~`38`(결과 교체 · KG 범위 · 음성 대조군 · 개념 회수 · 도메인 이동 · 구조 가설 3종 · gradient 분석) · `NeSy-SMP/variants/upstream_sensitivity_connect{,4}`(S3·S4·S5 패치) · `NeSy-SMP/data/add_padis_vars.py` · `scripts/queues/queue_research_*.ps1`
 
 ---
 
