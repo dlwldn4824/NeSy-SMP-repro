@@ -64,7 +64,7 @@
 | **C 합집합** | 세 조건 합 | 44 | 재현율 최대, 잡음 포함 |
 | (대조) 사람이 만든 KG | 현재 `padis_concepts.json` | 20 | 기존 기준선 |
 
-실행 방법은 이미 있다: 관계 트리플 → `pipeline/horn_to_ltn.py` 공리 컴파일 → `eda/23_stage34_bilstm_cbm.py` 의 LTN 경로. 개념 → MIMIC 실행 조건 매핑은 `docs/kg/KG_PADIS_RULE_EXEC_SPEC.csv` 를 쓴다.
+실행 방법은 이미 있다: 관계 트리플 → `pipeline/horn_to_ltn.py` 공리 컴파일 → `delirium/23_stage34_bilstm_cbm.py` 의 LTN 경로. 개념 → MIMIC 실행 조건 매핑은 `docs/kg/KG_PADIS_RULE_EXEC_SPEC.csv` 를 쓴다.
 각 KG 에서 **실행 가능한 공리 수**가 달라진다(개념이 MIMIC 에 매핑돼야 공리가 된다) → 이 숫자 자체가 결과다.
 
 ---
@@ -83,7 +83,7 @@
 ### 그래서 clinical results 로 가는 설계안 2가지
 
 **안 1 — 섬망 코호트 그대로, 결과만 임상 결과로 교체** (권장)
-- 입력·분할·전처리를 `eda/23_` 그대로 두고 **결과만 교체**: 원내 사망 · ICU 재원 7일 초과 · 기계환기 48시간 초과 (3개 중 1~2개).
+- 입력·분할·전처리를 `delirium/23_` 그대로 두고 **결과만 교체**: 원내 사망 · ICU 재원 7일 초과 · 기계환기 48시간 초과 (3개 중 1~2개).
 - PADIS 공리(진정·통증·억제대·거동 → 섬망)를 **중간 개념**으로 두고, 섬망을 "결과"가 아니라 **사망 예측의 매개 개념**으로 쓴다. 즉 `DeepSedation → Delirium`, `Delirium → Death` 2단 공리를 함께 넣는다.
 - 장점: 데이터 준비 추가 없음 · 섬망 라벨(CAM-ICU)을 공리 쪽으로 옮기므로 **라벨 결측(UTA) 문제가 결과 쪽에서 사라진다**.
 - 비용: 모델 재학습 (XGB/BiLSTM/LTN 3종 × 결과 2개, 시드 3개) — 약 1~2일.
@@ -92,7 +92,7 @@
 **안 2 — sepsis 사망 파이프라인에 PADIS 공리를 주입**
 - 이미 재현된 sepsis 코호트(26,251 입원)와 4시점 기준선을 그대로 쓰고, **진정·통증·억제대·거동 변수를 추가 입력**으로 넣는다.
 - 장점: 논문 대비 비교표가 이미 있어 "공리를 바꿨을 때" 효과만 분리된다 · satisfaction 기록 패치(P6)로 공리별 만족도까지 바로 나온다.
-- 비용: 변수 추출 추가(진정 깊이·억제대·거동은 `eda/24_`·`25_` 에 이미 있음) + 학습 14.5시간 × 조건.
+- 비용: 변수 추출 추가(진정 깊이·억제대·거동은 `delirium/24_`·`25_` 에 이미 있음) + 학습 14.5시간 × 조건.
 
 ### 섬망 예측에서 NeSy 기여가 가능한 지점 (교수님 질문)
 
@@ -133,18 +133,19 @@
 
 ## 6. 실행 큐 (2026-10-03 등록, 작업 `NeSyResearchQueue`)
 
-창 없이 순서대로 하나씩 돌고 세션이 끝나도 유지된다. 로그 `C:\data\mimic-iv-derivedesearch_queue.log`
+창 없이 순서대로 하나씩 돌고 세션이 끝나도 유지된다. 로그 `C:\data\mimic-iv-derived
+esearch_queue.log`
 스크립트 `scripts/queues/queue_research_1.ps1`
 
 | 순서 | 내용 | 코드 | 예상 |
 |---|---|---|---|
-| **Q1** | **안 1** — 결과를 **원내 사망 · 앵커 후 7일 내 사망**으로 교체. 섬망은 중간 개념. 비교 7종(BiLSTM · CBM · CBM+mediator · LTN 위험인자만 · LTN +섬망→사망 w.2/.5 · +직접 사망 공리) × 시드 3개 + XGB | `eda/29_outcome_mortality.py` | 1~2시간 |
-| **Q2** | **KG 범위별 공리 비교** — A 합의(교집합) · B 조건별(zero/one/few) · C 합집합 · H 사람 KG → 실행 가능 공리 수 + 사망 예측 성능 | `eda/30_kg_variants.py` | 1~2시간 |
+| **Q1** | **안 1** — 결과를 **원내 사망 · 앵커 후 7일 내 사망**으로 교체. 섬망은 중간 개념. 비교 7종(BiLSTM · CBM · CBM+mediator · LTN 위험인자만 · LTN +섬망→사망 w.2/.5 · +직접 사망 공리) × 시드 3개 + XGB | `delirium/29_outcome_mortality.py` | 1~2시간 |
+| **Q2** | **KG 범위별 공리 비교** — A 합의(교집합) · B 조건별(zero/one/few) · C 합집합 · H 사람 KG → 실행 가능 공리 수 + 사망 예측 성능 | `delirium/30_kg_variants.py` | 1~2시간 |
 | **Q3** | **안 2 준비** — sepsis 코호트에 PADIS 변수(RASS · 통증 NRS · 거동 · 억제대 · 진정제) 추출·병합 | `NeSy-SMP/data/add_padis_vars.py` | 10~30분 |
 | **Q4** | **안 2 학습** — sepsis 6h 사망 예측에 PADIS 변수 추가 (패치 S2, `upstream_sens_padis`) | `scripts/queues/queue_research_1.ps1` | 약 14.5시간 |
 
 구현 메모
-- Q1·Q2 는 `eda/23_stage34_bilstm_cbm.py` 의 전처리부를 그대로 `exec` 해서 쓴다 — 분할·시계열·개념 정의가 기존 섬망 실험과 **완전히 같다**.
+- Q1·Q2 는 `delirium/23_stage34_bilstm_cbm.py` 의 전처리부를 그대로 `exec` 해서 쓴다 — 분할·시계열·개념 정의가 기존 섬망 실험과 **완전히 같다**.
 - Q1 은 결과 라벨이 사망이므로 **섬망 라벨 미관찰(UTA) 앵커도 평가에 들어간다** (기존에는 29% 를 버려야 했다).
 - Q2 의 술어 처리: `hasNoEffectOn` 은 공리로 만들지 않고 같은 쌍의 다른 공리를 **기각**한다 · `associatedWith` 는 가중치 low · `precludes` 는 평가 불능(CurrentUTA) 가드.
 - Q4 는 논문 조건 재현이 아니라 민감도 실험이므로 코드 사본(`upstream_sens_padis`, 패치 S2)에서 돌린다.

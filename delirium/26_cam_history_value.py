@@ -8,7 +8,7 @@
 #   (나) 무슨 정보  — 앵커=N 계층에서 변수값별 실제 Positive 율
 #
 # 주 지표는 앵커=N 계층 AUPRC (기저 12.0%). 분할·seed 는 22_ 와 동일.
-# 사용: EDA_DATA=<notes/eda> python eda/26_cam_history_value.py
+# 사용: EDA_DATA=<notes/eda> python delirium/26_cam_history_value.py
 # ============================================================================
 import os, sys, time
 import numpy as np

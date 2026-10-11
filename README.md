@@ -50,7 +50,7 @@
 | `NeSy-SMP/variants/upstream_*` | 원본 코드에 패치만 다르게 건 실행본 (패치 내역은 각 폴더 `PATCHES.md`) |
 | `NeSy-SMP/tools/{audit,grounding,patches,rule_extraction}` | 점검 · 연결 명세 · 패치 스크립트 · LLM 규칙 추출(프롬프트·분할·결과) |
 | `padis/` | PADIS 가이드라인 추출 → 사람 검수 → 섬망 KG (Phase 1) |
-| `eda/` | 섬망 실험 스크립트 `NN_이름.py` (번호 = 실행 순서), 집계표 `eda/results/` |
+| `delirium/` | 섬망 실험 스크립트 `NN_이름.py` (번호 = 실행 순서), 집계표 `delirium/results/` |
 | `docs/repro/` | 논문 재현 보고 (`REPRO_*`) |
 | `docs/kg/` | 규칙 추출 · KG 점검 (`KG_*`) |
 | `docs/delirium/` | 섬망 설계·결과 (`DELIRIUM_*`) |

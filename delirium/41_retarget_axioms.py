@@ -20,7 +20,7 @@
 #   주의 — 재타깃은 **지식의 타당성을 바꾸는 조작**이다. "벤조디아제핀 → 사망" 은 PADIS 가
 #          뒷받침하지 않는다. 그래서 이 실험은 임상 주장이 아니라 **구조 진단**으로만 쓴다.
 #
-# 사용: EDA_DATA=notes/eda python eda/41_retarget_axioms.py [--seeds 42,7,2024]
+# 사용: EDA_DATA=notes/eda python delirium/41_retarget_axioms.py [--seeds 42,7,2024]
 # ============================================================================
 from __future__ import annotations
 

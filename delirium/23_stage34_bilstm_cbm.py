@@ -10,7 +10,7 @@
 #
 # 분할: test 는 20_/22_ 와 완전히 동일(환자 단위 30%, seed 42).
 #       val 은 train 환자 중 15%p 를 다시 뗀다.
-# 사용: EDA_DATA=<notes/eda> python eda/23_stage34_bilstm_cbm.py
+# 사용: EDA_DATA=<notes/eda> python delirium/23_stage34_bilstm_cbm.py
 # ============================================================================
 import os, sys, time
 import numpy as np
@@ -189,7 +189,7 @@ if HAS_GAP:
           f"trauma {100*cam.trauma.mean():.1f}% · hypertension {100*cam.hypertension.mean():.1f}% · "
           f"수혈(24h) {100*(_tr24>0).mean():.1f}%")
 else:
-    print("[!] _axiom_comorb/_axiom_transfusion 없음 — 공리 8개로 진행 (eda/25_ 를 먼저 돌릴 것)")
+    print("[!] _axiom_comorb/_axiom_transfusion 없음 — 공리 8개로 진행 (delirium/25_ 를 먼저 돌릴 것)")
 
 # ================================================================ 정적/이력 벡터
 st = DEN.set_index("stay_id")
@@ -433,7 +433,7 @@ AXIOMS = [
      "derived"),
 ]
 if HAS_GAP:
-    # eda/25_ 로 회수한 4개. 전부 양의 방향이라 균형이 5:3 -> 9:3 으로 기운다 (collapse 주의)
+    # delirium/25_ 로 회수한 4개. 전부 양의 방향이라 균형이 5:3 -> 9:3 으로 기운다 (collapse 주의)
     AXIOMS += [
         ("BloodTransfusion→Delirium", "BloodTransfusion", +1, 0.5, "Delirium", False, "strong"),
         ("Dementia→Delirium", "Dementia", +1, 0.5, "Delirium", False, "strong"),

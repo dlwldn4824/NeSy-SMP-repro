@@ -8,7 +8,7 @@
 #     (c) 공리별 '정보량' — 켜진 환자의 사망률 vs 전체 사망률
 #   을 낸다. 성능이 1등이 아니어도 보고할 수 있는 결과물이다.
 #
-# 사용: EDA_DATA=notes/eda python eda/37_axiom_audit.py [--seeds 42]
+# 사용: EDA_DATA=notes/eda python delirium/37_axiom_audit.py [--seeds 42]
 # ============================================================================
 from __future__ import annotations
 

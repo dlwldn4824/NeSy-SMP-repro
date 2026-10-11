@@ -1,6 +1,6 @@
 # 공리가 무효인 이유 — 음성 대조군 · 개념 회수 · 도메인 이동
 
-작성 2026-10-04 · 코드 `eda/31_axiom_control.py` · `eda/32_recover_concepts.py` · `eda/33_kg_variants_v2.py` · `eda/34_domain_shift.py`
+작성 2026-10-04 · 코드 `delirium/31_axiom_control.py` · `delirium/32_recover_concepts.py` · `delirium/33_kg_variants_v2.py` · `delirium/34_domain_shift.py`
 결과 `C:\data\padis_eda_out\stage31|stage33|stage34` · 10 epoch · 시드 3개 · 결과 = 원내 사망(안 1 구조)
 
 ---
@@ -36,7 +36,7 @@
 
 ## 2. 미매핑 개념 회수 후 KG 범위 비교
 
-`eda/32_` 로 억제대·기계환기·오피오이드·멜라토닌을 MIMIC 에서 회수해 앵커 창(24h) 플래그 개념으로 붙였다.
+`delirium/32_` 로 억제대·기계환기·오피오이드·멜라토닌을 MIMIC 에서 회수해 앵커 창(24h) 플래그 개념으로 붙였다.
 
 | KG | 트리플 | 실행 가능 공리 (회수 전 → 후) | 미매핑 (전 → 후) | AUROC | SD |
 |---|---:|---|---|---:|---:|

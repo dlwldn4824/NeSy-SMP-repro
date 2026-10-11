@@ -5,7 +5,7 @@
 ## 0. 읽는 법
 
 - **검수 범위**: `padis/kg/delirium_kg.py`(권위 소스, 임상 트리플 19개)와 `padis/outputs/padis_rules_draft_v1.json`(19개)의 합집합을 중복 제거한 **23개**. `subClassOf`·`rdf:type`·`evidenceLevel`·`Patient hasOutcome Delirium` 같은 스키마 트리플은 제외.
-- **부록 2개(X-01, X-02)**: 두 소스에는 없지만 `NeSy-SMP/configs/padis_concepts.json` 에 있거나 모델 공리(`eda/23_stage34_bilstm_cbm.py` AXIOMS)로 이미 쓰이는 트리플. 집계에서 제외.
+- **부록 2개(X-01, X-02)**: 두 소스에는 없지만 `NeSy-SMP/configs/padis_concepts.json` 에 있거나 모델 공리(`delirium/23_stage34_bilstm_cbm.py` AXIOMS)로 이미 쓰이는 트리플. 집계에서 제외.
 - **문장 ID 체계가 두 개다 — 주의.** 같은 문장이라도 번호가 다르다.
   - `raw D-xxx` = `padis/outputs/padis_rules_raw.json` / `padis_rules_review.csv` 의 rule_id (이 문서의 기본 인용).
   - `fs D-xxx` = `padis/outputs/_gold_sentences.txt` 의 번호 (`KG_FEWSHOT_PIPELINE_CHECK.md` 가 사용). 대응: fs D-026=raw D-028 · fs D-029=raw D-031 · fs D-032=raw D-035 · fs D-042=raw D-045 · fs D-049=raw D-052 · fs D-051=raw D-054 · fs D-056=raw D-072 · fs D-060=raw D-076.
@@ -76,7 +76,7 @@
 | 근거가 방향을 지지하나 | **Y** — 강한 근거 연관 진술과 방향 일치. |
 | 코호트 데이터 | n(A)=10,697 · RR 1.04 · RD +1.3%p — 거의 무연관. 구현 정의(이전 24h 적혈구 수혈)가 원 연구 노출 정의와 다를 수 있음. 조 연관. |
 | 알려진 충돌 | 없음 |
-| MIMIC 매핑 | 가능 — eda/25_ 로 inputevents 에서 회수(transfusion24/cum), stage5 사용 중 |
+| MIMIC 매핑 | 가능 — delirium/25_ 로 inputevents 에서 회수(transfusion24/cum), stage5 사용 중 |
 | 원문 검증 | 확인 |
 | **권고** | **승인** — 원문 확인됨. 데이터 약한 연관은 노출 정의 문제로 기록. |
 
@@ -441,7 +441,7 @@
 - **인용 불일치**: R-16 Dexmed(2025 '프로포폴 대비' 주장에 2018 '미다졸람 대비' SEDCOM 문장 인용) · R-17 EnhancedMobilization(2025 재활 권고에 2018 ABCDEF 번들 문장 인용) · R-19 Delirium→Death(인용 영문장이 repo 원문에 없음) · R-15 SeverePain(아편유사제 안전성 문장 인용).
 - **이름 불일치(컴파일 시 조인 실패 위험)**: EnhancedMobilization↔EarlyMobility · BenzodiazepineUse↔Benzodiazepine↔Benzo · Age↔OlderAge · DeliriumAssessment↔Assessable↔CurrentUTA.
 - **stale 필드**: draft `mimic_ready=false` 인 BloodTransfusion·SeverePain·EnhancedMobilization 이 stage5 공리에 이미 사용됨. draft `_summary.increasesRiskOf=11` 은 실제 12(D-01~D-11 + D-15).
-- **모델 코드와의 불일치**: `eda/23_stage34_bilstm_cbm.py` AXIOMS 는 보류 권고인 SeverePain(R-15), 두 소스 밖인 SedationIntensity→Delirium(X-01)을 쓰고, Trauma 를 strong(가중 1.0)으로 쓴다.
+- **모델 코드와의 불일치**: `delirium/23_stage34_bilstm_cbm.py` AXIOMS 는 보류 권고인 SeverePain(R-15), 두 소스 밖인 SedationIntensity→Delirium(X-01)을 쓰고, Trauma 를 strong(가중 1.0)으로 쓴다.
 
 ### 4.3 사람이 결정해야 할 항목
 
@@ -494,4 +494,4 @@
 - 규칙: `padis/kg/delirium_kg.py` · `padis/outputs/padis_rules_draft_v1.json` · `NeSy-SMP/configs/padis_concepts.json`
 - 원문 문장: `padis/outputs/padis_rules_raw.json` · `padis/outputs/_gold_sentences.txt` · `padis/outputs/gold_set_draft.md` · `padis/rules/gold_set_smoke.json`
 - 해석: `padis/docs/PADIS_섬망_지식그래프_정리.md` · `docs/kg/KG_FEWSHOT_PIPELINE_CHECK.md` §3
-- 데이터: `notes/eda/out_split/stage5_axiom_data.csv` (산출 코드 `eda/23_stage34_bilstm_cbm.py`)
+- 데이터: `notes/eda/out_split/stage5_axiom_data.csv` (산출 코드 `delirium/23_stage34_bilstm_cbm.py`)

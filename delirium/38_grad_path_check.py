@@ -9,7 +9,7 @@
 #   확인 2  공리마다 사망 확률에 대한 민감도 — 0 이면 그 공리는 결과와 무관
 #   확인 3  과제 손실 대비 공리 손실 기울기의 상대 크기 (w=0.2 가중 포함)
 #
-# 사용: EDA_DATA=notes/eda python eda/38_grad_path_check.py
+# 사용: EDA_DATA=notes/eda python delirium/38_grad_path_check.py
 # ============================================================================
 from __future__ import annotations
 

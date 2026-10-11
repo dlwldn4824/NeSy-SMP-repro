@@ -1,7 +1,7 @@
 # PADIS 후속 검토 — 근거 유형·공리 강도·실행 조건
 
 작성 2026-09-23 · 선행 문서: `docs/kg/KG_RULE_REVIEW_PADIS.md`(검수표) · `docs/kg/KG_RULE_REVIEW_PADIS.csv` · `padis/docs/PADIS_섬망_지식그래프_정리.md`
-대상 코드: `eda/23_stage34_bilstm_cbm.py`(AXIOMS 13개 · GRADE_W) · `eda/28_padis_planned.py`
+대상 코드: `delirium/23_stage34_bilstm_cbm.py`(AXIOMS 13개 · GRADE_W) · `delirium/28_padis_planned.py`
 원문 자료: `padis/outputs/padis_rules_raw.json`(2018 PADIS 에서 '섬망' 포함 문장 86개, p.9~31) · `padis/outputs/_gold_sentences.txt`
 
 > **한계 먼저.** 이번에도 PADIS 2018 전문 PDF 는 확보하지 못했다(Downloads·Documents·학연생 폴더에 없음). 아래 원문 검증은 **추출 문장 86개 범위 안에서만** 확정이며, p.18 Ungraded Statement 의 잘린 부분(치매·선행 혼수·응급수술/외상·APACHE)은 여전히 미검증이다. 2025 Focused Update 원문도 없다.
@@ -56,7 +56,7 @@
 
 ## 3. 공리 강도 조정안
 
-**현재** (`eda/23_stage34_bilstm_cbm.py:417`)
+**현재** (`delirium/23_stage34_bilstm_cbm.py:417`)
 
 ```python
 GRADE_W = {"strong": 1.0, "moderate": 0.6, "low": 0.3, "cohort": 0.3,
@@ -97,7 +97,7 @@ w = CLAIM_W[claim] * CERT_W[cert]          # 0 이면 공리에서 제외
 
 ## 4. 시간 창 · 집계 · 결측 처리 명세
 
-`eda/23_stage34_bilstm_cbm.py` 의 실제 구현을 읽어 명시한다. 지금까지 문서에 적혀 있지 않아 규칙 해석이 코드에만 존재했다.
+`delirium/23_stage34_bilstm_cbm.py` 의 실제 구현을 읽어 명시한다. 지금까지 문서에 적혀 있지 않아 규칙 해석이 코드에만 존재했다.
 
 **공통 축**
 

@@ -8,7 +8,7 @@
 #   **떨어지는 폭**을 비교한다.
 #
 # 결과: 원내 사망 · 앵커 후 7일 내 사망
-# 사용: EDA_DATA=notes/eda python eda/34_domain_shift.py [--seeds 42,7,2024]
+# 사용: EDA_DATA=notes/eda python delirium/34_domain_shift.py [--seeds 42,7,2024]
 # ============================================================================
 from __future__ import annotations
 

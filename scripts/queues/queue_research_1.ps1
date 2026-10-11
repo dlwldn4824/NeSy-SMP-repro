@@ -1,6 +1,6 @@
 ﻿# 연구 큐 (2026-10-03 교수님 피드백 대응) — 순서대로 하나씩. 창 없이 돌고 세션이 끝나도 유지된다.
-#   Q1 eda/29  안 1: 결과를 원내 사망·7일 사망으로 교체 (섬망 = 중간 개념)
-#   Q2 eda/30  KG 범위별(합의/조건별/합집합/사람) 공리 비교
+#   Q1 delirium/29  안 1: 결과를 원내 사망·7일 사망으로 교체 (섬망 = 중간 개념)
+#   Q2 delirium/30  KG 범위별(합의/조건별/합집합/사람) 공리 비교
 #   Q3 PADIS 변수 추출·병합 (sepsis 코호트, 6h)
 #   Q4 안 2: sepsis 사망 예측에 PADIS 변수 추가 (upstream_sens_padis)
 # 로그: C:\data\mimic-iv-derived\research_queue.log
@@ -18,8 +18,8 @@ function L($m){ $t = Get-Date -Format 'MM-dd HH:mm:ss'; Add-Content $log "$t $m"
 $env:EDA_DATA = Join-Path $repo 'notes\eda'
 $env:EDA_OUT  = 'C:\data\padis_eda_out'
 foreach ($q in @(
-    @{ id = 'Q1 29_outcome_mortality'; script = 'eda\29_outcome_mortality.py'; log = 'q1_29.log' },
-    @{ id = 'Q2 30_kg_variants';       script = 'eda\30_kg_variants.py';       log = 'q2_30.log' })) {
+    @{ id = 'Q1 29_outcome_mortality'; script = 'delirium\29_outcome_mortality.py'; log = 'q1_29.log' },
+    @{ id = 'Q2 30_kg_variants';       script = 'delirium\30_kg_variants.py';       log = 'q2_30.log' })) {
     L ("START " + $q.id)
     Set-Location $repo
     & $py -u (Join-Path $repo $q.script) --seeds 42,7,2024 --epochs 10 2>&1 |

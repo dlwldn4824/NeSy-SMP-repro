@@ -188,7 +188,7 @@ Positive% — 셀 안의 수는 instance 수:
 | RESTRAINT | 50.1% |
 | CPOT | 19.6% |
 
-`eda/24_extract_mobility_pain_gcs.py` 로 뽑았다 (chartevents 풀스캔 74초, 10.3M 행 → `_extra_values.parquet` 51MB).
+`delirium/24_extract_mobility_pain_gcs.py` 로 뽑았다 (chartevents 풀스캔 74초, 10.3M 행 → `_extra_values.parquet` 51MB).
 `00_extract.py` 의 `VALUE_IDS` 도 넓혀 뒀으니 다음 전체 재추출부터는 자동 포함된다.
 
 **다만 itemid 별로 척도가 섞여 있어 그대로 쓰면 안 된다.** 확인 후 고른 것만 쓴다:

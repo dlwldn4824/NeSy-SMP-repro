@@ -1,7 +1,7 @@
 ﻿# 연구 큐 11 — D3(논문식 손실로 섬망 자체 예측) + 공리 재타깃 실험
 #   1) 큐 10 완료 대기 (같은 GPU)
-#   2) eda/40  논문식 손실 · 예측 대상 = 섬망 · 공리 앞부분 pred / data 두 종
-#   3) eda/41  공리를 사망용으로 재타깃했을 때의 비교 (29_ §6-1 의 빈칸)
+#   2) delirium/40  논문식 손실 · 예측 대상 = 섬망 · 공리 앞부분 pred / data 두 종
+#   3) delirium/41  공리를 사망용으로 재타깃했을 때의 비교 (29_ §6-1 의 빈칸)
 # 이 파일은 UTF-8 BOM 으로 저장해야 한다.
 $ErrorActionPreference = 'Continue'
 $py   = 'C:\dev\NeSy-SMP-repro\.venv\Scripts\python.exe'
@@ -26,7 +26,7 @@ Start-Sleep -Seconds 20
 # 순서: 40(pred) -> 41 -> 40(data). 41 이 "clinical outcome 에서의 NeSy 효과"를 직접 재는 핵심이라 앞으로 당겼다.
 function Run-Eda($label, $script, $logname) {
     L "START $label"
-    & $py -u (Join-Path $repo ('eda\' + $script)) --seeds 42,7,2024 --epochs 10 2>&1 |
+    & $py -u (Join-Path $repo ('delirium\' + $script)) --seeds 42,7,2024 --epochs 10 2>&1 |
         Out-File -Encoding utf8 (Join-Path $env:EDA_OUT $logname)
     if ($LASTEXITCODE -eq 0) { L "OK $label" } else { L ("FAIL $label exit=" + $LASTEXITCODE) }
 }

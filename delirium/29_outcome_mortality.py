@@ -7,7 +7,7 @@
 #   섬망 라벨(CAM-ICU)은 중간 개념의 지도 신호로만 쓴다. 결과 라벨은 사망이므로
 #   라벨 미관찰(UTA) 앵커도 평가에 포함된다 — 23_ 에서 29% 를 버려야 했던 문제가 사라진다.
 #
-# 데이터·분할·시계열·요약벡터 Z·개념 정의는 eda/23_stage34_bilstm_cbm.py 의
+# 데이터·분할·시계열·요약벡터 Z·개념 정의는 delirium/23_stage34_bilstm_cbm.py 의
 # 전처리부를 그대로 exec 해서 재사용한다 (한 글자도 다시 쓰지 않는다).
 #
 # 비교 모델
@@ -20,7 +20,7 @@
 #   5c LTN (+ 섬망→사망, w_K 0.5)
 #
 # 지표: 원내 사망 AUROC·AUPRC (기저 대비 정규화), stay 단위 집계, 2020-22 외부검증
-# 사용: EDA_DATA=notes/eda python eda/29_outcome_mortality.py [--seeds 42,7,2024]
+# 사용: EDA_DATA=notes/eda python delirium/29_outcome_mortality.py [--seeds 42,7,2024]
 # ============================================================================
 from __future__ import annotations
 

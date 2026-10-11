@@ -1,7 +1,7 @@
 # PADIS 섬망 — 계획 남은 항목 결과 (stage 28)
 
-작성 2026-09-15 · 스크립트 `eda/28_padis_planned.py` · 결과 `notes/eda/out_split/stage28/`
-데이터 준비는 `eda/23_` 를 그대로 재사용했다. test 103,306 앵커(라벨 기준)는 1~5단계와 같다.
+작성 2026-09-15 · 스크립트 `delirium/28_padis_planned.py` · 결과 `notes/eda/out_split/stage28/`
+데이터 준비는 `delirium/23_` 를 그대로 재사용했다. test 103,306 앵커(라벨 기준)는 1~5단계와 같다.
 DL 은 시드 3개 평균, XGB 는 단일. **주 지표: 앵커=N AUPRC (기저 12.0%).**
 
 기존 수치 재현 확인: BiLSTM 45.4 (기존 45.6) · CBM 연속 43.2 (43.2) · LTN 원본 12개 43.1 (43.1).

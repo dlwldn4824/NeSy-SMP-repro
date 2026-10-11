@@ -12,7 +12,7 @@
 #    원 논문도 동반질환을 정적 피처로 쓰므로 재현 관점에서는 일관되지만 한계로 기록한다.
 #    수혈은 시각이 있어 lookback 창 안으로 제한한다 — 이쪽은 누수가 없다.
 #
-# 사용: EDA_DATA=<notes/eda> EDA_SQLITE=<db> python eda/25_extract_axiom_gaps.py
+# 사용: EDA_DATA=<notes/eda> EDA_SQLITE=<db> python delirium/25_extract_axiom_gaps.py
 # ============================================================================
 import os, sys, time, sqlite3
 import numpy as np

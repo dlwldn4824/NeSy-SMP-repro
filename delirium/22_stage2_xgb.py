@@ -6,7 +6,7 @@
 # 그 파일이 없으면 자동으로 빼고 돌아간다.
 #
 # 분할·seed 는 20_baseline_carryforward.py 와 동일 (환자 단위 70/30, seed 42)
-# 사용: EDA_DATA=<notes/eda> python eda/22_stage2_xgb.py
+# 사용: EDA_DATA=<notes/eda> python delirium/22_stage2_xgb.py
 # ============================================================================
 import os, sys, time
 import numpy as np

@@ -6,7 +6,7 @@
 #   30_ 과 같은 방식으로 KG 범위별(A 합의 · B 조건별 · C 합집합 · H 사람) 공리를 컴파일·학습한다.
 #   공리 수가 늘어난 만큼 "자동 추출 KG 가 사람 KG 보다 떨어지나"를 공정하게 볼 수 있다.
 #
-# 사용: EDA_DATA=notes/eda python eda/33_kg_variants_v2.py [--seeds 42,7,2024]
+# 사용: EDA_DATA=notes/eda python delirium/33_kg_variants_v2.py [--seeds 42,7,2024]
 # ============================================================================
 from __future__ import annotations
 

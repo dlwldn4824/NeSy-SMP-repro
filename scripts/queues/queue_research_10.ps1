@@ -20,19 +20,19 @@ foreach ($d in 'stage35','stage39','stage39_data') {
 }
 
 L 'START 35_structural_bottleneck (A1·A3·A4 반영)'
-& $py -u (Join-Path $repo 'eda\35_structural_bottleneck.py') --seeds 42,7,2024 --epochs 12 2>&1 |
+& $py -u (Join-Path $repo 'delirium\35_structural_bottleneck.py') --seeds 42,7,2024 --epochs 12 2>&1 |
     Out-File -Encoding utf8 (Join-Path $env:EDA_OUT 'q10_35.log')
 if ($LASTEXITCODE -eq 0) { L 'OK 35' } else { L ("FAIL 35 exit=" + $LASTEXITCODE) }
 
 $env:ANTECEDENT = 'pred'
 L 'START 39_ltn_paper_loss (pred · A1·A4 반영)'
-& $py -u (Join-Path $repo 'eda\39_ltn_paper_loss.py') --seeds 42,7,2024 --epochs 10 2>&1 |
+& $py -u (Join-Path $repo 'delirium\39_ltn_paper_loss.py') --seeds 42,7,2024 --epochs 10 2>&1 |
     Out-File -Encoding utf8 (Join-Path $env:EDA_OUT 'q10_39_pred.log')
 if ($LASTEXITCODE -eq 0) { L 'OK 39 pred' } else { L ("FAIL 39 pred exit=" + $LASTEXITCODE) }
 
 $env:ANTECEDENT = 'data'
 L 'START 39_ltn_paper_loss (data · A1·A4 반영)'
-& $py -u (Join-Path $repo 'eda\39_ltn_paper_loss.py') --seeds 42,7,2024 --epochs 10 2>&1 |
+& $py -u (Join-Path $repo 'delirium\39_ltn_paper_loss.py') --seeds 42,7,2024 --epochs 10 2>&1 |
     Out-File -Encoding utf8 (Join-Path $env:EDA_OUT 'q10_39_data.log')
 if ($LASTEXITCODE -eq 0) { L 'OK 39 data' } else { L ("FAIL 39 data exit=" + $LASTEXITCODE) }
 L 'QUEUE10 ALL DONE'

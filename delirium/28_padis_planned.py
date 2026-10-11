@@ -8,10 +8,10 @@
 #   D  평가 프로토콜 미완    연도 외부검증(2011-16 학습 → 2017-19 · 2020-22 평가) · calibration ·
 #                          ICU 유형·era 하위군 · 정규화 AUPRC · stay 가중 AUPRC
 #
-# 데이터 준비는 eda/23_stage34_bilstm_cbm.py 의 앞부분(학습 직전까지)을 그대로 실행해 재사용한다.
+# 데이터 준비는 delirium/23_stage34_bilstm_cbm.py 의 앞부분(학습 직전까지)을 그대로 실행해 재사용한다.
 # 23_ 파일은 고치지 않는다 — 기존 1~5단계 수치의 재현성을 지키기 위해.
 #
-# 사용: EDA_DATA=<notes/eda> python eda/28_padis_planned.py      (PADIS28_QUICK=1 이면 점검용 축소 실행)
+# 사용: EDA_DATA=<notes/eda> python delirium/28_padis_planned.py      (PADIS28_QUICK=1 이면 점검용 축소 실행)
 # ============================================================================
 import os, sys, time
 import numpy as np
@@ -29,7 +29,7 @@ _cut = _src.index("\nAX_SAT = {}\n")
 globals()["__file__"] = _p23
 exec(compile(_src[:_cut], "23_stage34_bilstm_cbm.py (데이터 준비)", "exec"), globals())
 __file__ = os.path.join(HERE, "28_padis_planned.py")
-assert HAS_GAP, "eda/25_ 산출물이 필요하다"
+assert HAS_GAP, "delirium/25_ 산출물이 필요하다"
 
 QUICK = os.environ.get("PADIS28_QUICK") == "1"
 SEEDS = [42] if QUICK else [42, 7, 2024]

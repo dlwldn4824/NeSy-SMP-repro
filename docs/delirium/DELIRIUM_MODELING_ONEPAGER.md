@@ -2,7 +2,7 @@
 
 저장소: https://github.com/dlwldn4824/NeSy-SMP-repro
 상세: `docs/delirium/DELIRIUM_SPLIT_SPEC.md`(설계·표본) · `docs/delirium/DELIRIUM_SPLIT_DESIGN.md`(근거) · `docs/delirium/DELIRIUM_LNN_DESIGN.md`(논리층)
-재현 스크립트: `eda/20_` baseline · `eda/21_` 검열원인 · `eda/22_` XGB · `eda/23_` BiLSTM·CBM · `eda/24_` 보충추출
+재현 스크립트: `delirium/20_` baseline · `delirium/21_` 검열원인 · `delirium/22_` XGB · `delirium/23_` BiLSTM·CBM · `delirium/24_` 보충추출
 
 ---
 
@@ -171,7 +171,7 @@ AUROC 가 그 어려움을 그대로 드러내고 AUPRC 는 높은 기저율 뒤
 
 ### 5단계 — PADIS 공리를 얹으면
 
-컴파일된 19개 중 **12개**를 강제한다. 처음엔 8개였는데, `eda/25_` 로 **수혈**(inputevents)과
+컴파일된 19개 중 **12개**를 강제한다. 처음엔 8개였는데, `delirium/25_` 로 **수혈**(inputevents)과
 **치매·외상·고혈압**(diagnoses_icd, 기존 `build_comorbidities_icd.py` 매핑 재사용)을 회수해 4개를 더 붙였다.
 남은 7개는 여전히 미매핑(Melatonin · PhysicalRestraint · OpioidUse · MechanicalVentilation)이거나 mortality 대상이다.
 양의 방향 9 · 음의 방향 3. 가중치는 **GRADE 에서 유도**했다 — 원 논문의 하드코딩 0.8/0.2 를 대체한다.
@@ -248,11 +248,11 @@ AUROC 가 그 어려움을 그대로 드러내고 AUPRC 는 높은 기저율 뒤
 
 | 단계 | 모델 | 확인 목적 | 새로 만들 것 | 재사용 |
 |---|---|---|---|---|
-| **1** | Carry-forward · lookup baseline | CAM 이력만으로 가능한 성능 | ✅ **완료** | `eda/20_` |
-| **2** | XGBoost | 요약된 정적 변수만으로 가능한 성능 | ✅ **완료** (mobility/pain/GCS 빠진 채) | `eda/22_` |
-| **3** | BiLSTM | 원시 24h 시계열이 요약을 넘나 | ✅ **완료** (RASS+진정제 채널만) | `eda/23_` |
-| **4** | CBM | PADIS 임상 개념을 명시적으로 예측하는 효과 | ✅ **완료** (이진 15 · 연속 17 · 자유 대조군) | `eda/23_` |
-| **5** | LTN | CBM + PADIS 논리 공리의 효과 | ✅ **완료** (공리 12개 강제) | `eda/23_` |
+| **1** | Carry-forward · lookup baseline | CAM 이력만으로 가능한 성능 | ✅ **완료** | `delirium/20_` |
+| **2** | XGBoost | 요약된 정적 변수만으로 가능한 성능 | ✅ **완료** (mobility/pain/GCS 빠진 채) | `delirium/22_` |
+| **3** | BiLSTM | 원시 24h 시계열이 요약을 넘나 | ✅ **완료** (RASS+진정제 채널만) | `delirium/23_` |
+| **4** | CBM | PADIS 임상 개념을 명시적으로 예측하는 효과 | ✅ **완료** (이진 15 · 연속 17 · 자유 대조군) | `delirium/23_` |
+| **5** | LTN | CBM + PADIS 논리 공리의 효과 | ✅ **완료** (공리 12개 강제) | `delirium/23_` |
 | **6** | LNN | 구간 진리값이 라벨 미관찰 문제에 실제로 필요한지 | 🔴 **전부 구현** | 없음 (공개 구현 빈약) |
 
 > **5와 6은 쌓는 게 아니라 대안 논리 프레임워크로 비교한다.** LNN 은 구현이 덜 성숙하고,
@@ -354,7 +354,7 @@ UTA 앵커의 미관찰은 84.2% 가 '전부 UTA'(진정 지속)이고, N 앵커
 
 ## 4) 한계 6가지 (먼저 말하기)
 
-1. ~~mobility / pain / GCS 값이 없다~~ → **해소.** `eda/24_` 로 추출했다(풀스캔 74초). 다만 itemid 별 척도가 섞여 있어 쓸 것만 골랐다 — mobility 6개 중 2개, pain 5개 중 2개만 값으로 쓴다(`SPLIT_SPEC` §3).
+1. ~~mobility / pain / GCS 값이 없다~~ → **해소.** `delirium/24_` 로 추출했다(풀스캔 74초). 다만 itemid 별 척도가 섞여 있어 쓸 것만 골랐다 — mobility 6개 중 2개, pain 5개 중 2개만 값으로 쓴다(`SPLIT_SPEC` §3).
 2. **앵커=N 계층의 절대 성능은 낮다.** 2단계에서 AUPRC 46.1 이다(기저 12.0%). 숫자만 보면 약해 보이므로 **baseline 23.0 대비 델타**로 말해야 한다.
 3. ~~PADIS 공리를 LTN 이 못 읽는다~~ → **해소.** `relation_vocab.json` 에 관계 3종을 등록하고 `horn_to_ltn.py` 가 각각 다르게 컴파일하도록 고쳤다. **PADIS 공리가 2개 → 19개로 컴파일된다** (sepsis 17개는 그대로). 남은 것은 이 공리를 실제 학습 손실에 연결하는 일이다.
 4. **collapse 리스크는 구조적으로는 막았다.** 공리 구성이 **양의 방향 12 · 음의 방향 4 · 기각 필터 3** 이라 한쪽으로 쏠리지 않는다. 다만 실제로 붕괴하지 않는지는 5단계를 돌려봐야 안다.
@@ -379,9 +379,9 @@ UTA 앵커의 미관찰은 84.2% 가 '전부 UTA'(진정 지속)이고, N 앵커
 
 | # | 할 일 | 상태 |
 |---|---|:--:|
-| 1 | mobility · pain · GCS 실제 시계열 값 재추출 | ✅ 완료 (`eda/24_`) |
+| 1 | mobility · pain · GCS 실제 시계열 값 재추출 | ✅ 완료 (`delirium/24_`) |
 | 2 | 24h 내 확정 CAM 없는 이유를 퇴실/사망/전부 UTA/미평가로 분리 | ✅ 완료 (§2) |
-| 3 | 환자 단위 split 데이터셋 생성 | ✅ 완료 (`eda/22_` 안에) |
+| 3 | 환자 단위 split 데이터셋 생성 | ✅ 완료 (`delirium/22_` 안에) |
 | 4 | XGBoost·BiLSTM 실행해 시계열의 추가 가치 확인 | ✅ 완료 — **시계열은 값을 못 더했다** |
 | 5 | PADIS 규칙 19개의 근거·관계 방향을 **사람이 검토** | 대기 |
 | 6 | SNOMED CT 숫자 코드 검증 | 일부만 채움 (`delirium_kg.py` 제공분) |
@@ -402,13 +402,13 @@ UTA 앵커의 미관찰은 84.2% 가 '전부 UTA'(진정 지속)이고, N 앵커
 
 | 수 | 스크립트 | 산출물 |
 |---|---|---|
-| instance 345,505 / 환자 40,070 / 계층 3종 | `eda/19_split_spec.py` | `out_split/spec2_*.csv` |
-| baseline B0–B2 | `eda/20_baseline_carryforward.py` | `out_split/base_carryforward.csv` |
-| 입력 커버리지 (RASS 100% 등) | `eda/19_split_spec.py` | `out_split/spec3_*.csv` |
-| 라벨 미관찰 원인 5종 + 사망률 | `eda/21_censoring_reasons.py` | `out_split/cens*.csv` |
-| 2단계 XGB + 피처군 ablation | `eda/22_stage2_xgb.py` | `out_split/stage2_xgb.csv` · `stage2_ablation.csv` |
-| 3·4·5단계 + 시드반복 + 공리 만족도 | `eda/23_stage34_bilstm_cbm.py` | `out_split/stage34.csv` · `stage34_seeds.csv` · `stage5_axiom_sat.csv` |
-| mobility·pain·GCS 보충추출 | `eda/24_extract_mobility_pain_gcs.py` | `notes/eda/_extra_values.parquet` |
+| instance 345,505 / 환자 40,070 / 계층 3종 | `delirium/19_split_spec.py` | `out_split/spec2_*.csv` |
+| baseline B0–B2 | `delirium/20_baseline_carryforward.py` | `out_split/base_carryforward.csv` |
+| 입력 커버리지 (RASS 100% 등) | `delirium/19_split_spec.py` | `out_split/spec3_*.csv` |
+| 라벨 미관찰 원인 5종 + 사망률 | `delirium/21_censoring_reasons.py` | `out_split/cens*.csv` |
+| 2단계 XGB + 피처군 ablation | `delirium/22_stage2_xgb.py` | `out_split/stage2_xgb.csv` · `stage2_ablation.csv` |
+| 3·4·5단계 + 시드반복 + 공리 만족도 | `delirium/23_stage34_bilstm_cbm.py` | `out_split/stage34.csv` · `stage34_seeds.csv` · `stage5_axiom_sat.csv` |
+| mobility·pain·GCS 보충추출 | `delirium/24_extract_mobility_pain_gcs.py` | `notes/eda/_extra_values.parquet` |
 | PADIS 규칙 19개 + 근거등급 | — | `padis/kg/delirium_kg.py`(본문) · `padis/outputs/padis_rules_draft_v1.json`(MIMIC 매핑) |
 | LTN 공리 19개 컴파일 | `NeSy-SMP/pipeline/horn_to_ltn.py` | `configs/padis_concepts.json` + `relation_vocab.json` |
 

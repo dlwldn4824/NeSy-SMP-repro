@@ -6,7 +6,7 @@
 #   B2  B1 + 현재 앵커 상태 (6칸 룩업, 각 칸의 학습셋 Positive 율)
 # 전부 앵커=N / P / U 계층별로 따로 낸다.
 # 분할은 환자 단위 70/30 (여기서는 baseline 이므로 val 불필요).
-# 사용: EDA_DATA=<notes/eda> python eda/20_baseline_carryforward.py
+# 사용: EDA_DATA=<notes/eda> python delirium/20_baseline_carryforward.py
 # ============================================================================
 import os, sys
 import numpy as np

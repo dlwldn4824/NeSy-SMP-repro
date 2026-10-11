@@ -82,7 +82,7 @@ PADIS 기준 — One-shot **35개** · Few-shot **33개** · 교집합 **31개**
 랩에서 "LTN 라이브러리를 쓰지 않았고 손실 형태가 논문과 다르다"는 지적을 받아, **라이브러리 연산**
 (`ImpliesReichenbach` · `AggregPMeanError` · `SatAgg` · `NotStandard`)과 **논문식 볼록 결합 손실**로 다시 돌렸다.
 **규모** — 7변형 × 시드 3 = **21회 학습** × 2종(공리 앞부분을 모델 예측값으로 / 관측값으로) = **42회** (약 20분)
-코드 `eda/39_ltn_paper_loss.py` · 결과 `stage39*/ltn_paper_loss.csv`
+코드 `delirium/39_ltn_paper_loss.py` · 결과 `stage39*/ltn_paper_loss.csv`
 
 | w_K (w_D = 1 − w_K) | 진짜 공리 | 가짜 공리 | 진짜 − 가짜 |
 | --- | --- | --- | --- |
@@ -290,8 +290,8 @@ XGBoost·RF 결과가 원본과 소수점까지 동일 → 패치가 다른 모�
 >
 > "타깃이 원인인가"를 제대로 묻는 실험은 세 갈래로 따로 돌린다.
 > **(ㄱ)** 패혈증 쪽 — 원저자 공리는 애초에 머리가 사망이다(NeSy−LTN +0.03, §4).
-> **(ㄴ)** `eda/40` — 논문식 손실로 **섬망 자체**를 예측(공리와 목표를 맞춘 경우).
-> **(ㄷ)** `eda/41` — 위험인자 공리 11개의 머리를 **사망으로 재타깃**해 같은 코호트에서 비교.
+> **(ㄴ)** `delirium/40` — 논문식 손실로 **섬망 자체**를 예측(공리와 목표를 맞춘 경우).
+> **(ㄷ)** `delirium/41` — 위험인자 공리 11개의 머리를 **사망으로 재타깃**해 같은 코호트에서 비교.
 > (ㄴ)·(ㄷ) 은 큐 11 로 실행 중이다.
 
 ## 6-2. KG 범위별 공리
@@ -603,7 +603,7 @@ Connect 실험에서도 효과가 확인되지 않을 경우, 공리 개수를 �
 
 **문서 (`docs/`)** — `2026-10-03_FEEDBACK_REPLY.md`(겹침·계획) · `DELIRIUM_OUTCOME_SWITCH_2026-10-03.md`(결과 교체·KG 범위) · `DELIRIUM_AXIOM_CONTROL_2026-10-04.md`(음성 대조군·개념 회수·도메인 이동) · `2026-10-06_WEEKLY.md` · `REPRO_AUTHOR_QUESTIONS.md` · `REPRO_LAB_REPORT_2026-09-21.md`(전체 재현)
 
-**코드** — `eda/29`~`38`(결과 교체 · KG 범위 · 음성 대조군 · 개념 회수 · 도메인 이동 · 구조 가설 3종 · gradient 분석) · `NeSy-SMP/variants/upstream_sensitivity_connect{,4}`(S3·S4·S5 패치) · `NeSy-SMP/data/add_padis_vars.py` · `scripts/queues/queue_research_*.ps1`
+**코드** — `delirium/29`~`38`(결과 교체 · KG 범위 · 음성 대조군 · 개념 회수 · 도메인 이동 · 구조 가설 3종 · gradient 분석) · `NeSy-SMP/variants/upstream_sensitivity_connect{,4}`(S3·S4·S5 패치) · `NeSy-SMP/data/add_padis_vars.py` · `scripts/queues/queue_research_*.ps1`
 
 ---
 

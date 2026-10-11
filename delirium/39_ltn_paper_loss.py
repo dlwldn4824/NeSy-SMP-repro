@@ -2,7 +2,7 @@
 # ============================================================================
 # 랩 피드백 반영 — LTN 라이브러리 연산 + **논문식 loss** 로 다시 확인
 #
-#   지금까지 섬망 쪽 실험(eda/23·29~37)은
+#   지금까지 섬망 쪽 실험(delirium/23·29~37)은
 #     loss = BCE(사망) + w_c·개념손실 + w_axiom·(1 − sat_K)      ← 더하는 형태
 #   였다. 논문·원저자 코드는
 #     loss = 1 − ( w_D·SatAgg(데이터 공리) + w_K·SatAgg(지식 공리) ),  w_D + w_K = 1
@@ -20,7 +20,7 @@
 #
 #   변형: w_K ∈ {0.0, 0.1, 0.2, 0.5, 0.8} (w_D = 1 − w_K) × 진짜/가짜 공리
 #
-# 사용: EDA_DATA=notes/eda python eda/39_ltn_paper_loss.py [--seeds 42,7,2024]
+# 사용: EDA_DATA=notes/eda python delirium/39_ltn_paper_loss.py [--seeds 42,7,2024]
 # ============================================================================
 from __future__ import annotations
 

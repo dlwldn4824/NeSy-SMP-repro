@@ -10,7 +10,7 @@
 #   보정 대상: 사망 확률(결과가 Death 인 공리) · 섬망 확률(결과가 Delirium 인 공리)
 #   λ 스윕 0.1 / 0.25 / 0.5 / 1.0 · 가짜 공리로 같은 보정(음성 대조군)
 #
-# 사용: EDA_DATA=notes/eda python eda/36_constraint_projection.py [--seeds 42,7,2024]
+# 사용: EDA_DATA=notes/eda python delirium/36_constraint_projection.py [--seeds 42,7,2024]
 # ============================================================================
 from __future__ import annotations
 

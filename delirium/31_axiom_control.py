@@ -16,7 +16,7 @@
 #
 #   4순위 지표도 같이 — 고정 특이도(88·90%)에서의 민감도·경보율.
 #
-# 사용: EDA_DATA=notes/eda python eda/31_axiom_control.py [--seeds 42,7,2024]
+# 사용: EDA_DATA=notes/eda python delirium/31_axiom_control.py [--seeds 42,7,2024]
 # ============================================================================
 from __future__ import annotations
 

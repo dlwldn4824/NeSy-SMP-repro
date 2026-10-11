@@ -7,7 +7,7 @@
 # 첫 CAM 이 UTA 라 확정까지 median 13.0h 를 더 기다린다.
 #
 # 색은 dataviz 스킬 references/palette.md 의 검증된 categorical 슬롯 1·2 를 그대로 쓴다.
-# 사용: EDA_DATA=<notes/eda> python eda/27_fig_first_cam.py
+# 사용: EDA_DATA=<notes/eda> python delirium/27_fig_first_cam.py
 # ============================================================================
 import os, sys
 import numpy as np

@@ -16,7 +16,7 @@
 #   각 변형을 공리 없음 / 진짜 공리 / 가짜 공리(머리 무작위)로 돌려서
 #   "구조를 바꾸면 진짜-가짜 차이가 생기나"를 본다.
 #
-# 사용: EDA_DATA=notes/eda python eda/35_structural_bottleneck.py [--seeds 42,7,2024]
+# 사용: EDA_DATA=notes/eda python delirium/35_structural_bottleneck.py [--seeds 42,7,2024]
 # ============================================================================
 from __future__ import annotations
 

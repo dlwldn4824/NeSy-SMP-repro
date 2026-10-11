@@ -9,7 +9,7 @@
 # (00_extract.py 의 VALUE_IDS 도 같이 넓혀 두었으니, 다음 전체 재추출부터는 자동 포함된다.)
 #
 # 앵커 관련 구간만 남긴다: 입실 후 0~264h (240h 캡 + lookback 24h)
-# 사용: EDA_DATA=<notes/eda> EDA_SQLITE=<db> python eda/24_extract_mobility_pain_gcs.py
+# 사용: EDA_DATA=<notes/eda> EDA_SQLITE=<db> python delirium/24_extract_mobility_pain_gcs.py
 # ============================================================================
 import os, sys, time, sqlite3
 import numpy as np

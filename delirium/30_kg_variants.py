@@ -18,7 +18,7 @@
 #     hasNoEffectOn    공리로 만들지 않고, **같은 쌍의 다른 공리를 기각**하는 필터
 #     precludes        a → CurrentUTA (평가 불능 가드)
 #
-# 사용: EDA_DATA=notes/eda python eda/30_kg_variants.py [--seeds 42,7,2024]
+# 사용: EDA_DATA=notes/eda python delirium/30_kg_variants.py [--seeds 42,7,2024]
 # ============================================================================
 from __future__ import annotations
 

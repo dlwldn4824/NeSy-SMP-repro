@@ -5,7 +5,7 @@
 #   [2] split 후 표본 수: transition 4종 + 고정 24h 타깃, 각각 건수/stay/환자
 #   [3] 입력 lookback 커버리지 (RASS / 진정제 / CAM 이력) + 미확보 항목
 #   [4] trajectory 별 환자 수 (P->N->P 모수가 되나)
-# 사용: EDA_DATA=<notes/eda> python eda/19_split_spec.py
+# 사용: EDA_DATA=<notes/eda> python delirium/19_split_spec.py
 # ============================================================================
 import os, sys
 import numpy as np
