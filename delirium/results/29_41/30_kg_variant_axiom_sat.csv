@@ -1,0 +1,66 @@
+﻿KG,공리,만족도
+A 합의(교집합),Dexmedetomidine-decreasesRiskOf->Delirium,0.727
+A 합의(교집합),EarlyMobility-decreasesRiskOf->Delirium,0.948
+A 합의(교집합),Hypertension-increasesRiskOf->Delirium,0.426
+A 합의(교집합),SedationIntensity-increasesRiskOf->Death,0.713
+A 합의(교집합),SedationIntensity-increasesRiskOf->Delirium,0.852
+A 합의(교집합),Trauma-increasesRiskOf->Delirium,0.882
+B zero-shot,Age-associatedWith->Delirium,0.576
+B zero-shot,Benzodiazepine-associatedWith->Delirium,0.644
+B zero-shot,BloodTransfusion-associatedWith->Delirium,0.79
+B zero-shot,Dementia-associatedWith->Delirium,0.894
+B zero-shot,Dexmedetomidine-decreasesRiskOf->Delirium,0.72
+B zero-shot,EarlyMobility-decreasesRiskOf->Delirium,0.941
+B zero-shot,Hypertension-increasesRiskOf->Delirium,0.419
+B zero-shot,SedationIntensity-increasesRiskOf->Death,0.703
+B zero-shot,SedationIntensity-increasesRiskOf->Delirium,0.842
+B zero-shot,Trauma-associatedWith->Delirium,0.883
+B zero-shot,Trauma-increasesRiskOf->Delirium,0.883
+B one-shot,Age-increasesRiskOf->Delirium,0.591
+B one-shot,Benzodiazepine-increasesRiskOf->Delirium,0.683
+B one-shot,BloodTransfusion-increasesRiskOf->Delirium,0.818
+B one-shot,Dementia-increasesRiskOf->Delirium,0.921
+B one-shot,Dexmedetomidine-decreasesRiskOf->Delirium,0.708
+B one-shot,EarlyMobility-decreasesRiskOf->Delirium,0.936
+B one-shot,Hypertension-increasesRiskOf->Delirium,0.417
+B one-shot,SedationIntensity-increasesRiskOf->Death,0.694
+B one-shot,SedationIntensity-increasesRiskOf->Delirium,0.833
+B one-shot,Trauma-increasesRiskOf->Delirium,0.817
+B few-shot,Age-increasesRiskOf->Delirium,0.591
+B few-shot,Benzodiazepine-increasesRiskOf->Delirium,0.683
+B few-shot,BloodTransfusion-increasesRiskOf->Delirium,0.818
+B few-shot,Dementia-increasesRiskOf->Delirium,0.921
+B few-shot,Dexmedetomidine-decreasesRiskOf->Delirium,0.708
+B few-shot,EarlyMobility-decreasesRiskOf->Delirium,0.936
+B few-shot,Hypertension-increasesRiskOf->Delirium,0.417
+B few-shot,SedationIntensity-increasesRiskOf->Death,0.694
+B few-shot,SedationIntensity-increasesRiskOf->Delirium,0.833
+B few-shot,Trauma-increasesRiskOf->Delirium,0.817
+C 합집합,Age-associatedWith->Delirium,0.596
+C 합집합,Age-increasesRiskOf->Delirium,0.596
+C 합집합,Benzodiazepine-associatedWith->Delirium,0.692
+C 합집합,Benzodiazepine-increasesRiskOf->Delirium,0.692
+C 합집합,BloodTransfusion-associatedWith->Delirium,0.829
+C 합집합,BloodTransfusion-increasesRiskOf->Delirium,0.829
+C 합집합,Dementia-associatedWith->Delirium,0.927
+C 합집합,Dementia-increasesRiskOf->Delirium,0.927
+C 합집합,Dexmedetomidine-decreasesRiskOf->Delirium,0.707
+C 합집합,EarlyMobility-decreasesRiskOf->Delirium,0.932
+C 합집합,Hypertension-increasesRiskOf->Delirium,0.416
+C 합집합,SedationIntensity-increasesRiskOf->Death,0.692
+C 합집합,SedationIntensity-increasesRiskOf->Delirium,0.828
+C 합집합,Trauma-associatedWith->Delirium,0.83
+C 합집합,Trauma-increasesRiskOf->Delirium,0.83
+H 사람 KG,Age-increasesRiskOf->Delirium,0.587
+H 사람 KG,Benzodiazepine-increasesRiskOf->Delirium,0.673
+H 사람 KG,BloodTransfusion-increasesRiskOf->Delirium,0.804
+H 사람 KG,DeepSedation-increasesRiskOf->Delirium,0.895
+H 사람 KG,DeepSedation-precludes->Assessable,0.894
+H 사람 KG,Dementia-increasesRiskOf->Delirium,0.91
+H 사람 KG,Dexmedetomidine-decreasesRiskOf->Delirium,0.705
+H 사람 KG,EarlyMobility-decreasesRiskOf->Delirium,0.931
+H 사람 KG,Hypertension-increasesRiskOf->Delirium,0.416
+H 사람 KG,SedationIntensity-increasesRiskOf->Death,0.692
+H 사람 KG,SedationIntensity-increasesRiskOf->Delirium,0.83
+H 사람 KG,SeverePain-increasesRiskOf->Delirium,0.613
+H 사람 KG,Trauma-increasesRiskOf->Delirium,0.801

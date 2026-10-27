@@ -1,0 +1,109 @@
+﻿변형,공리,만족도
+real (5b),Benzo→Delirium,0.7
+real (5b),DeepSedation→Delirium,0.868
+real (5b),SedationIntensity→Delirium,0.811
+real (5b),SeverePain→Delirium,0.589
+real (5b),OlderAge→Delirium,0.599
+real (5b),Dexmed→¬Delirium,0.713
+real (5b),EarlyMobility→¬Delirium,0.918
+real (5b),BloodTransfusion→Delirium,0.835
+real (5b),Dementia→Delirium,0.928
+real (5b),Trauma→Delirium,0.836
+real (5b),Hypertension→Delirium,0.414
+real (5b),Delirium→Death,0.655
+control: 머리 무작위,Benzo→Delirium,0.73
+control: 머리 무작위,DeepSedation→Delirium,0.833
+control: 머리 무작위,SedationIntensity→Delirium,0.799
+control: 머리 무작위,SeverePain→Delirium,0.574
+control: 머리 무작위,OlderAge→Delirium,0.724
+control: 머리 무작위,Dexmed→¬Delirium,0.722
+control: 머리 무작위,EarlyMobility→¬Delirium,0.602
+control: 머리 무작위,BloodTransfusion→Delirium,0.924
+control: 머리 무작위,Dementia→Delirium,0.895
+control: 머리 무작위,Trauma→Delirium,0.832
+control: 머리 무작위,Hypertension→Delirium,0.407
+control: 머리 무작위,Delirium→Death,0.818
+control: 개념 무작위,Benzo→Delirium,0.458
+control: 개념 무작위,DeepSedation→Delirium,0.433
+control: 개념 무작위,SedationIntensity→Delirium,0.678
+control: 개념 무작위,SeverePain→Delirium,0.286
+control: 개념 무작위,OlderAge→Delirium,0.401
+control: 개념 무작위,Dexmed→¬Delirium,0.686
+control: 개념 무작위,EarlyMobility→¬Delirium,0.92
+control: 개념 무작위,BloodTransfusion→Delirium,0.823
+control: 개념 무작위,Dementia→Delirium,0.458
+control: 개념 무작위,Trauma→Delirium,0.93
+control: 개념 무작위,Hypertension→Delirium,0.823
+control: 개념 무작위,Delirium→Death,0.66
+risk-only,Benzo→Delirium,0.704
+risk-only,DeepSedation→Delirium,0.871
+risk-only,SedationIntensity→Delirium,0.813
+risk-only,SeverePain→Delirium,0.591
+risk-only,OlderAge→Delirium,0.602
+risk-only,Dexmed→¬Delirium,0.715
+risk-only,EarlyMobility→¬Delirium,0.918
+risk-only,BloodTransfusion→Delirium,0.843
+risk-only,Dementia→Delirium,0.932
+risk-only,Trauma→Delirium,0.845
+risk-only,Hypertension→Delirium,0.415
+med-only (섬망→사망),Delirium→Death,0.7
+real w=0.5,Benzo→Delirium,0.781
+real w=0.5,DeepSedation→Delirium,0.895
+real w=0.5,SedationIntensity→Delirium,0.832
+real w=0.5,SeverePain→Delirium,0.617
+real w=0.5,OlderAge→Delirium,0.666
+real w=0.5,Dexmed→¬Delirium,0.743
+real w=0.5,EarlyMobility→¬Delirium,0.942
+real w=0.5,BloodTransfusion→Delirium,0.93
+real w=0.5,Dementia→Delirium,0.966
+real w=0.5,Trauma→Delirium,0.926
+real w=0.5,Hypertension→Delirium,0.431
+real w=0.5,Delirium→Death,0.65
+real w=1.0,Benzo→Delirium,0.839
+real w=1.0,DeepSedation→Delirium,0.922
+real w=1.0,SedationIntensity→Delirium,0.855
+real w=1.0,SeverePain→Delirium,0.643
+real w=1.0,OlderAge→Delirium,0.809
+real w=1.0,Dexmed→¬Delirium,0.779
+real w=1.0,EarlyMobility→¬Delirium,0.956
+real w=1.0,BloodTransfusion→Delirium,0.967
+real w=1.0,Dementia→Delirium,0.982
+real w=1.0,Trauma→Delirium,0.962
+real w=1.0,Hypertension→Delirium,0.638
+real w=1.0,Delirium→Death,0.647
+real w=2.0,Benzo→Delirium,0.889
+real w=2.0,DeepSedation→Delirium,0.947
+real w=2.0,SedationIntensity→Delirium,0.887
+real w=2.0,SeverePain→Delirium,0.717
+real w=2.0,OlderAge→Delirium,0.886
+real w=2.0,Dexmed→¬Delirium,0.81
+real w=2.0,EarlyMobility→¬Delirium,0.971
+real w=2.0,BloodTransfusion→Delirium,0.983
+real w=2.0,Dementia→Delirium,0.991
+real w=2.0,Trauma→Delirium,0.98
+real w=2.0,Hypertension→Delirium,0.813
+real w=2.0,Delirium→Death,0.647
+real min-agg w=0.2,Benzo→Delirium,0.502
+real min-agg w=0.2,DeepSedation→Delirium,0.63
+real min-agg w=0.2,SedationIntensity→Delirium,0.197
+real min-agg w=0.2,SeverePain→Delirium,0.015
+real min-agg w=0.2,OlderAge→Delirium,0.072
+real min-agg w=0.2,Dexmed→¬Delirium,0.08
+real min-agg w=0.2,EarlyMobility→¬Delirium,0.713
+real min-agg w=0.2,BloodTransfusion→Delirium,0.829
+real min-agg w=0.2,Dementia→Delirium,0.916
+real min-agg w=0.2,Trauma→Delirium,0.814
+real min-agg w=0.2,Hypertension→Delirium,0.012
+real min-agg w=0.2,Delirium→Death,0.225
+real min-agg w=1.0,Benzo→Delirium,0.767
+real min-agg w=1.0,DeepSedation→Delirium,0.895
+real min-agg w=1.0,SedationIntensity→Delirium,0.77
+real min-agg w=1.0,SeverePain→Delirium,0.631
+real min-agg w=1.0,OlderAge→Delirium,0.802
+real min-agg w=1.0,Dexmed→¬Delirium,0.745
+real min-agg w=1.0,EarlyMobility→¬Delirium,0.913
+real min-agg w=1.0,BloodTransfusion→Delirium,0.963
+real min-agg w=1.0,Dementia→Delirium,0.982
+real min-agg w=1.0,Trauma→Delirium,0.96
+real min-agg w=1.0,Hypertension→Delirium,0.722
+real min-agg w=1.0,Delirium→Death,0.349

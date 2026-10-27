@@ -1,0 +1,99 @@
+﻿결과,모델,공리,만족도
+원내 사망,5a LTN 위험인자만 (w .2),Benzo→Delirium,0.704
+원내 사망,5a LTN 위험인자만 (w .2),DeepSedation→Delirium,0.871
+원내 사망,5a LTN 위험인자만 (w .2),SedationIntensity→Delirium,0.813
+원내 사망,5a LTN 위험인자만 (w .2),SeverePain→Delirium,0.591
+원내 사망,5a LTN 위험인자만 (w .2),OlderAge→Delirium,0.602
+원내 사망,5a LTN 위험인자만 (w .2),Dexmed→¬Delirium,0.715
+원내 사망,5a LTN 위험인자만 (w .2),EarlyMobility→¬Delirium,0.918
+원내 사망,5a LTN 위험인자만 (w .2),BloodTransfusion→Delirium,0.843
+원내 사망,5a LTN 위험인자만 (w .2),Dementia→Delirium,0.932
+원내 사망,5a LTN 위험인자만 (w .2),Trauma→Delirium,0.845
+원내 사망,5a LTN 위험인자만 (w .2),Hypertension→Delirium,0.415
+원내 사망,5b LTN +섬망→사망 (w .2),Benzo→Delirium,0.7
+원내 사망,5b LTN +섬망→사망 (w .2),DeepSedation→Delirium,0.868
+원내 사망,5b LTN +섬망→사망 (w .2),SedationIntensity→Delirium,0.811
+원내 사망,5b LTN +섬망→사망 (w .2),SeverePain→Delirium,0.589
+원내 사망,5b LTN +섬망→사망 (w .2),OlderAge→Delirium,0.599
+원내 사망,5b LTN +섬망→사망 (w .2),Dexmed→¬Delirium,0.713
+원내 사망,5b LTN +섬망→사망 (w .2),EarlyMobility→¬Delirium,0.918
+원내 사망,5b LTN +섬망→사망 (w .2),BloodTransfusion→Delirium,0.835
+원내 사망,5b LTN +섬망→사망 (w .2),Dementia→Delirium,0.928
+원내 사망,5b LTN +섬망→사망 (w .2),Trauma→Delirium,0.836
+원내 사망,5b LTN +섬망→사망 (w .2),Hypertension→Delirium,0.414
+원내 사망,5b LTN +섬망→사망 (w .2),Delirium→Death,0.655
+원내 사망,5c LTN +섬망→사망 (w .5),Benzo→Delirium,0.781
+원내 사망,5c LTN +섬망→사망 (w .5),DeepSedation→Delirium,0.895
+원내 사망,5c LTN +섬망→사망 (w .5),SedationIntensity→Delirium,0.832
+원내 사망,5c LTN +섬망→사망 (w .5),SeverePain→Delirium,0.617
+원내 사망,5c LTN +섬망→사망 (w .5),OlderAge→Delirium,0.666
+원내 사망,5c LTN +섬망→사망 (w .5),Dexmed→¬Delirium,0.743
+원내 사망,5c LTN +섬망→사망 (w .5),EarlyMobility→¬Delirium,0.942
+원내 사망,5c LTN +섬망→사망 (w .5),BloodTransfusion→Delirium,0.93
+원내 사망,5c LTN +섬망→사망 (w .5),Dementia→Delirium,0.966
+원내 사망,5c LTN +섬망→사망 (w .5),Trauma→Delirium,0.926
+원내 사망,5c LTN +섬망→사망 (w .5),Hypertension→Delirium,0.431
+원내 사망,5c LTN +섬망→사망 (w .5),Delirium→Death,0.65
+원내 사망,5d LTN +직접 사망 공리 (w .2),Benzo→Delirium,0.69
+원내 사망,5d LTN +직접 사망 공리 (w .2),DeepSedation→Delirium,0.875
+원내 사망,5d LTN +직접 사망 공리 (w .2),SedationIntensity→Delirium,0.809
+원내 사망,5d LTN +직접 사망 공리 (w .2),SeverePain→Delirium,0.588
+원내 사망,5d LTN +직접 사망 공리 (w .2),OlderAge→Delirium,0.608
+원내 사망,5d LTN +직접 사망 공리 (w .2),Dexmed→¬Delirium,0.712
+원내 사망,5d LTN +직접 사망 공리 (w .2),EarlyMobility→¬Delirium,0.919
+원내 사망,5d LTN +직접 사망 공리 (w .2),BloodTransfusion→Delirium,0.824
+원내 사망,5d LTN +직접 사망 공리 (w .2),Dementia→Delirium,0.924
+원내 사망,5d LTN +직접 사망 공리 (w .2),Trauma→Delirium,0.824
+원내 사망,5d LTN +직접 사망 공리 (w .2),Hypertension→Delirium,0.413
+원내 사망,5d LTN +직접 사망 공리 (w .2),Delirium→Death,0.656
+원내 사망,5d LTN +직접 사망 공리 (w .2),OlderAge→Death,0.55
+원내 사망,5d LTN +직접 사망 공리 (w .2),DeepSedation→Death,0.793
+앵커 후 7일 내 사망,5a LTN 위험인자만 (w .2),Benzo→Delirium,0.717
+앵커 후 7일 내 사망,5a LTN 위험인자만 (w .2),DeepSedation→Delirium,0.868
+앵커 후 7일 내 사망,5a LTN 위험인자만 (w .2),SedationIntensity→Delirium,0.807
+앵커 후 7일 내 사망,5a LTN 위험인자만 (w .2),SeverePain→Delirium,0.544
+앵커 후 7일 내 사망,5a LTN 위험인자만 (w .2),OlderAge→Delirium,0.588
+앵커 후 7일 내 사망,5a LTN 위험인자만 (w .2),Dexmed→¬Delirium,0.727
+앵커 후 7일 내 사망,5a LTN 위험인자만 (w .2),EarlyMobility→¬Delirium,0.853
+앵커 후 7일 내 사망,5a LTN 위험인자만 (w .2),BloodTransfusion→Delirium,0.835
+앵커 후 7일 내 사망,5a LTN 위험인자만 (w .2),Dementia→Delirium,0.931
+앵커 후 7일 내 사망,5a LTN 위험인자만 (w .2),Trauma→Delirium,0.841
+앵커 후 7일 내 사망,5a LTN 위험인자만 (w .2),Hypertension→Delirium,0.41
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),Benzo→Delirium,0.71
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),DeepSedation→Delirium,0.863
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),SedationIntensity→Delirium,0.801
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),SeverePain→Delirium,0.541
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),OlderAge→Delirium,0.586
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),Dexmed→¬Delirium,0.724
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),EarlyMobility→¬Delirium,0.852
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),BloodTransfusion→Delirium,0.828
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),Dementia→Delirium,0.927
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),Trauma→Delirium,0.834
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),Hypertension→Delirium,0.408
+앵커 후 7일 내 사망,5b LTN +섬망→사망 (w .2),Delirium→Death,0.589
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),Benzo→Delirium,0.786
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),DeepSedation→Delirium,0.885
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),SedationIntensity→Delirium,0.822
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),SeverePain→Delirium,0.578
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),OlderAge→Delirium,0.66
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),Dexmed→¬Delirium,0.753
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),EarlyMobility→¬Delirium,0.872
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),BloodTransfusion→Delirium,0.929
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),Dementia→Delirium,0.965
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),Trauma→Delirium,0.924
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),Hypertension→Delirium,0.423
+앵커 후 7일 내 사망,5c LTN +섬망→사망 (w .5),Delirium→Death,0.582
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),Benzo→Delirium,0.703
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),DeepSedation→Delirium,0.869
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),SedationIntensity→Delirium,0.8
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),SeverePain→Delirium,0.539
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),OlderAge→Delirium,0.597
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),Dexmed→¬Delirium,0.723
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),EarlyMobility→¬Delirium,0.852
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),BloodTransfusion→Delirium,0.818
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),Dementia→Delirium,0.921
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),Trauma→Delirium,0.822
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),Hypertension→Delirium,0.408
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),Delirium→Death,0.59
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),OlderAge→Death,0.494
+앵커 후 7일 내 사망,5d LTN +직접 사망 공리 (w .2),DeepSedation→Death,0.755

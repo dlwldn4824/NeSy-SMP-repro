@@ -1,0 +1,612 @@
+<title>NeSy-SMP 재현 로드맵</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* 레이아웃: 연구 기록부 — 왼쪽 라벨 + 넓은 데이터 영역, 얇은 괘선, 파랑 단일 강조 */
+:root{
+  color-scheme: light;
+  --bg:#faf9f7; --surface:#ffffff; --surface-2:#f3f1ec;
+  --ink:#141413; --ink-2:#55534c; --ink-3:#8a877c;
+  --rule:#e3e1da; --rule-2:#cfccc2;
+  --accent:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --good:#0ca30c; --warn:#fab219; --crit:#d03b3b;
+  --font-display:"Noto Serif KR", "Apple SD Gothic Neo", serif;
+  --font-body:"IBM Plex Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif;
+  --font-mono:"IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#141413; --surface:#1f1f1d; --surface-2:#282723;
+    --ink:#f0efec; --ink-2:#c3c2b7; --ink-3:#8e8c82;
+    --rule:#33322e; --rule-2:#454339;
+    --accent:#3987e5; --s2:#d95926; --s3:#199e70;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#141413; --surface:#1f1f1d; --surface-2:#282723;
+  --ink:#f0efec; --ink-2:#c3c2b7; --ink-3:#8e8c82;
+  --rule:#33322e; --rule-2:#454339;
+  --accent:#3987e5; --s2:#d95926; --s3:#199e70;
+}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--font-body);
+  font-size:15px; line-height:1.65; -webkit-text-size-adjust:100%;
+}
+.wrap{
+  max-width:1080px; margin:0 auto;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:40px 72px;
+}
+h1,h2,h3{font-family:var(--font-display); text-wrap:balance; margin:0}
+h1{font-size:clamp(28px,5vw,42px); font-weight:700; letter-spacing:-.01em; line-height:1.2}
+h2{font-size:clamp(19px,2.6vw,23px); font-weight:700}
+h3{font-size:16px; font-weight:600}
+p{margin:0}
+.eyebrow{
+  font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:600
+}
+.mono{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+.num{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:500}
+
+header.top{display:flex; flex-direction:column; gap:10px; padding-bottom:22px; border-bottom:1px solid var(--rule-2)}
+.meta{display:flex; flex-wrap:wrap; gap:6px 18px; color:var(--ink-3); font-size:12.5px}
+.thesis{
+  margin-top:26px; padding:20px 22px; background:var(--surface); border:1px solid var(--rule);
+  border-left:3px solid var(--accent); border-radius:2px
+}
+.thesis p{font-family:var(--font-display); font-size:clamp(17px,2.4vw,21px); font-weight:600; line-height:1.5}
+.thesis .sub{font-family:var(--font-body); font-size:14px; font-weight:400; color:var(--ink-2); margin-top:10px}
+
+section{margin-top:52px}
+.sec-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:6px}
+.sec-note{color:var(--ink-2); font-size:14px; max-width:68ch; margin-bottom:20px}
+
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1px; background:var(--rule); border:1px solid var(--rule); border-radius:2px; overflow:hidden}
+.tile{background:var(--surface); padding:18px 18px 16px}
+.tile .k{font-size:11.5px; letter-spacing:.06em; color:var(--ink-3); font-weight:600; text-transform:uppercase}
+.tile .v{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:30px; font-weight:500; line-height:1.15; margin-top:8px; letter-spacing:-.02em}
+.tile .v small{font-size:15px; color:var(--ink-2); font-weight:500}
+.tile .d{font-size:12.5px; color:var(--ink-2); margin-top:6px}
+.tile.hi .v{color:var(--accent)}
+
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(248px,1fr)); gap:12px}
+.card{background:var(--surface); border:1px solid var(--rule); border-radius:2px; padding:16px 16px 14px; min-width:0}
+.card h3{margin-bottom:8px}
+.card p{font-size:13.5px; color:var(--ink-2)}
+.card .ev{font-size:12.5px; color:var(--ink-3); margin-top:9px; padding-top:9px; border-top:1px dashed var(--rule-2)}
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding:2px 8px; border-radius:999px; border:1px solid var(--rule-2); color:var(--ink-2); background:var(--surface-2); white-space:nowrap}
+.chip.no{color:var(--ink-2)}
+.chip.yes{color:#0a6b0a; border-color:#9bd59b; background:#eaf7ea}
+.chip.key{color:#8a4a16; border-color:#f0c49c; background:#fdf1e7}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip.yes{color:#8fe08f; border-color:#2f5c2f; background:#172517}
+:root:not([data-theme="light"]) .chip.key{color:#f0b183; border-color:#5c3a20; background:#2a1d13}}
+:root[data-theme="dark"] .chip.yes{color:#8fe08f; border-color:#2f5c2f; background:#172517}
+:root[data-theme="dark"] .chip.key{color:#f0b183; border-color:#5c3a20; background:#2a1d13}
+
+.scroll{overflow-x:auto; border:1px solid var(--rule); border-radius:2px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:13px; min-width:640px}
+th,td{padding:8px 12px; text-align:right; border-bottom:1px solid var(--rule); white-space:nowrap}
+th:first-child,td:first-child{text-align:left; white-space:normal; min-width:180px}
+thead th{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); font-weight:600; background:var(--surface-2); position:sticky; top:0}
+tbody tr.grp td{background:var(--surface-2); font-weight:600; font-size:12px; letter-spacing:.04em; color:var(--ink-2); text-transform:uppercase}
+td.n{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+td.best{font-weight:600}
+td.pos{color:var(--accent); font-weight:600}
+td.neg{color:var(--ink-2)}
+tr.mark td{background:color-mix(in srgb, var(--accent) 7%, var(--surface))}
+
+figure{margin:0}
+figcaption{font-size:12.5px; color:var(--ink-3); margin-top:10px}
+.chartbox{background:var(--surface); border:1px solid var(--rule); border-radius:2px; padding:18px 16px 12px}
+svg{display:block; max-width:100%; height:auto}
+.legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:12px; font-size:12.5px; color:var(--ink-2)}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.swatch{width:12px; height:12px; border-radius:2px; display:inline-block}
+
+.gantt-outer{overflow-x:auto; background:var(--surface); border:1px solid var(--rule); border-radius:2px}
+.gantt{min-width:700px; padding:14px 16px 10px}
+.g-row{display:grid; grid-template-columns:186px 1fr; align-items:center; gap:12px; min-height:28px}
+.g-row.head{min-height:22px; border-bottom:1px solid var(--rule); margin-bottom:6px}
+.g-label{font-size:12.5px; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.g-group{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); font-weight:600; padding-top:12px; padding-bottom:3px}
+.g-track{position:relative; height:22px}
+.g-track .tick{position:absolute; top:-6px; bottom:-6px; width:1px; background:var(--rule)}
+.g-bar{position:absolute; top:5px; height:12px; border-radius:3px; min-width:4px}
+.g-bar.done{background:var(--accent)}
+.g-bar.plan{background:transparent; border:1px dashed var(--accent); opacity:.85}
+.g-bar.stop{background:var(--s2)}
+.g-bar.doc{background:var(--s3)}
+.g-axis{font-size:11px; color:var(--ink-3); position:relative; height:16px; font-family:var(--font-mono)}
+.g-axis span{position:absolute; transform:translateX(-50%); white-space:nowrap}
+
+.qa{display:grid; gap:1px; background:var(--rule); border:1px solid var(--rule); border-radius:2px; overflow:hidden}
+.qa-row{background:var(--surface); padding:14px 16px; display:grid; grid-template-columns:76px 1fr; gap:14px; align-items:start}
+.qa-row .src{font-size:11px; font-weight:600; letter-spacing:.04em; color:var(--ink-3); padding-top:2px}
+.qa-row .q{font-weight:600; font-size:14px}
+.qa-row .a{font-size:13.5px; color:var(--ink-2); margin-top:5px}
+@media (max-width:520px){.qa-row{grid-template-columns:1fr; gap:6px}}
+
+.road{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; align-items:start}
+.lane{background:var(--surface); border:1px solid var(--rule); border-radius:2px; padding:16px; min-width:0}
+.lane .when{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); font-weight:600}
+.lane h3{margin:8px 0 10px}
+.step{display:flex; gap:9px; font-size:13px; color:var(--ink-2); padding:7px 0; border-top:1px solid var(--rule)}
+.step .i{flex:0 0 auto; width:17px; height:17px; border-radius:50%; background:var(--surface-2); border:1px solid var(--rule-2); font-size:10px; display:grid; place-items:center; font-family:var(--font-mono); color:var(--ink-3); margin-top:1px}
+.gate{margin-top:12px; padding:11px 12px; background:var(--surface-2); border-radius:2px; font-size:12.5px; color:var(--ink-2)}
+.gate b{color:var(--ink); font-weight:600}
+
+.decide{display:grid; gap:10px}
+.decide .d{display:grid; grid-template-columns:22px 1fr; gap:11px; font-size:13.5px; color:var(--ink-2); background:var(--surface); border:1px solid var(--rule); border-left:3px solid var(--warn); border-radius:2px; padding:13px 15px}
+.decide .d b{color:var(--ink)}
+.decide .d .box{width:14px; height:14px; border:1.5px solid var(--rule-2); border-radius:2px; margin-top:3px}
+
+footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--rule-2); font-size:12.5px; color:var(--ink-3); display:flex; flex-wrap:wrap; gap:6px 20px}
+
+#tip{
+  position:fixed; z-index:50; pointer-events:none; opacity:0; transition:opacity .1s;
+  background:var(--ink); color:var(--bg); font-size:12px; line-height:1.45;
+  padding:7px 10px; border-radius:3px; max-width:230px; font-family:var(--font-body)
+}
+#tip .tv{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">진행 현황 · 2026-10-28</p>
+  <h1>NeSy-SMP 재현 로드맵</h1>
+  <div class="meta">
+    <span>De Santis 외, <em>Neuro-symbolic AI for real-time sepsis mortality prediction</em>, EAAI 177 (2026) 114920</span>
+    <span>저장소 <span class="mono">NeSy-SMP-repro</span></span>
+    <span>작성 이지우</span>
+  </div>
+</header>
+
+<div class="thesis">
+  <p>학습 데이터가 충분할 때 지식 공리의 효과는 실행 간 변동(±0.5) 안에 묻히고, 학습셋을 1%(167명)로 줄였을 때 처음으로 뚜렷한 이득(+2.9)이 나타난다.</p>
+  <p class="sub">원인 후보 네 가지(전달 경로 · 손실 형태 · 대상 불일치 · 공리 내용)를 하나씩 끊어 본 결과 모두 기각됐고, 남은 것은 <b>구조</b>와 <b>데이터 양</b>이다.</p>
+</div>
+
+<section>
+  <div class="sec-head"><h2>규모</h2><p class="eyebrow">9/16 ~ 10/16</p></div>
+  <p class="sec-note">패혈증은 원저자 코드를 조건별로 복제해 5-fold × 5모델로 돌렸고(1회 15~17시간), 섬망 코호트는 로컬 GPU로 변형·시드를 반복했다.</p>
+  <div class="tiles">
+    <div class="tile"><p class="k">논문 조건 5-fold 학습</p><p class="v">24<small> 회</small></p><p class="d">모델 적합 600건 · 누적 약 340시간</p></div>
+    <div class="tile"><p class="k">6h 재현 최고 AUROC</p><p class="v">92.67</p><p class="d">XGBoost — 모든 예측 시점에서 1위</p></div>
+    <div class="tile hi"><p class="k">NeSy − LTN 최대 효과</p><p class="v">+2.92</p><p class="d">학습셋 1%(167명) 조건에서만</p></div>
+    <div class="tile"><p class="k">판정 해상도</p><p class="v">±0.5</p><p class="d">같은 코드 재실행 시 24h 에서 부호까지 뒤집힘</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>무엇이 성능을 움직였나</h2></div>
+  <p class="sec-note">같은 파이프라인에서 조치별 AUROC 변화. 데이터 쪽 조치는 1점 안팎을 움직였고, 지식 공리는 데이터가 충분한 구간에서 해상도를 넘지 못했다. 저데이터 구간만 예외다.</p>
+  <figure class="chartbox">
+    <div id="c1"></div>
+    <figcaption>회색 띠는 같은 코드를 두 번 돌렸을 때의 변동 폭(±0.5)이다. 띠 안에 들어오는 값은 효과로 읽을 수 없다.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sec-head"><h2>학습 데이터를 줄이면</h2><p class="eyebrow">실험 D6 · 6h</p></div>
+  <p class="sec-note">학습셋만 층화 추출로 줄이고 검증·테스트는 그대로 뒀다. 다섯 모델이 모두 같은 부분집합을 본다.</p>
+  <figure class="chartbox">
+    <div id="c2"></div>
+    <figcaption>데이터가 줄면 신경망 계열이 급격히 무너지는데(BiLSTM 89.7 → 64.0) 공리가 있는 NeSy 가 덜 무너진다. 다만 그 구간에서도 XGBoost(85.8)가 NeSy(69.8)보다 16점 높다.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sec-head"><h2>원인 후보를 하나씩 끊어 본 결과</h2></div>
+  <p class="sec-note">"지식 공리가 왜 효과가 없는가"의 후보는 네 가지였다. 각 후보를 분리하는 실험을 따로 돌렸다.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>전달 경로</h3>
+      <span class="chip no">패혈증에서는 원인 아님</span>
+      <p style="margin-top:9px">원저자 코드에서 함축 공리 8개가 모두 사망 모델로 흐른다. 논문 손실(0.8 : 0.2) 기준 지식 항의 몫이 약 17%.</p>
+      <p class="ev">섬망 쪽은 반대 — 공리 12개 중 11개가 머리가 섬망이라 사망 로짓 gradient 가 0. 그 진단은 섬망 설정에 한정된다.</p>
+    </div>
+    <div class="card">
+      <h3>손실 형태</h3>
+      <span class="chip no">원인 아님</span>
+      <p style="margin-top:9px">논문식 볼록 결합(w<sub>D</sub>+w<sub>K</sub>=1)과 LTN 라이브러리 연산으로 다시 돌렸다. 진짜−가짜 +0.04, 공리 앞부분을 관측값에 묶은 변형은 −0.23.</p>
+      <p class="ev">기존 더하기형 손실(BCE + w·(1−만족도)) 결과와 같다.</p>
+    </div>
+    <div class="card">
+      <h3>대상 불일치</h3>
+      <span class="chip no">원인 아님</span>
+      <p style="margin-top:9px">공리와 목표를 둘 다 섬망으로 맞춰도 지식 없음 89.34 → 89.04, 진짜−가짜 +0.09. 공리 머리를 사망으로 재타깃해도 82.86 → 82.83(가짜 82.87).</p>
+      <p class="ev">두 방향 모두 시드 변동 안. 랩에서 지적한 구조적 불일치는 기각.</p>
+    </div>
+    <div class="card">
+      <h3>공리 내용</h3>
+      <span class="chip no">교체로는 안 움직임</span>
+      <p style="margin-top:9px">데이터와 충돌하는 혈당 함축 제외 +0.15, 논문 목록에 있는데 코드에 없던 LowMAP 추가 −0.14.</p>
+      <p class="ev">추가한 MAP 공리도 같은 양상 — 활성화율 70.0%, 만족도 0.564(기존 0.69~0.82).</p>
+    </div>
+    <div class="card">
+      <h3>구조</h3>
+      <span class="chip key">핵심 변수</span>
+      <p style="margin-top:9px">공리가 지나갈 경로를 좁히면(섬망 헤드를 거쳐 2단계 학습) 공리 없음 71.96 → 진짜 76.79, 가짜 대비 +1.36.</p>
+      <p class="ev">단 절대 성능은 현재 구조(82.72)보다 6점 낮다. 전달성과 성능의 교환 관계.</p>
+    </div>
+    <div class="card">
+      <h3>데이터 양</h3>
+      <span class="chip key">유일한 양성 신호</span>
+      <p style="margin-top:9px">학습셋 1%에서 NeSy−LTN +2.92. 10%·5%·100% 에서는 모두 ±0.3 안.</p>
+      <p class="ev">167명이라 fold 변동이 크다. 시드를 늘려 재확인할 값.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>전체 결과</h2><p class="eyebrow">AUROC · 5-fold 평균</p></div>
+  <p class="sec-note">XGBoost·RF 가 조건에 따라 동일한 것은 두 모델의 입력이 공리 패치 영향을 받지 않기 때문이다(패치 범위 확인).</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>조건</th><th>XGB</th><th>RF</th><th>BiLSTM</th><th>LTN</th><th>NeSy</th><th>NeSy−LTN</th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>제기된 질문과 답</h2></div>
+  <p class="sec-note">교수님·팀원 피드백과 내부 점검에서 나온 질문을 실험으로 닫은 기록이다.</p>
+  <div class="qa" id="qa"></div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>작업 일정</h2><p class="eyebrow">간트</p></div>
+  <p class="sec-note">패혈증 학습은 메모리 26GB 때문에 한 번에 하나만 돌 수 있어 직렬로 이어 붙였다. 섬망 코호트는 GPU 라 병렬로 돌렸다.</p>
+  <div class="gantt-outer"><div class="gantt" id="gantt"></div></div>
+  <div class="legend">
+    <span><i class="swatch" style="background:var(--accent)"></i>완료</span>
+    <span><i class="swatch" style="background:var(--s2)"></i>중단 후 재실행</span>
+    <span><i class="swatch" style="background:var(--s3)"></i>문서·보고</span>
+    <span><i class="swatch" style="border:1px dashed var(--accent); background:transparent"></i>계획</span>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>로드맵</h2></div>
+  <p class="sec-note">남은 양성 신호가 둘(구조 · 데이터 양)이므로, 둘을 각각 정밀화한 뒤 결합해 보는 순서로 간다. 각 단계 끝에 다음으로 갈지 정하는 기준을 둔다.</p>
+  <div class="road">
+    <div class="lane">
+      <p class="when">1단계 · 10/29 ~ 11/02</p>
+      <h3>저데이터 곡선 확정</h3>
+      <div class="step"><span class="i">1</span><span>1% 조건을 시드 3개로 반복해 +2.92 가 재현되는지 본다</span></div>
+      <div class="step"><span class="i">2</span><span>0.5% · 2% 를 추가해 곡선을 만든다</span></div>
+      <div class="step"><span class="i">3</span><span>같은 구간에서 XGBoost 와의 격차도 함께 기록한다</span></div>
+      <div class="gate"><b>기준</b> — 세 시드 모두 +1.0 이상이면 "지식은 데이터가 적을 때 기여한다"를 결과로 쓴다. 한 시드라도 0 근처면 1% 결과는 변동으로 처리한다.</div>
+    </div>
+    <div class="lane">
+      <p class="when">2단계 · 11/03 ~ 11/07</p>
+      <h3>구조 × 저데이터 결합</h3>
+      <div class="step"><span class="i">1</span><span>섬망 쪽에서 +4.83 이 나온 2단계 학습 구조를 패혈증 1% 조건에 적용한다</span></div>
+      <div class="step"><span class="i">2</span><span>원본 코드가 위험 술어도 저장하게 패치하고 학습 종료 시점의 gradient 몫을 다시 잰다</span></div>
+      <div class="step"><span class="i">3</span><span>공리 검증표에 활성화 환자군의 실제 사망률 열을 채운다</span></div>
+      <div class="gate"><b>기준</b> — 두 양성 신호가 같은 방향으로 더해지면 논문 방향 B(공리가 작동하는 조건 탐색)로 간다. 상쇄되면 방향 A(기존 구조의 한계 검증)로 간다.</div>
+    </div>
+    <div class="lane">
+      <p class="when">3단계 · 11/08 ~ 11/15</p>
+      <h3>방향 확정과 초안</h3>
+      <div class="step"><span class="i">1</span><span>교수님과 방향 A·B 를 확정한다</span></div>
+      <div class="step"><span class="i">2</span><span>저자 문의 메일을 보낸다(문서는 작성 완료)</span></div>
+      <div class="step"><span class="i">3</span><span>재현 보고 + 민감도 + 원인 분리를 한 편으로 묶어 초안을 쓴다</span></div>
+      <div class="gate"><b>남은 위험</b> — 코호트가 논문과 같지 않다(논문 n=19,328). 논문 숫자에 맞추는 조정은 하지 않는다는 원칙을 유지한다.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>사람이 정해야 하는 것</h2></div>
+  <p class="sec-note">실험으로 닫을 수 없고 결정이 필요한 항목이다.</p>
+  <div class="decide">
+    <div class="d"><span class="box"></span><span><b>PADIS KG 의 <span class="mono">섬망 → 사망</span></b> — 2018 원문 전수 검색에서 뒷받침 문장을 찾지 못했다. ① KG 에서 제외 ② 별도 문헌을 출처로 표기 중 하나를 정해야 한다.</span></div>
+    <div class="d"><span class="box"></span><span><b>규칙 검수 승인</b> — 추출 규칙의 사람 검수 결정을 채워야 승인 파일이 생성된다. 사람 승인 단계라 코드가 대신 쓰지 않는다.</span></div>
+    <div class="d"><span class="box"></span><span><b>저자 문의 메일 발송 시점</b> — 질문 4건 정리 완료. 발송은 교수님 확인 후.</span></div>
+    <div class="d"><span class="box"></span><span><b>논문 방향</b> — A 기존 구조의 한계 검증 / B 공리가 작동하기 위한 조건 탐색. 2단계 결과를 보고 정하는 것을 제안한다.</span></div>
+  </div>
+</section>
+
+<footer>
+  <span>원본 로그 <span class="mono">results_*</span> · <span class="mono">stage3*~4*</span></span>
+  <span>집계 문서 <span class="mono">docs/repro/REPRO_RESULTS_ALL_2026-10-28.md</span></span>
+  <span>환자 단위 파생물은 저장소에 올리지 않는다</span>
+</footer>
+</div>
+
+<div id="tip"><span class="tv"></span></div>
+
+<script>
+(function(){
+  "use strict";
+  var tip = document.getElementById("tip");
+  var tipv = tip.querySelector(".tv");
+  function showTip(e, html){
+    tipv.innerHTML = html;
+    tip.style.opacity = 1;
+    var r = tip.getBoundingClientRect();
+    var x = Math.min(Math.max(e.clientX + 14, 8), window.innerWidth - r.width - 8);
+    var y = Math.max(e.clientY - r.height - 10, 8);
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  function hideTip(){ tip.style.opacity = 0; }
+  function bindTip(el, html){
+    el.addEventListener("mousemove", function(e){ showTip(e, html); });
+    el.addEventListener("mouseleave", hideTip);
+    el.addEventListener("focus", function(){ tipv.innerHTML = html; });
+  }
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, text){
+    var n = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  var INK = "var(--ink)", INK2 = "var(--ink-2)", INK3 = "var(--ink-3)", RULE = "var(--rule)";
+
+  /* ---------- 차트 1: 조치별 AUROC 변화 ---------- */
+  (function(){
+    var rows = [
+      {l:"지식 공리 — 학습셋 1%", v:2.92, c:"var(--accent)", t:"NeSy−LTN · 학습 167명<br>LTN 66.84 → NeSy 69.75"},
+      {l:"측정값 유효범위 검증", v:1.90, c:"var(--s3)", t:"BiLSTM 6h<br>기록 오류 0.09% 제거"},
+      {l:"PADIS 임상 변수 5개 추가", v:0.90, c:"var(--s3)", t:"모델 평균 · 6·12·24·48h 일관<br>+0.7 ~ +1.1"},
+      {l:"결측 0 채움 수정 (S1)", v:0.62, c:"var(--s3)", t:"BiLSTM 6h<br>89.71 → 90.33"},
+      {l:"혈당 함축 제외 (S5)", v:0.15, c:"var(--ink-3)", t:"NeSy−LTN · 6h 5-fold"},
+      {l:"사망 연결 5개 추가 (S3·S4)", v:0.03, c:"var(--ink-3)", t:"NeSy−LTN · 2회 평균<br>+0.045 / +0.006"},
+      {l:"논문 목록의 LowMAP 추가", v:-0.14, c:"var(--ink-3)", t:"NeSy−LTN · 6h 5-fold"},
+      {l:"논문 조건 그대로 (6h)", v:-0.25, c:"var(--ink-3)", t:"NeSy−LTN · 재현 기준선"}
+    ];
+    var W = 680, rowH = 34, padT = 26, padB = 30, L = 196, R = 46;
+    var H = padT + rows.length * rowH + padB;
+    var min = -0.6, max = 3.1;
+    var x = function(v){ return L + (v - min) / (max - min) * (W - L - R); };
+    var svg = el("svg", {viewBox:"0 0 " + W + " " + H, role:"img",
+      "aria-label":"조치별 AUROC 변화. 지식 공리는 학습셋 1% 에서만 +2.92, 나머지는 변동 폭 안."});
+    /* 변동 폭 띠 */
+    svg.appendChild(el("rect", {x:x(-0.5), y:padT - 8, width:x(0.5) - x(-0.5), height:rows.length * rowH + 10,
+      fill:"var(--surface-2)"}));
+    svg.appendChild(el("text", {x:x(0), y:padT - 13, "text-anchor":"middle", "font-size":10.5,
+      fill:INK3, "font-family":"var(--font-body)"}, "실행 간 변동 ±0.5"));
+    /* 0 축 */
+    svg.appendChild(el("line", {x1:x(0), x2:x(0), y1:padT - 6, y2:padT + rows.length * rowH + 2,
+      stroke:"var(--rule-2)", "stroke-width":1}));
+    rows.forEach(function(r, i){
+      var cy = padT + i * rowH + rowH / 2;
+      var g = el("g", {tabindex:"0"});
+      var x0 = x(Math.min(0, r.v)), x1 = x(Math.max(0, r.v));
+      g.appendChild(el("rect", {x:x0, y:cy - 6, width:Math.max(x1 - x0, 2), height:12, rx:3, fill:r.c}));
+      g.appendChild(el("text", {x:L - 10, y:cy + 4, "text-anchor":"end", "font-size":12,
+        fill:INK2, "font-family":"var(--font-body)"}, r.l));
+      var lab = (r.v > 0 ? "+" : "") + r.v.toFixed(2);
+      g.appendChild(el("text", {x:(r.v >= 0 ? x1 + 7 : x0 - 7), y:cy + 4,
+        "text-anchor":(r.v >= 0 ? "start" : "end"), "font-size":12, "font-weight":500,
+        fill:INK, "font-family":"var(--font-mono)"}, lab));
+      svg.appendChild(g);
+      bindTip(g, "<b>" + r.l + "</b><br>" + lab + " AUROC<br>" + r.t);
+    });
+    [0, 1, 2, 3].forEach(function(v){
+      svg.appendChild(el("text", {x:x(v), y:H - 10, "text-anchor":"middle", "font-size":10.5,
+        fill:INK3, "font-family":"var(--font-mono)"}, (v > 0 ? "+" : "") + v));
+    });
+    svg.appendChild(el("text", {x:L, y:H - 10, "text-anchor":"start", "font-size":10.5,
+      fill:INK3, "font-family":"var(--font-body)"}, "AUROC 변화 →"));
+    document.getElementById("c1").appendChild(svg);
+  })();
+
+  /* ---------- 차트 2: D6 데이터 양별 (점-연결) ----------
+     AUROC 는 0 에서 시작하지 않으므로 막대 대신 점으로 찍는다. */
+  (function(){
+    /* diff 는 fold 단위 원값에서 계산한 차이(표시값을 뺀 값이 아니다) */
+    var d = [
+      {k:"학습셋 1%",   n:"167명",    ltn:66.84, nesy:69.75, xgb:85.80, diff: 2.92},
+      {k:"학습셋 5%",   n:"839명",    ltn:86.29, nesy:86.18, xgb:89.80, diff:-0.11},
+      {k:"학습셋 10%",  n:"1,678명",  ltn:87.90, nesy:87.86, xgb:90.59, diff:-0.05},
+      {k:"전체 100%",   n:"16,784명", ltn:91.27, nesy:91.02, xgb:92.67, diff:-0.25}
+    ];
+    var W = 680, L = 120, R = 74, T = 34, rowH = 50;
+    var H = T + d.length * rowH + 30;
+    var min = 64, max = 94;
+    var x = function(v){ return L + (v - min) / (max - min) * (W - L - R); };
+    var svg = el("svg", {viewBox:"0 0 " + W + " " + H, role:"img",
+      "aria-label":"학습셋 비율별 AUROC. 학습셋 1% 에서만 NeSy 가 LTN 보다 2.92 높고, 그 구간에서도 XGBoost 가 가장 높다."});
+    [70, 75, 80, 85, 90].forEach(function(v){
+      svg.appendChild(el("line", {x1:x(v), x2:x(v), y1:T - 10, y2:T + d.length * rowH - 14,
+        stroke:RULE, "stroke-width":1}));
+      svg.appendChild(el("text", {x:x(v), y:H - 12, "text-anchor":"middle", "font-size":10.5,
+        fill:INK3, "font-family":"var(--font-mono)"}, v));
+    });
+    svg.appendChild(el("text", {x:L, y:14, "font-size":10.5, fill:INK3,
+      "font-family":"var(--font-body)"}, "AUROC"));
+    svg.appendChild(el("text", {x:W - R + 8, y:14, "font-size":10.5, fill:INK3,
+      "font-family":"var(--font-body)"}, "NeSy−LTN"));
+    d.forEach(function(r, i){
+      var cy = T + i * rowH + 10;
+      svg.appendChild(el("text", {x:0, y:cy - 2, "font-size":12.5, fill:INK,
+        "font-family":"var(--font-body)", "font-weight":500}, r.k));
+      svg.appendChild(el("text", {x:0, y:cy + 14, "font-size":10.5, fill:INK3,
+        "font-family":"var(--font-body)"}, r.n));
+      /* LTN↔NeSy 간격을 선으로 */
+      svg.appendChild(el("line", {x1:x(Math.min(r.ltn, r.nesy)), x2:x(Math.max(r.ltn, r.nesy)),
+        y1:cy, y2:cy, stroke:"var(--rule-2)", "stroke-width":2, "stroke-linecap":"round"}));
+      [["XGBoost", r.xgb, "var(--s3)"], ["LTN — 지식 없음", r.ltn, "var(--s2)"],
+       ["NeSy — 지식 있음", r.nesy, "var(--accent)"]].forEach(function(s){
+        var g = el("g", {tabindex:"0"});
+        g.appendChild(el("circle", {cx:x(s[1]), cy:cy, r:5.5, fill:s[2],
+          stroke:"var(--surface)", "stroke-width":2}));
+        svg.appendChild(g);
+        bindTip(g, "<b>" + s[0] + "</b><br>" + r.k + " · " + r.n + "<br>AUROC " + s[1].toFixed(2));
+      });
+      /* 값 라벨은 차이가 눈에 보이는 1% 행에만 */
+      if (Math.abs(r.diff) > 0.5){
+        svg.appendChild(el("text", {x:x(r.ltn), y:cy + 20, "text-anchor":"middle", "font-size":11,
+          fill:INK2, "font-family":"var(--font-mono)"}, r.ltn.toFixed(2)));
+        svg.appendChild(el("text", {x:x(r.nesy), y:cy - 12, "text-anchor":"middle", "font-size":11.5,
+          fill:"var(--accent)", "font-family":"var(--font-mono)", "font-weight":600}, r.nesy.toFixed(2)));
+      }
+      var diff = r.diff;
+      var big = Math.abs(diff) > 0.5;
+      svg.appendChild(el("text", {x:W - R + 8, y:cy + 4, "font-size":12.5,
+        fill:(big ? "var(--accent)" : INK3), "font-family":"var(--font-mono)",
+        "font-weight":(big ? 600 : 400)}, (diff > 0 ? "+" : "") + diff.toFixed(2)));
+    });
+    document.getElementById("c2").appendChild(svg);
+    var lg = document.createElement("div");
+    lg.className = "legend";
+    lg.innerHTML = '<span><i class="swatch" style="background:var(--accent); border-radius:50%"></i>NeSy — 지식 공리 있음</span>' +
+      '<span><i class="swatch" style="background:var(--s2); border-radius:50%"></i>LTN — 지식 공리 없음</span>' +
+      '<span><i class="swatch" style="background:var(--s3); border-radius:50%"></i>XGBoost — 비교용</span>';
+    document.getElementById("c2").parentNode.insertBefore(lg, document.getElementById("c2").nextSibling);
+  })();
+
+  /* ---------- 전체 결과 표 ---------- */
+  (function(){
+    /* [라벨, XGB, RF, BiLSTM, LTN, NeSy, NeSy−LTN(fold 원값 기준), 강조] */
+    var T = [
+      ["grp", "논문 조건 재현"],
+      ["원본 6h", 92.67, 91.18, 89.71, 91.27, 91.02, -0.25],
+      ["원본 12h", 91.81, 90.39, 87.39, 89.78, 89.92, 0.14],
+      ["원본 24h", 90.59, 89.20, 85.93, 88.49, 88.80, 0.30],
+      ["원본 48h", 87.66, 86.77, 84.55, 86.24, 86.22, -0.02],
+      ["grp", "같은 코드 재실행 (D7 · 판정 해상도)"],
+      ["원본 12h 2회차", 91.81, 90.39, 88.12, 89.79, 90.07, 0.28],
+      ["원본 24h 2회차", 90.59, 89.20, 86.61, 88.63, 88.42, -0.21],
+      ["원본 48h 2회차", 87.66, 86.77, 84.19, 86.36, 86.25, -0.11],
+      ["grp", "공리를 바꾼 조건 (6h)"],
+      ["결측 0 채움 수정 (S1)", 92.67, 91.18, 90.33, 91.23, 91.17, -0.06],
+      ["사망 연결 5개 1회차", 92.67, 91.18, 89.22, 91.14, 91.18, 0.05],
+      ["사망 연결 5개 2회차", 92.67, 91.18, 90.25, 91.23, 91.24, 0.01],
+      ["혈당 함축 제외 (S5)", 92.67, 91.18, 89.85, 90.95, 91.09, 0.15],
+      ["논문 §4.5 LowMAP 추가 (D4)", 92.67, 91.18, 89.13, 91.03, 90.89, -0.14],
+      ["grp", "학습 데이터 양 (D6 · 6h)"],
+      ["학습셋 10% · 1,678명", 90.59, 89.37, 86.26, 87.90, 87.86, -0.05],
+      ["학습셋 5% · 839명", 89.80, 88.43, 84.51, 86.29, 86.18, -0.11],
+      ["학습셋 1% · 167명", 85.80, 85.90, 63.97, 66.84, 69.75, 2.92, 1],
+      ["grp", "데이터 쪽 조치"],
+      ["측정값 유효범위 검증 6h", 92.85, 91.38, 91.56, 92.27, 92.27, 0.01],
+      ["PADIS 변수 추가 6h", 93.33, 92.16, 90.75, 91.99, 92.11, 0.12],
+      ["PADIS 변수 추가 12h", 92.59, 91.26, 90.31, 90.73, 90.83, 0.10],
+      ["PADIS 변수 추가 24h", 91.47, 90.25, 88.59, 89.69, 89.61, -0.08],
+      ["PADIS 변수 추가 48h", 88.53, 87.82, 84.97, 87.12, 86.98, -0.14]
+    ];
+    var tb = document.getElementById("tb"), html = "";
+    T.forEach(function(r){
+      if (r[0] === "grp"){ html += '<tr class="grp"><td colspan="7">' + r[1] + "</td></tr>"; return; }
+      var d = r[6];
+      var best = Math.max(r[1], r[2], r[3], r[4], r[5]);
+      html += '<tr' + (r[7] ? ' class="mark"' : '') + '><td>' + r[0] + "</td>";
+      [1, 2, 3, 4, 5].forEach(function(i){
+        html += '<td class="n' + (r[i] === best ? " best" : "") + '">' + r[i].toFixed(2) + "</td>";
+      });
+      html += '<td class="n ' + (Math.abs(d) > 0.5 ? "pos" : "neg") + '">' +
+        (d > 0 ? "+" : "") + d.toFixed(2) + "</td></tr>";
+    });
+    tb.innerHTML = html;
+  })();
+
+  /* ---------- 질문과 답 ---------- */
+  (function(){
+    var QA = [
+      ["교수님", "one-shot 과 few-shot 추출 결과가 얼마나 겹치는가",
+       "one∩few 31개(Jaccard 0.84) · 3-way 교집합 25개. 예시를 주면 술어 표현이 바뀌어(associatedWith → increasesRiskOf) 정답 일치는 7/14 → 10/14 로 오르지만 근거 지지율은 57% → 38~50% 로 떨어진다."],
+      ["교수님", "조건별·교집합 KG 를 만들어 공리를 뽑으면 달라지는가",
+       "KG 6종(합의·zero/one/few-shot·합집합·사람 작성)으로 공리를 컴파일해 같은 분할로 학습. 실행 가능 공리 6~16개, 전부 기준선 ±0.4 안. 자동 추출 KG 가 사람 작성 KG 보다 낮지 않았다."],
+      ["교수님", "예측 대상을 임상 결과(사망)로 바꾸면 공리가 효과를 내는가",
+       "바꿔도 ±0.1. 다만 그 실험은 공리를 사망용으로 바꾸지 않은 설정이었다(사망 머리 공리 0~3개). 그래서 공리 머리를 사망으로 재타깃한 실험을 따로 돌렸고 결과는 −0.03 — 역시 변화 없음."],
+      ["팀원", "LTN 라이브러리를 쓰지 않고 직접 구현한 이유가 있는가",
+       "의도한 건 아니었다. 라이브러리 연산(ImpliesReichenbach · AggregPMeanError · SatAgg)으로 다시 돌렸고 결론은 같았다(진짜−가짜 +0.04)."],
+      ["팀원", "손실식이 논문과 다르다 — 더하기형 vs 0.8:0.2 볼록 결합",
+       "맞는 지적이었다. 논문식으로 다시 돌렸고, 기존 가중치 스윕(0.2·1·2)이 논문 w_K 와 같은 수가 아니라는 설명을 문서에 넣었다. 결과는 바뀌지 않았다."],
+      ["팀원", "공리 앞부분에 데이터가 아니라 모델 예측값을 쓰고 있다",
+       "관측값으로 묶는 변형을 추가했다. 지식 없음 대비 −0.23 으로 오히려 조금 낮았다."],
+      ["팀원", "섬망용 PADIS KG 로 사망을 예측하면 지식이 무의미하지 않은가",
+       "두 방향으로 확인했다. 목표를 섬망으로 맞춘 경우 진짜−가짜 +0.09, 공리를 사망으로 재타깃한 경우 −0.04. 대상 불일치는 원인이 아니었다."],
+      ["내부 점검", "규칙 코드가 사망 예측까지 end-to-end 로 닿는가",
+       "섬망 쪽은 공리 12개 중 11개가 사망 로짓 gradient 0. 원저자 패혈증 코드는 다르다 — 함축 8개 모두 사망 모델로 흐르고 지식 항의 몫이 약 17%. '전달되지 않는다'는 진단은 섬망 설정에 한정된다."],
+      ["내부 점검", "논문 공리 목록에 있는데 코드에 없는 공리가 있는가",
+       "LowMAP 하나. Anchor + 함축으로 넣고 결측 인식까지 했으나 −0.14. 그 공리도 활성화율 70.0% · 만족도 0.564 로 혈당과 같은 '자주 켜지는데 데이터와 안 맞는' 양상이었다."],
+      ["내부 점검", "재현 수치가 논문보다 3~5점 높은 이유",
+       "코호트 재구축 차이 + 측정값 유효범위 검증(기록 오류 0.09% 제거로 신경망 +1.0~1.9). 논문 숫자에 맞추는 방향의 조정은 하지 않았다."],
+      ["내부 점검", "자체 실험 코드에 결함은 없었나",
+       "5건 찾아 고쳤다(에폭 셔플 · 피처 누출 · 비음수 제약 범위 · 가짜 공리 머리 분포 · 인코딩). 이 중 셔플 결함 때문에 2단계 학습 결과가 46~49 로 나와 있었고, 수정 후 71.96 → 76.79 로 바뀌어 결론이 하나 뒤집혔다. 원저자 코드는 건드리지 않았다."]
+    ];
+    document.getElementById("qa").innerHTML = QA.map(function(r){
+      return '<div class="qa-row"><div class="src">' + r[0] + '</div><div><p class="q">' +
+        r[1] + '</p><p class="a">' + r[2] + "</p></div></div>";
+    }).join("");
+  })();
+
+  /* ---------- 간트 ---------- */
+  (function(){
+    var T0 = Date.UTC(2026, 8, 15), T1 = Date.UTC(2026, 10, 16);
+    var span = T1 - T0;
+    function pos(s){ var p = s.split("-"); return (Date.UTC(2026, +p[0] - 1, +p[1]) - T0) / span * 100; }
+    var ROWS = [
+      ["g", "재현과 감사"],
+      ["논문 조건 4시점 5-fold", "09-16", "09-21", "done"],
+      ["결측 인식 민감도 (S1)", "09-17", "09-18", "done"],
+      ["측정값 유효범위 4시점", "09-19", "09-25", "done"],
+      ["공리 임계값 출처 대조", "09-21", "09-24", "done"],
+      ["g", "섬망 코호트 실험"],
+      ["예측 대상 교체 · KG 범위", "10-03", "10-04", "done"],
+      ["음성 대조군 · 가중치 스윕", "10-04", "10-05", "done"],
+      ["도메인 이동 · 공리 감사", "10-05", "10-06", "done"],
+      ["구조 가설 3종 · gradient", "10-06", "10-07", "done"],
+      ["코드 결함 수정 후 재실행", "10-08", "10-08", "done"],
+      ["논문식 손실로 섬망 예측 (D3)", "10-08", "10-08", "done"],
+      ["공리 재타깃 비교", "10-08", "10-08", "done"],
+      ["g", "패혈증 민감도 (직렬)"],
+      ["PADIS 변수 6·12·24h", "10-02", "10-06", "done"],
+      ["사망 연결 5개 1회차", "10-06", "10-06", "done"],
+      ["사망 연결 5개 2회차", "10-06", "10-07", "done"],
+      ["혈당 제외 — 1차 중단", "10-07", "10-08", "stop"],
+      ["혈당 제외 — 재실행", "10-08", "10-08", "done"],
+      ["원본 코드 gradient 측정 (D5)", "10-08", "10-08", "done"],
+      ["PADIS 변수 48h", "10-08", "10-09", "done"],
+      ["논문 §4.5 LowMAP (D4)", "10-09", "10-10", "done"],
+      ["학습셋 10 · 5 · 1% (D6)", "10-10", "10-10", "done"],
+      ["12·24h 재실행 (D7)", "10-10", "10-11", "done"],
+      ["48h 재실행 — 중단 후 완료", "10-11", "10-16", "stop"],
+      ["g", "문서와 보고"],
+      ["주간 보고 · 민감도 문서", "10-06", "10-08", "doc"],
+      ["전체 결과 집계 · 현황 정리", "10-28", "10-28", "doc"],
+      ["g", "계획"],
+      ["저데이터 곡선 확정", "10-29", "11-02", "plan"],
+      ["구조 × 저데이터 결합", "11-03", "11-07", "plan"],
+      ["술어 저장 후 gradient 재측정", "11-03", "11-05", "plan"],
+      ["방향 확정 · 초안", "11-08", "11-15", "plan"]
+    ];
+    var ticks = ["09-15", "09-22", "09-29", "10-06", "10-13", "10-20", "10-27", "11-03", "11-10"];
+    var g = document.getElementById("gantt"), html = "";
+    html += '<div class="g-row head"><div class="g-label g-group" style="padding-top:0">작업</div><div class="g-axis">' +
+      ticks.map(function(t){
+        var m = t.split("-");
+        return '<span style="left:' + pos(t).toFixed(2) + '%">' + (+m[0]) + "/" + (+m[1]) + "</span>";
+      }).join("") + "</div></div>";
+    ROWS.forEach(function(r){
+      if (r[0] === "g"){ html += '<div class="g-row"><div class="g-label g-group">' + r[1] + '</div><div></div></div>'; return; }
+      var a = pos(r[1]), b = pos(r[2]);
+      var w = Math.max(b - a, 0.9);
+      var tk = ticks.map(function(t){ return '<i class="tick" style="left:' + pos(t).toFixed(2) + '%"></i>'; }).join("");
+      html += '<div class="g-row"><div class="g-label" title="' + r[0] + '">' + r[0] + '</div>' +
+        '<div class="g-track">' + tk +
+        '<div class="g-bar ' + r[3] + '" style="left:' + a.toFixed(2) + '%; width:' + w.toFixed(2) + '%" ' +
+        'data-tip="' + r[0] + " · " + r[1].replace("-", "/") + " ~ " + r[2].replace("-", "/") + '" tabindex="0"></div>' +
+        "</div></div>";
+    });
+    g.innerHTML = html;
+    Array.prototype.forEach.call(g.querySelectorAll(".g-bar"), function(b){
+      bindTip(b, b.getAttribute("data-tip"));
+    });
+  })();
+})();
+</script>

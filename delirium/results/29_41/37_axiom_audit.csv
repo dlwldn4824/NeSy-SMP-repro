@@ -1,0 +1,13 @@
+﻿공리,GRADE,켜진 환자%,켜진 환자 사망률%,전체 사망률%,만족도(사망),만족도(생존),만족도 차
+Dexmed→¬Delirium,moderate,53.6,22.9,21.2,0.669,0.832,-0.162
+Delirium→Death,external,38.5,39.2,21.2,0.658,0.766,-0.107
+SedationIntensity→Delirium,cohort,27.4,45.4,21.2,0.837,0.918,-0.082
+DeepSedation→Delirium,low,18.9,52.9,21.2,0.885,0.956,-0.071
+Dementia→Delirium,strong,4.8,27.0,21.2,0.984,0.983,0.001
+EarlyMobility→¬Delirium,low,24.1,4.4,21.2,0.964,0.957,0.007
+BloodTransfusion→Delirium,strong,10.0,26.1,21.2,0.958,0.948,0.01
+Trauma→Delirium,strong,11.8,23.1,21.2,0.958,0.941,0.017
+Benzo→Delirium,strong,35.7,38.1,21.2,0.793,0.711,0.082
+OlderAge→Delirium,strong,48.3,25.4,21.2,0.778,0.69,0.087
+Hypertension→Delirium,moderate,70.5,21.6,21.2,0.727,0.521,0.206
+SeverePain→Delirium,inconclusive,32.3,9.6,21.2,0.899,0.681,0.218

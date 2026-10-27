@@ -1,0 +1,12 @@
+﻿번호,주어,술어,목적어,공리이름(결과파일 표기),실행 개념,방향,임계값(원단위),조건 설명,머리,머리부정,근거등급(술어기반),가중치,만족도 one-shot,만족도 few-shot,만족도 사람KG
+1,Age,increasesRiskOf,Delirium,Age-increasesRiskOf->Delirium,Age,+1,65.0 세,나이 65세 이상,Delirium,False,strong,1.0,0.6,0.6,0.591
+2,Benzodiazepine,increasesRiskOf,Delirium,Benzodiazepine-increasesRiskOf->Delirium,BenzoFrac,+1,1e-6,창 안 벤조디아제핀 투여 비율 > 0,Delirium,False,strong,1.0,0.701,0.701,0.688
+3,BloodTransfusion,increasesRiskOf,Delirium,BloodTransfusion-increasesRiskOf->Delirium,BloodTransfusion,+1,0.5 (이진),수혈 기록 있음,Delirium,False,strong,1.0,0.827,0.827,0.806
+4,Dementia,increasesRiskOf,Delirium,Dementia-increasesRiskOf->Delirium,Dementia,+1,0.5 (이진),치매 진단 있음,Delirium,False,strong,1.0,0.925,0.925,0.914
+5,Dexmedetomidine,decreasesRiskOf,Delirium,Dexmedetomidine-decreasesRiskOf->Delirium,DexmedFrac,+1,1e-6,덱스메데토미딘 투여 비율 > 0,Delirium,True,moderate,0.6,0.712,0.712,0.709
+6,EarlyMobility,decreasesRiskOf,Delirium,EarlyMobility-decreasesRiskOf->Delirium,MobJHHLM,+1,4.0,JH-HLM 거동 등급 ≥ 4,Delirium,True,moderate,0.6,0.964,0.964,0.962
+7,Hypertension,increasesRiskOf,Delirium,Hypertension-increasesRiskOf->Delirium,Hypertension,+1,0.5 (이진),고혈압 진단 있음,Delirium,False,strong,1.0,0.414,0.414,0.412
+8,PhysicalRestraint,increasesRiskOf,Delirium,PhysicalRestraint-increasesRiskOf->Delirium,PhysicalRestraint,+1,0.5 (이진),억제대 기록 있음 (개념 회수 v2),Delirium,False,strong,1.0,0.673,0.673,0.668
+9,SedationIntensity,increasesRiskOf,Death,SedationIntensity-increasesRiskOf->Death,RASSnegmean,-1,-2.0,창 안 음의 RASS 평균 ≤ -2,Death,False,strong,1.0,0.685,0.685,0.68
+10,SedationIntensity,increasesRiskOf,Delirium,SedationIntensity-increasesRiskOf->Delirium,RASSnegmean,-1,-2.0,창 안 음의 RASS 평균 ≤ -2,Delirium,False,strong,1.0,0.826,0.826,0.822
+11,Trauma,increasesRiskOf,Delirium,Trauma-increasesRiskOf->Delirium,Trauma,+1,0.5 (이진),외상 진단 있음,Delirium,False,strong,1.0,0.819,0.819,0.802

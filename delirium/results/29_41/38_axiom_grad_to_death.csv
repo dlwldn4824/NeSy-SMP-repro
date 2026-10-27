@@ -1,0 +1,13 @@
+﻿공리,머리,∂sat/∂사망로짓 L2,사망 출력층 기울기,만족도
+Benzo→Delirium,Delirium,0.0,0.0,0.7042
+DeepSedation→Delirium,Delirium,0.0,0.0,0.9936
+SedationIntensity→Delirium,Delirium,0.0,0.0,0.976
+SeverePain→Delirium,Delirium,0.0,0.0,0.8601
+OlderAge→Delirium,Delirium,0.0,0.0,0.6903
+Dexmed→¬Delirium,Delirium,0.0,0.0,0.6603
+EarlyMobility→¬Delirium,Delirium,0.0,0.0,0.9251
+BloodTransfusion→Delirium,Delirium,0.0,0.0,0.761
+Dementia→Delirium,Delirium,0.0,0.0,0.7514
+Trauma→Delirium,Delirium,0.0,0.0,0.7494
+Hypertension→Delirium,Delirium,0.0,0.0,0.7585
+Delirium→Death,Death,0.00282362,0.24176687,0.7643
