@@ -610,15 +610,24 @@ _x.fit(Z[_xi_tr], cam.y.to_numpy()[_xi_tr].astype(int))
 res["2z XGB(같은 Z)"] = (_xi_te, _x.predict_proba(Z[_xi_te])[:, 1])
 
 head("[결과] 1~4단계 — 동일 test set")
-prev = pd.read_csv(os.path.join(OUT, "stage2_xgb.csv"))
-prev = prev.set_index(prev.columns[0])
+# 22_ 를 건너뛰고 23_ 만 돌리면 stage2_xgb.csv 가 없다. 학습을 다 끝낸 뒤 여기서 멈추지 않도록
+# 1·2단계 열만 빼고 표를 만든다.
+_prev_p = os.path.join(OUT, "stage2_xgb.csv")
+_has_prev = os.path.exists(_prev_p)
+if _has_prev:
+    prev = pd.read_csv(_prev_p)
+    prev = prev.set_index(prev.columns[0])
+else:
+    print(f"[!] {_prev_p} 없음 — 1 lookup · 2 XGB 열을 빼고 표를 만든다 (22_ 를 돌리면 채워진다)")
 idx_te = res["3 BiLSTM"][0]
 vte = cam.v.to_numpy()[idx_te]; yte = cam.y.to_numpy()[idx_te].astype(int)
 rows = []
 for strat in ["전체", "앵커=N", "앵커=P", "앵커=U"]:
     sel = np.ones(len(idx_te), bool) if strat == "전체" else (vte == strat[-1])
-    r_ = {"계층": strat, "n": int(sel.sum()),
-          "1 lookup": prev.loc[strat, "B2 AUPRC"], "2 XGB": prev.loc[strat, "XGB AUPRC"]}
+    r_ = {"계층": strat, "n": int(sel.sum())}
+    if _has_prev:
+        r_["1 lookup"] = prev.loc[strat, "B2 AUPRC"]
+        r_["2 XGB"] = prev.loc[strat, "XGB AUPRC"]
     for nm, (_, p) in res.items():
         r_[nm] = round(100 * average_precision_score(yte[sel], p[sel]), 1)
     rows.append(r_)
@@ -630,7 +639,10 @@ t.to_csv(os.path.join(OUT, "stage34.csv"), encoding="utf-8-sig")
 rows = []
 for strat in ["전체", "앵커=N", "앵커=P", "앵커=U"]:
     sel = np.ones(len(idx_te), bool) if strat == "전체" else (vte == strat[-1])
-    r_ = {"계층": strat, "1 lookup": prev.loc[strat, "B2 AUROC"], "2 XGB": prev.loc[strat, "XGB AUROC"]}
+    r_ = {"계층": strat}
+    if _has_prev:
+        r_["1 lookup"] = prev.loc[strat, "B2 AUROC"]
+        r_["2 XGB"] = prev.loc[strat, "XGB AUROC"]
     for nm, (_, p) in res.items():
         r_[nm] = round(100 * roc_auc_score(yte[sel], p[sel]), 1)
     rows.append(r_)

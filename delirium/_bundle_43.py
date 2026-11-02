@@ -41,11 +41,19 @@ START = "00"                                  # 이 단계부터 실행: 00 24 2
 KG_JSON = []                                  # 추출한 KG 트리플 JSON. 비우면 기본 공리 12개
                                               #   예: ["triples_one.json"] · 여러 개면 합집합
 # ==========================================================================
+# 파일을 고치지 않고 환경변수로도 지정할 수 있다 (생성물이라 가급적 이쪽을 쓴다):
+#   START=23  KG_JSON="a.json;b.json"  EDA_DATA=<폴더>  EDA_SQLITE=<db>
+START = os.environ.get("START", START)
+KG_JSON = [p for p in os.environ.get("KG_JSON", "").split(";") if p] or KG_JSON
 
 os.environ.setdefault("EDA_SRC_MODE", "sqlite")
 os.environ.setdefault("EDA_SQLITE", MIMIC_DB)
 os.environ.setdefault("EDA_DATA", WORK_DIR)
 os.makedirs(os.environ["EDA_DATA"], exist_ok=True)
+# EDA_DATA 가 셸에 이미 있으면 WORK_DIR 은 무시된다 — 실제로 쓰는 폴더를 찍어 둔다.
+print(f"[설정] 데이터 폴더 {{os.environ['EDA_DATA']}} · 결과 "
+      f"{{os.environ.get('EDA_OUT') or os.path.join(os.environ['EDA_DATA'], 'out_split')}} · START={{START}}"
+      + (f" · KG_JSON={{KG_JSON}}" if KG_JSON else ""), flush=True)
 
 
 def _module(name, src):
