@@ -509,17 +509,24 @@ DEFAULT_AXIOMS = [   # PADIS 2018 위험인자 · 2018/2025 중재 근거
 GRADE_W = {"strong": 1.0, "moderate": 0.6, "low": 0.3, "cohort": 0.3, "derived": 0.5,
            "inconclusive": 0.2}
 
-# KG 트리플 → 공리 (delirium/42_kg_to_axioms.py 와 같은 규칙)
-KG_SUBJECT = {   # KG 개념 → (모델 개념, 방향, 임계값)
+# KG 트리플 → 공리. 매핑은 KG 범위 실험에 쓴 것(`delirium/33_kg_variants_v2.py` 의 MAPPING ·
+# `delirium/42_kg_to_axioms.py`)을 그대로 따른다 — 지금까지의 결과와 같은 규칙을 쓰기 위해서다.
+KG_SUBJECT = {   # KG 개념 → (모델 개념, 방향, 임계값(원 단위))
     "Benzodiazepine": ("BenzoFrac", +1, 1e-6), "DeepSedation": ("RASSmin", -1, -4.0),
     "SedationIntensity": ("RASSnegmean", -1, -2.0), "SeverePain": ("PainNRSmax", +1, 4.0),
     "Age": ("Age", +1, 65.0), "Dexmedetomidine": ("DexmedFrac", +1, 1e-6),
     "EarlyMobility": ("MobJHHLM", +1, 4.0), "Immobility": ("MobJHHLM", -1, 3.0),
+    # 33_ 에서 따로 회수한 개념. 이 파일은 해당 개념을 추출하지 않으므로 공리로 쓰이지 않고
+    # "제외" 로 집계된다. 32_recover_concepts.py 로 개념을 만들어 붙이면 그대로 살아난다.
+    "PhysicalRestraint": ("PhysicalRestraint", +1, 0.5),
+    "MechanicalVentilation": ("MechanicalVentilation", +1, 0.5),
+    "OpioidUse": ("OpioidUse", +1, 0.5), "Melatonin": ("Melatonin", +1, 0.5),
+    # 이 파일이 추출하는 동반질환·수혈 개념 (23_ 의 AXIOMS 와 같은 임계값)
     "BloodTransfusion": ("BloodTransfusion", +1, 0.5), "Dementia": ("Dementia", +1, 0.5),
     "Trauma": ("Trauma", +1, 0.5), "Hypertension": ("Hypertension", +1, 0.5),
 }
 KG_OBJECT = {"Delirium": "Delirium", "UnableToAssess": "CurrentUTA", "Assessable": "Assessable",
-             "Immobility": "MobJHHLM"}
+             "Immobility": "MobJHHLM"}   # 33_ 의 HEADS 에서 Death 만 뺀다 (이 모델엔 사망 출력이 없다)
 KG_GRADE = {"increasesRiskOf": "strong", "decreasesRiskOf": "moderate",
             "associatedWith": "low", "precludes": "derived"}
 
@@ -558,6 +565,9 @@ def axioms_from_kg(triples):
             continue
         concept, sign, thr = KG_SUBJECT[s]
         axioms.append((f"{s}-{p}->{o}", concept, sign, thr, head, p == "decreasesRiskOf", KG_GRADE[p]))
+    print(f"KG 트리플 {len(triples)}개 → 공리 {len(axioms)}개 (제외 {len(skipped)}개)")
+    for s in skipped:                      # 무엇이 빠졌는지 보이게 — 조용히 사라지면 비교가 틀어진다
+        print(f"    제외 {s}")
     return axioms
 
 
@@ -724,7 +734,13 @@ def main():
 
     section("3. 공리 세트")
     cidx = {n: i for i, n in enumerate(cnames)}
-    usable = lambda ax: [a for a in ax if a[1] in cidx and (a[4] == "Delirium" or a[4] in cidx)]
+    def usable(ax):
+        ok = [a for a in ax if a[1] in cidx and (a[4] == "Delirium" or a[4] in cidx)]
+        for a in ax:                   # 이 모델에 개념·결론이 없어 못 쓰는 공리도 적어 둔다
+            if a not in ok:
+                print(f"    [제외] {a[0]:45s} 개념 '{a[1]}' 또는 결론 '{a[4]}' 이 이 모델에 없음")
+        return ok
+
     axiom_sets = {}
     for name in AXIOM_SETS:
         raw_ax = DEFAULT_AXIOMS if name == "기본" else axioms_from_kg(KG_TRIPLES[name])
