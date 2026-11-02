@@ -12,9 +12,11 @@ PADIS 섬망 예측 — 뉴로심볼릭(LTN) 모델 학습·평가
     CBM       BiLSTM 표현 → 임상 개념(병목) → 섬망. 공리 없음
     LTN       CBM + PADIS 가이드라인 공리 손실 (뉴로심볼릭)
 
-공리
-    기본은 PADIS 2018 위험인자 공리 12개. KG_JSON 에 추출한 KG 트리플 파일을 주면
-    그 트리플을 공리로 바꿔 쓴다.
+공리 (LTN 을 공리 세트마다 따로 학습해 비교한다)
+    기본       PADIS 2018 위험인자 공리 12개 (사람이 정리한 KG)
+    one-shot   LLM 이 예시 1개를 보고 PADIS 원문에서 추출한 KG
+    few-shot   LLM 이 예시 2개를 보고 추출한 KG
+    추출 KG 의 트리플은 이 파일 안(KG_TRIPLES)에 들어 있고, 실행할 때 공리로 변환된다.
 
 실행
     아래 [설정] 을 고친 뒤  python 44_padis_delirium_model.py
@@ -25,7 +27,6 @@ PADIS 섬망 예측 — 뉴로심볼릭(LTN) 모델 학습·평가
 
 delirium/00 · 23 · 24 · 25 단계 코드와 계산이 같다(실험용 변형 모델만 뺐다).
 """
-import json
 import os
 import sqlite3
 import sys
@@ -43,8 +44,8 @@ from xgboost import XGBClassifier
 # =============================================================================
 MIMIC_DB = "C:/path/to/MIMIC4-hosp-icu.db"    # MIMIC-IV sqlite 파일
 WORK_DIR = "padis_work"                       # 추출 캐시·결과 폴더
-KG_JSON = []                                  # 비우면 기본 공리 12개. 예: ["triples_one.json"]
-SEEDS = [42]                                  # 여러 개면 평균 ± 표준편차. 예: [42, 7, 2024]
+AXIOM_SETS = ["기본", "one-shot", "few-shot"]   # LTN 을 돌릴 공리 세트
+SEEDS = [42]                                # 여러 개면 평균 ± 표준편차. 예: [42, 7, 2024]
 W_AXIOM = 0.2                                 # LTN 공리 손실 가중치
 
 EPOCHS, BATCH, LR = 10, 2048, 1e-3
@@ -523,13 +524,27 @@ KG_GRADE = {"increasesRiskOf": "strong", "decreasesRiskOf": "moderate",
             "associatedWith": "low", "precludes": "derived"}
 
 
-def axioms_from_kg(paths):
-    """트리플 JSON → 공리. '영향 없음' 트리플은 같은 쌍의 다른 트리플을 기각한다.
-    이 모델에 없는 개념·결론(사망, 억제대 등)은 버린다."""
-    triples = set()
-    for p in paths:
-        with open(p, encoding="utf-8") as f:
-            triples |= {(t["subject"], t["predicate"], t["object"]) for t in json.load(f)}
+# PADIS 2018 · 2025 원문에서 LLM 으로 추출한 KG (윤연서, 2026-09-17).
+# (주어, 관계, 목적어). 공리가 될 수 없는 것(사망 결론 · MIMIC 에 없는 개념)도 원본 그대로 둔다.
+_KG_COMMON = [
+    ("Age", "associatedWith", "Delirium"), ("Benzodiazepine", "associatedWith", "Delirium"),
+    ("BloodTransfusion", "associatedWith", "Delirium"), ("Dementia", "associatedWith", "Delirium"),
+    ("Dexmedetomidine", "decreasesRiskOf", "Delirium"), ("Hypertension", "associatedWith", "Delirium"),
+    ("MechanicalVentilation", "hasNoEffectOn", "Delirium"), ("Melatonin", "decreasesRiskOf", "Delirium"),
+    ("OpioidUse", "hasNoEffectOn", "Delirium"), ("PatientSex", "hasNoEffectOn", "Delirium"),
+    ("SedationIntensity", "associatedWith", "Death"), ("SedationIntensity", "associatedWith", "Delirium"),
+    ("Trauma", "associatedWith", "Delirium"),
+]
+KG_TRIPLES = {
+    "one-shot": _KG_COMMON,                                                   # 13개
+    "few-shot": _KG_COMMON + [("EarlyMobility", "hasNoEffectOn", "Death")],   # 14개
+}
+
+
+def axioms_from_kg(triples):
+    """트리플 → 공리. '영향 없음' 트리플은 같은 쌍의 다른 트리플을 기각한다.
+    이 모델에 없는 개념·결론(사망, 멜라토닌 등)은 버린다."""
+    triples = set(triples)
     no_effect = {(s, o) for s, p, o in triples if p == "hasNoEffectOn"}
     axioms, skipped = [], []
     for s, p, o in sorted(triples):
@@ -543,7 +558,6 @@ def axioms_from_kg(paths):
             continue
         concept, sign, thr = KG_SUBJECT[s]
         axioms.append((f"{s}-{p}->{o}", concept, sign, thr, head, p == "decreasesRiskOf", KG_GRADE[p]))
-    print(f"KG 트리플 {len(triples)}개 → 공리 {len(axioms)}개 (제외 {len(skipped)}개)")
     return axioms
 
 
@@ -655,9 +669,7 @@ def train_net(D, seed, cbm, w_concept, axioms=None, w_axiom=0.0):
             if bad >= 2:
                 break
     m.load_state_dict(best_state)
-    pt, ct = predict(D["idx_te"])
-    sat = axioms.satisfaction(ct, pt, per_axiom=True).cpu().numpy() if axioms and cbm else None
-    return pt.cpu().numpy(), sat
+    return predict(D["idx_te"])          # test 섬망 확률, 개념 출력
 
 
 # =============================================================================
@@ -710,13 +722,23 @@ def main():
              y=cam.y.to_numpy().astype(int), v=cam.v.to_numpy(),
              idx_tr=np.where(in_tr)[0], idx_va=np.where(in_va)[0], idx_te=np.where(in_te)[0])
 
-    section("3. 공리")
+    section("3. 공리 세트")
     cidx = {n: i for i, n in enumerate(cnames)}
-    axiom_list = axioms_from_kg(KG_JSON) if KG_JSON else DEFAULT_AXIOMS
-    axiom_list = [a for a in axiom_list if a[1] in cidx and (a[4] == "Delirium" or a[4] in cidx)]
-    axioms = AxiomSet(axiom_list, cidx, is_bin, c_mu, c_sd)
-    for a in axiom_list:
-        print(f"  {a[0]:45s} {a[6]}")
+    usable = lambda ax: [a for a in ax if a[1] in cidx and (a[4] == "Delirium" or a[4] in cidx)]
+    axiom_sets = {}
+    for name in AXIOM_SETS:
+        raw_ax = DEFAULT_AXIOMS if name == "기본" else axioms_from_kg(KG_TRIPLES[name])
+        ax = usable(raw_ax)
+        axiom_sets[name] = (ax, AxiomSet(ax, cidx, is_bin, c_mu, c_sd))
+        src = "PADIS 기본" if name == "기본" else f"KG 트리플 {len(KG_TRIPLES[name])}개"
+        print(f"[{name}] {src} → 공리 {len(ax)}개")
+        for a in ax:
+            print(f"    {a[0]:45s} {a[6]}")
+    names = {n: tuple(a[0] for a in axiom_sets[n][0]) for n in AXIOM_SETS}
+    for i, a in enumerate(AXIOM_SETS):
+        for b in AXIOM_SETS[i + 1:]:
+            if names[a] == names[b]:
+                print(f"※ [{a}] · [{b}] 공리가 같다 → 두 LTN 결과도 같게 나온다")
 
     section(f"4. 학습 · 평가 (시드 {SEEDS}, device={DEV})")
     te = D["idx_te"]
@@ -732,13 +754,21 @@ def main():
         xgb.fit(Z[D["idx_tr"]], D["y"][D["idx_tr"]])
         preds["XGBoost"] = xgb.predict_proba(Z[te])[:, 1]
         log(f"seed {seed} · XGBoost")
-        preds["BiLSTM"], _ = train_net(D, seed, cbm=False, w_concept=0.0)
+        p, _ = train_net(D, seed, cbm=False, w_concept=0.0)
+        preds["BiLSTM"] = p.cpu().numpy()
         log(f"seed {seed} · BiLSTM")
-        preds["CBM"], sat_cbm = train_net(D, seed, cbm=True, w_concept=1.0, axioms=axioms)
+        p_cbm, c_cbm = train_net(D, seed, cbm=True, w_concept=1.0)
+        preds["CBM"] = p_cbm.cpu().numpy()
         log(f"seed {seed} · CBM")
-        preds[f"LTN (w={W_AXIOM})"], sat_ltn = train_net(D, seed, cbm=True, w_concept=1.0,
-                                                         axioms=axioms, w_axiom=W_AXIOM)
-        log(f"seed {seed} · LTN")
+        for name, (ax, axset) in axiom_sets.items():
+            p, c = train_net(D, seed, cbm=True, w_concept=1.0, axioms=axset, w_axiom=W_AXIOM)
+            preds[f"LTN {name}"] = p.cpu().numpy()
+            log(f"seed {seed} · LTN {name}")
+            with torch.no_grad():   # 공리별 만족도: 공리 없이 학습한 CBM 과 비교
+                s_cbm = axset.satisfaction(c_cbm, p_cbm, per_axiom=True).cpu().numpy()
+                s_ltn = axset.satisfaction(c, p, per_axiom=True).cpu().numpy()
+            for a, s1, s2 in zip(ax, s_cbm, s_ltn):
+                sat_rows.append(dict(seed=seed, 세트=name, 공리=a[0], CBM=s1, LTN=s2))
         for model, p in preds.items():
             for st, sel in strata.items():
                 if y_te[sel].min() == y_te[sel].max():
@@ -746,8 +776,6 @@ def main():
                 rows.append(dict(seed=seed, 모델=model, 계층=st, n=int(sel.sum()),
                                  AUROC=100 * roc_auc_score(y_te[sel], p[sel]),
                                  AUPRC=100 * average_precision_score(y_te[sel], p[sel])))
-        for (nm, *_), s1, s2 in zip(axiom_list, sat_cbm, sat_ltn):
-            sat_rows.append(dict(seed=seed, 공리=nm, CBM=s1, LTN=s2))
 
     res = pd.DataFrame(rows)
     order = list(dict.fromkeys(res["모델"]))
@@ -760,22 +788,24 @@ def main():
     print(f"\n전체 AUROC — " + " · ".join(f"{k} {v:.2f}" for k, v in main_tbl.items()))
 
     section("5. 공리 점검 (test set)")
-    sat = pd.DataFrame(sat_rows).groupby("공리", sort=False)[["CBM", "LTN"]].mean()
+    sat = pd.DataFrame(sat_rows).groupby(["세트", "공리"], sort=False)[["CBM", "LTN"]].mean()
     # 데이터가 공리를 지지하는가: 모델 없이 실제 개념값과 라벨만으로 잰다
     audit = []
-    for nm, concept, sign, raw_thr, head, neg, grade in axiom_list:
-        i = cidx[concept]
-        A = C[te, i] > 0.5 if is_bin[i] else sign * (C[te, i] - raw_thr) > 0
-        B = (y_te > 0) if head == "Delirium" else (C[te, cidx[head]] > 0.5)
-        B = ~B if neg else B
-        dis = A.astype(float) * (1.0 - B.astype(float))
-        row = {"공리": nm, "등급": grade, "활성화%": round(100 * A.mean(), 1),
-               "데이터 만족도": round(1.0 - float(np.sqrt((dis ** 2).mean())), 3)}
-        if 0 < A.sum() < len(A):
-            row["P(결론|활성)%"] = round(100 * B[A].mean(), 1)
-            row["P(결론|비활성)%"] = round(100 * B[~A].mean(), 1)
-        audit.append(row)
-    audit = pd.DataFrame(audit).set_index("공리").join(sat.round(3).add_prefix("모델 만족도 "))
+    for name, (ax, _) in axiom_sets.items():
+        for nm, concept, sign, raw_thr, head, neg, grade in ax:
+            i = cidx[concept]
+            A = C[te, i] > 0.5 if is_bin[i] else sign * (C[te, i] - raw_thr) > 0
+            B = (y_te > 0) if head == "Delirium" else (C[te, cidx[head]] > 0.5)
+            B = ~B if neg else B
+            dis = A.astype(float) * (1.0 - B.astype(float))
+            row = {"세트": name, "공리": nm, "등급": grade, "활성화%": round(100 * A.mean(), 1),
+                   "데이터 만족도": round(1.0 - float(np.sqrt((dis ** 2).mean())), 3)}
+            if 0 < A.sum() < len(A):
+                row["P(결론|활성)%"] = round(100 * B[A].mean(), 1)
+                row["P(결론|비활성)%"] = round(100 * B[~A].mean(), 1)
+            audit.append(row)
+    audit = (pd.DataFrame(audit).set_index(["세트", "공리"])
+             .join(sat.round(3).add_prefix("모델 만족도 ")))
     print(audit.to_string())
     print("\n활성화% = 앞조건이 켜진 환자 비율. 공리가 맞다면 P(결론|활성) > P(결론|비활성).")
     print("만족도는 1 − a + a·b 의 집계라, 앞조건이 거의 안 켜지는 공리는 저절로 1 에 가깝다.")
