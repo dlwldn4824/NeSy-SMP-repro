@@ -70,6 +70,7 @@ python NeSy-SMP/tools/rule_extraction/padis_holdout.py unblind   # 판정 결과
 | 공리 정의 (학습 코드 안) | `delirium/29_outcome_mortality.py` — `AX_RISK` **93행** · `AX_MED` 111행 · `AX_DIRECT` 114행 · `make_axioms()` 120행 · `axiom_sat()` 126행 |
 | 공리 실행 명세 | `docs/kg/KG_PADIS_RULE_EXEC_SPEC.csv` (21행) · 검수표 `docs/kg/KG_RULE_REVIEW_PADIS.csv` (25행) |
 | KG 범위별 공리 컴파일 | `delirium/30_kg_variants.py` · `delirium/33_kg_variants_v2.py` |
+| 트리플 JSON → 공리 (단독 실행, MIMIC 불필요) | `delirium/42_kg_to_axioms.py` — `python delirium/42_kg_to_axioms.py <triples.json> [...] -o axioms.json` |
 
 ---
 
