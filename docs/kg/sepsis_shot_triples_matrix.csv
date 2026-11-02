@@ -1,0 +1,9 @@
+﻿subject,predicate,object,zero 1회,zero 2회,one 1회,one 2회,few 1회,few 2회,나온 조건 수,판정 j1,판정 j2,정답셋,조각
+Lactate,associatedWith,Death,O,O,O,O,O,O,6,Y,Y,정답셋 밖,01_intro_screening
+Lactate,associatedWith,Sepsis,O,O,O,O,O,O,6,Y,Y,정답셋 밖,01_intro_screening
+Lactate,associatedWith,SepticShock,O,O,O,O,O,O,6,부분,부분,정답셋 밖,01_intro_screening
+Sepsis,increasesRiskOf,Death,O,O,O,O,O,O,6,Y,Y,예시,01_intro_screening · 06_longterm_goals
+SepticShock,increasesRiskOf,Death,O,O,O,O,O,O,6,Y,Y,확인용(held-out),01_intro_screening · 02_infection · 06_longterm_goals
+Hypotension,associatedWith,SepticShock,O,O,,,O,O,4,부분,부분,정답셋 밖,01_intro_screening
+Sepsis,causedBy,Pneumonia,,O,O,,O,O,4,Y,Y,정답셋 밖,04_ventilation
+MeanArterialPressure,associatedWith,Death,O,,,,,,1,N,N,정답셋 밖,03_haemodynamic
