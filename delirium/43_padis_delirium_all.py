@@ -2081,4 +2081,4 @@ print("\n" + ("mobility/pain/GCS 포함본이다 — 3단계 판정은 확정이
 _ORDER = ["00", "24", "25", "22", "23"]
 for _s in _ORDER[_ORDER.index(START):]:
     _step(*_SRC[_s])
-print(f"\n완료. 결과: {os.path.join(os.environ['EDA_DATA'], 'out_split')}")
+print(f"\n완료. 결과: {os.environ.get('EDA_OUT') or os.path.join(os.environ['EDA_DATA'], 'out_split')}")
